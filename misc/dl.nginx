@@ -1,0 +1,11 @@
+server {
+    listen 80;
+    server_name dl.dolphin-emu.org dl.dolphin-emu.net;
+
+    access_log logs/dl.access.log main;
+
+    location / {
+        root /srv/http/dl;
+        autoindex on;
+    }
+}

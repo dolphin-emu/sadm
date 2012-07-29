@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# Usage: ./send-buildbot-change <revhash> <revhash...>
+# Sends the changes associated to a revhash to the buildbot
+
+source $(dirname $0)/config.vars
+
+for r in $*; do
+    branch=$(cd $REPO && $BASE/git-what-branch --allbranches $r | cut -d / -f 3- | cut -d '(' -f 1 | xargs echo)
+    v=$(cd $REPO && git describe --always --long $r | cut -d - -f -2)
+    if ! echo "$branch" | fgrep -q " " 2>/dev/null; then
+        buildbot sendchange -m $BUILDBOT_ADDR -a $BUILDBOT_CREDS -W "$(cd $REPO && git log --format=format:"%an" -1 $r)" -s git -r $r -p branchname:$branch -p shortrev:$v -l "$URL$r" -c "$(cd $REPO && git log --format=format:"%s" -1 $r)" >/dev/null 2>&1
+    fi
+done

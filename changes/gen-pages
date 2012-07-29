@@ -1,0 +1,13 @@
+#! /bin/bash
+
+source $(dirname $0)/config.vars
+
+$BASE/gen-rev-infos
+
+split -l 2000 -d $BASE/rev-infos $BASE/tds/page.
+for p in $(ls $BASE/tds); do
+    out=$BASE/out/$(basename $p).html
+    cat $BASE/header.html $BASE/tds/$p $BASE/footer.html > $out
+done
+cp $BASE/out/page.00.html $BASE/out/index.html
+cp -R $BASE/out/* $DEST

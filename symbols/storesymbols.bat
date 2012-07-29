@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\Windows Kits\8.0\Debuggers\x64\symstore.exe" add /f %1 /s C:\symbols /t %2 /v %3

@@ -10,7 +10,7 @@ for r in $*; do
     v=$(cd $REPO && git describe --always --long $r | cut -d - -f -2)
     if ! echo "$branch" | fgrep -q " " 2>/dev/null; then
         author="$(cd $REPO && git log --format=format:"%an" -1 $r)"
-        comment="$(cd $REPO && git log --format=format:"%s" -1 $r)"
+        comment="$(cd $REPO && git log --format=format:"$(echo -e "%s\n\n%b")" -1 $r)"
         buildbot sendchange -m $BUILDBOT_ADDR -a $BUILDBOT_CREDS \
             -W "$author" -s git -r $r \
             -p branchname:$branch -p shortrev:$v -p author:"$author" -p description:"$comment" \

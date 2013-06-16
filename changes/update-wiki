@@ -1,0 +1,20 @@
+#! /bin/bash
+
+# Define USER and PASS in there
+source update-wiki.vars
+
+URL='http://wiki.dolphin-emu.org/api.php'
+
+cd $(dirname $0)
+
+test -f latest-master || exit 0
+LATEST=$(cat latest-master)
+rm latest-master
+
+rm cookie.jar
+TOKEN=$(curl "$URL" -F "action=login" -F "lgname=$USER" -F "lgpassword=$PASS" -F "format=xml" -c cookie.jar | sed 's/^.*token="\([^"]*\)".*$/\1/')
+curl "$URL" -F "action=login" -F "lgname=$USER" -F "lgpassword=$PASS" -F "lgtoken=$TOKEN" -F "format=xml" -b cookie.jar
+
+EDITTOK=$(curl "$URL" -F "action=query" -F "prop=info" -F "intoken=edit" -F "titles=Template:CurrentGitRevision" -F "format=xml" -b cookie.jar | sed 's/^.*edittoken="\([^"]*\)".*$/\1/')
+
+curl "$URL" -F "action=edit" -F "title=Template:CurrentGitRevision" -F "text=$LATEST" -F "summary=Automatic update of the current git revision: now $LATEST" -F "minor=true" -F "bot=true" -F "format=xml" -F "token=$EDITTOK" -b cookie.jar

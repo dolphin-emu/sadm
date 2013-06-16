@@ -2,7 +2,18 @@
 
 source $(dirname $0)/config.vars
 
+test -e $BASE/.lock && exit 0
+touch $BASE/.lock
+
+date >&2
+
 $BASE/gen-rev-infos
+
+mkdir -p $BASE/tds $BASE/out
+
+if [ "$(wc -l rev-infos | cut -d ' ' -f 1)" -lt 10 ]; then
+    echo >&2 "rev-infos was truncated, wtf?"
+fi
 
 split -l 2000 -d $BASE/rev-infos $BASE/tds/page.
 for p in $(ls $BASE/tds); do
@@ -11,3 +22,6 @@ for p in $(ls $BASE/tds); do
 done
 cp $BASE/out/page.00.html $BASE/out/index.html
 cp -R $BASE/out/* $DEST
+
+$BASE/update-wiki >/dev/null 2>&1
+rm $BASE/.lock

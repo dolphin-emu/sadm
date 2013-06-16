@@ -12,11 +12,12 @@ for r in $LAST_REV; do
     if ! fgrep -q $r $BASE/already-parsed 2>/dev/null; then
         REV_TO_HANDLE="$r $REV_TO_HANDLE"
         echo $r >> $BASE/already-parsed
+        echo "New rev found: $r" >&2
     fi
 done
 
 # For each revision we haven't handled, put all the informations in rev-infos-new
-touch $BASE/rev-infos-new
+true >$BASE/rev-infos-new
 for r in $REV_TO_HANDLE; do
     log=$(cd $REPO && git log --format=format:"<td><a href=\"$URL$r\"><tt>%H</tt></a></td><td>%an</td><td>%s</td>" -1 $r)
     svn=$(cd $REPO && git log --format=full -1 $r | grep git-svn-id | cut -d @ -f 2 | cut -d ' ' -f 1 | head -1)
@@ -27,18 +28,25 @@ for r in $REV_TO_HANDLE; do
     v=$(cd $REPO && git describe --always --long $r | cut -d - -f -2)
     echo "<tr><td>$v</td><td>$svn</td>$log</tr>" >> $BASE/rev-infos-new
     if ! echo "$branch" | fgrep -q " " 2>/dev/null; then
+        if [ "$branch" = "master" ]; then
+            echo "$v" > $BASE/latest-master
+        fi
         author="$(cd $REPO && git log --format=format:"%an" -1 $r)"
-        comment="$(cd $REPO && git log --format=format:"%s" -1 $r)"
-        buildbot sendchange -m $BUILDBOT_ADDR -a $BUILDBOT_CREDS \
-            -W "$author" -s git -r $r \
-            -p branchname:$branch -p shortrev:$v -p author:"$author" -p description:"$comment" \
-            -l "$URL$r" -c "$comment" >/dev/null 2>&1
+        comment="$(cd $REPO && git log --format=format:"$(echo -e "%s\n\n%b")" -1 $r)"
+        if [ "$DONT_BUILD" = "" ]; then
+            buildbot sendchange -m $BUILDBOT_ADDR -a $BUILDBOT_CREDS \
+                -W "$author" -s git -r $r \
+                -p branchname:$branch -p shortrev:$v -p author:"$author" -p description:"$comment" \
+                -l "$URL$r" -c "$comment" >/dev/null 2>&1
+        fi
     fi
 done
 
-# Append the new infos to the rev infos file, in the right order
-touch $BASE/rev-infos
-tac $BASE/rev-infos-new > $BASE/rev-infos-new-tac
-cat $BASE/rev-infos-new-tac $BASE/rev-infos > $BASE/rev-infos-new
-mv $BASE/rev-infos-new $BASE/rev-infos
-rm $BASE/rev-infos-new-tac
+if ! [ "$REV_TO_HANDLE" = "" ]; then
+    # Append the new infos to the rev infos file, in the right order
+    touch $BASE/rev-infos
+    tac $BASE/rev-infos-new > $BASE/rev-infos-new-tac
+    cat $BASE/rev-infos-new-tac $BASE/rev-infos > $BASE/rev-infos-new
+    mv $BASE/rev-infos-new $BASE/rev-infos
+    rm $BASE/rev-infos-new-tac
+fi

@@ -1,5 +1,5 @@
 server {
-    listen 80;
+    listen 443 ssl;
     server_name buildbot.dolphin-emu.org buildbot.dolphin-emu.net;
 
     access_log logs/buildbot.access.log main;
@@ -7,4 +7,9 @@ server {
     location / {
         proxy_pass http://localhost:8010;
     }
+}
+
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
 }

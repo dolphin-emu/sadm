@@ -1,0 +1,12 @@
+server {
+    listen 443 ssl;
+    server_name anal.dolphin-emu.org changes.dolphin-emu.net;
+
+    access_log logs/anal.access.log main;
+
+    location / {
+        root /srv/http/anal;
+        index index.html;
+        autoindex on;
+    }
+}

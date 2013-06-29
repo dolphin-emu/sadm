@@ -1,5 +1,5 @@
 server {
-    listen 80;
+    listen 443 ssl;
     server_name changes.dolphin-emu.org changes.dolphin-emu.net;
 
     access_log logs/changes.access.log main;

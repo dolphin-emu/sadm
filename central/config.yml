@@ -1,0 +1,30 @@
+irc:
+    server: irc.freenode.net
+    port: 6667
+    ssl: false
+    nick: irrawaddy
+    channels:
+        - "#dolphin-dev"
+        - "#dolphin-test"
+    trusted_users:
+        - delroth
+
+web:
+    port: 8001
+
+github:
+    account:
+        login: dolphin-emu-bot
+        token: TOKEN
+    maintain:
+        - dolphin-emu/dolphin
+    notify:
+        - dolphin-emu/sadm
+        - dolphin-emu/www
+    trusted_users:
+        group: dolphin-emu/contributors
+        refresh_interval: 300
+
+gcode:
+    atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic
+    refresh_interval: 10

@@ -32,3 +32,9 @@ class ObjectLike:
             return ObjectLike(val)
         else:
             return val
+
+    def __str__(self):
+        return str(self.dictlike)
+
+    def __repr__(self):
+        return repr(self.dictlike)

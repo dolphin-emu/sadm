@@ -5,7 +5,9 @@ loop of the process.
 """
 
 import config
+import events
 import gcodepoller
+import github
 import ircclient
 import webserver
 
@@ -13,6 +15,15 @@ import argparse
 import logging
 import logging.handlers
 import time
+
+
+class EventLoggingHandler(logging.Handler):
+    """Emits internal_log events to the internal event dispatcher when a log
+    message is received."""
+    def emit(self, record):
+        evt = events.InternalLog(record.levelname, record.pathname,
+                                 record.lineno, record.msg, str(record.args))
+        events.dispatcher.dispatch('logging', evt)
 
 
 def setup_logging(program, verbose=False, local=True):
@@ -27,6 +38,7 @@ def setup_logging(program, verbose=False, local=True):
     """
     loggers = []
     loggers.append(logging.handlers.SysLogHandler('/dev/log'))
+    loggers.append(EventLoggingHandler())
     if local:
         loggers.append(logging.StreamHandler())
     for logger in loggers:
@@ -60,7 +72,7 @@ if __name__ == '__main__':
     logging.info('Configuration loaded, starting modules initialization.')
 
     # Start the modules.
-    for mod in [gcodepoller, ircclient, webserver]:
+    for mod in [gcodepoller, github, ircclient, webserver]:
         mod.start()
 
     logging.info('Modules started, waiting for events.')

@@ -10,6 +10,8 @@ irc:
         - delroth
 
 web:
+    external_url: https://central.dolphin-emu.org
+    bind: 127.0.0.1
     port: 8001
 
 github:
@@ -24,6 +26,7 @@ github:
     trusted_users:
         group: dolphin-emu/contributors
         refresh_interval: 300
+    hook_hmac_secret: SECRET
 
 gcode:
     atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic

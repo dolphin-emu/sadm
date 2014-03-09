@@ -48,6 +48,7 @@ class EventTarget(events.EventTarget):
     def accept_event(self, evt):
         accepted_types = [
             events.GCodeIssue.TYPE,
+            events.GHPush.TYPE,
         ]
         return evt.type in accepted_types
 
@@ -56,8 +57,10 @@ class EventTarget(events.EventTarget):
             evt = self.queue.get()
             if evt.type == events.GCodeIssue.TYPE:
                 self.handle_gcode_issue(evt)
+            elif evt.type == events.GHPush.TYPE:
+                self.handle_gh_push(evt)
             else:
-                logging.warn('Got unknown event for irc: %r' % evt.type)
+                logging.error('Got unknown event for irc: %r' % evt.type)
 
     def handle_gcode_issue(self, evt):
         """Sends an IRC message notifying of a new GCode issue update."""
@@ -70,6 +73,75 @@ class EventTarget(events.EventTarget):
             msg = 'Update %d to issue %d ("%s") by %s - %s'
             msg = msg % (evt.update, evt.issue, evt.title, author, url)
         self.bot.say(msg)
+
+    def handle_gh_push(self, evt):
+        fmt_url = Tags.UnderlineBlue
+        fmt_repo_name = Tags.UnderlinePink
+        fmt_name = Tags.LtGrey
+        fmt_ref = Tags.Purple
+        fmt_hash = lambda h: Tags.Grey(h[:6])
+
+        commits = [utils.ObjectLike(c) for c in evt.commits]
+        distinct_commits = [c for c in commits
+                            if c.distinct and c.message.strip()]
+        num_commits = len(distinct_commits)
+
+        parts = []
+        parts.append(Tags.Black('[' + fmt_repo_name(evt.repo) + ']'))
+        parts.append(fmt_name(evt.pusher))
+
+        if evt.created:
+            if evt.ref_type == 'tags':
+                parts.append('tagged ' + fmt_ref(evt.ref_name) + ' at')
+                parts.append(fmt_ref(evt.base_ref_name) if evt.base_ref_name
+                                 else fmt_hash(evt.after_sha))
+            else:
+                parts.append('created ' + fmt_ref(evt.ref_name))
+                if evt.base_ref_name:
+                    parts.append('from ' + fmt_ref(evt.base_ref_name))
+                elif not distinct_commits:
+                    parts.append('at ' + fmt_hash(evt.after_sha))
+
+                if distinct_commits:
+                    parts.append('+' + Tags.Bold(str(num_commits)))
+                    parts.append('new commit' +
+                                    ('s' if num_commits > 1 else ''))
+        elif evt.deleted:
+            parts.append(Tags.Red('deleted ') + fmt_ref(evt.ref_name))
+            parts.append('at ' + fmt_hash(evt.before_sha))
+        elif evt.forced:
+            parts.append(Tags.Red('force-pushed ') + fmt_ref(evt.ref_name))
+            parts.append('from ' + fmt_hash(evt.before_sha) + ' to ' +
+                         fmt_hash(evt.after_sha))
+        elif commits and not distinct_commits:
+            if evt.base_ref_name:
+                parts.append('merged ' + fmt_ref(evt.base_ref_name) + ' into '
+                             + fmt_ref(evt.ref_name))
+            else:
+                parts.append('fast-forwarded ' + fmt_ref(evt.ref_name))
+                parts.append('from ' + fmt_hash(evt.before_sha) + ' to ' +
+                             fmt_hash(evt.after_sha))
+        else:
+            parts.append('pushed ' + Tags.Bold(str(num_commits)))
+            parts.append('new commit' + ('s' if num_commits > 1 else ''))
+            parts.append('to ' + fmt_ref(evt.ref_name))
+
+        self.bot.say(' '.join(str(p) for p in parts))
+
+        for commit in distinct_commits[:4]:
+            firstline = commit.message.split('\n')[0]
+            author = Tags.Green(commit.author.name)
+            added = Tags.LtGreen(str(len(commit.added)))
+            modified = Tags.LtGreen(str(len(commit.modified)))
+            removed = Tags.Red(str(len(commit.removed)))
+            url = Tags.UnderlineBlue(utils.shorten_url(commit.url))
+            self.bot.say('%s by %s [%s|%s|%s] %s %s' % (
+                commit.hash[:6], author, added, modified, removed, url,
+                firstline))
+
+        if len(distinct_commits) > 4:
+            self.bot.say('... and %d more commits'
+                         % (len(distinct_commits) - 4))
 
 def start():
     """Starts the IRC client."""

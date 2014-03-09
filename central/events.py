@@ -27,8 +27,12 @@ class Dispatcher:
         transmitted.update(evt)
         transmitted = utils.ObjectLike(transmitted)
         for tgt in self.targets:
-            if tgt.accept_event(transmitted):
-                tgt.push_event(transmitted)
+            try:
+                if tgt.accept_event(transmitted):
+                    tgt.push_event(transmitted)
+            except Exception:
+                logging.exception('Failed to pass event to %r' % tgt)
+                continue
 
 
 dispatcher = Dispatcher()
@@ -50,6 +54,12 @@ def event(type):
         return wrapper
     return decorator
 
+@event('internal_log')
+def InternalLog(level : str, pathname : str, lineno : int, msg : str,
+                args : str):
+    return { 'level': level, 'pathname': pathname, 'lineno': lineno,
+             'msg': msg, 'args': args }
+
 @event('irc_message')
 def IRCMessage(who : str, where : str, what : str):
     return { 'who': who, 'where': where, 'what': what }
@@ -59,3 +69,17 @@ def GCodeIssue(new : bool, update : int, issue : int, title : str,
                author : str, url : str):
     return { 'new': new, 'update': update, 'issue': issue, 'title': title,
              'author': author, 'url': url }
+
+@event('raw_gh_hook')
+def RawGHHook(gh_type : str, raw : dict):
+    return { 'gh_type': gh_type, 'raw': raw }
+
+@event('gh_push')
+def GHPush(repo : str, pusher : str, before_sha : str, after_sha : str,
+           commits : list, base_ref_name : str, ref_name : str, ref_type : str,
+           created : bool, deleted : bool, forced : bool):
+    return { 'repo': repo, 'pusher': pusher, 'before_sha': before_sha,
+             'after_sha': after_sha, 'commits': commits,
+             'base_ref_name': base_ref_name, 'ref_name': ref_name,
+             'ref_type': ref_type, 'created': created, 'deleted': deleted,
+             'forced': forced }

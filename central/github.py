@@ -45,7 +45,6 @@ def sync_trusted_users():
 
         teams = requests.get('https://api.github.com/orgs/%s/teams' % org,
                              auth=basic_auth()).json()
-        logging.info(teams)
         team_id = None
         for t in teams:
             if t['slug'] == team:

@@ -20,19 +20,23 @@ def make_netstring(s):
     return str(len(s)).encode('ascii') + b':' + s + b','
 
 
-def make_build_request(jobid, baserev, patch, who, comment):
+def make_build_request(pr_id, job_id, baserev, patch, who, comment):
     """Creates a build request binary blob in the format expected by the
     buildbot."""
 
     request_dict = {
         'branch': '',
         'builderNames': cfg.buildbot.pr_builders,
-        'jobid': jobid,
+        'jobid': job_id,
         'baserev': baserev,
         'patch_level': 1,
         'patch_body': patch,
         'who': who,
         'comment': comment,
+        'properties': {
+            'branchname': 'pr-%d' % pr_id,
+            'shortrev': 'pr-%d' % pr_id,
+        },
     }
     encoded = json.dumps(request_dict, ensure_ascii=True).encode('ascii')
     version = make_netstring(b'5')
@@ -61,7 +65,8 @@ class PullRequestBuilder:
             evt = self.queue.get()
             patch = requests.get('https://github.com/%s/pull/%d.patch'
                                  % (evt.repo, evt.id)).text
-            req = make_build_request('pr-%d-%s' % (evt.id, evt.head_sha),
+            req = make_build_request(evt.id,
+                                     '%d-%s' % (evt.id, evt.head_sha[:6]),
                                      evt.base_sha, patch,
                                      'Central (on behalf of: %s)' % evt.author,
                                      'Auto build for PR #%d (%s)' % (evt.id,

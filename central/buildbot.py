@@ -25,6 +25,8 @@ def make_build_request(jobid, baserev, patch, who, comment):
     buildbot."""
 
     request_dict = {
+        'branch': '',
+        'builderNames': cfg.buildbot.pr_builders,
         'jobid': jobid,
         'baserev': baserev,
         'patch_level': 1,

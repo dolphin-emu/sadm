@@ -83,3 +83,26 @@ def GHPush(repo : str, pusher : str, before_sha : str, after_sha : str,
              'base_ref_name': base_ref_name, 'ref_name': ref_name,
              'ref_type': ref_type, 'created': created, 'deleted': deleted,
              'forced': forced }
+
+@event('gh_pull_request')
+def GHPullRequest(repo : str, author : str, action : str, id : int,
+                  title : str, base_ref_name : str, head_ref_name : str,
+                  url : str):
+    return { 'repo': repo, 'author': author, 'action': action, 'id': id,
+             'title': title, 'base_ref_name': base_ref_name, 'url': url,
+             'head_ref_name': head_ref_name }
+
+@event('gh_pull_request_comment')
+def GHPullRequestComment(repo : str, author : str, id : int, hash : str,
+                         url : str):
+    return { 'repo': repo, 'author': author, 'id': id, 'hash': hash,
+             'url': url }
+
+@event('gh_issue_comment')
+def GHIssueComment(repo : str, author : str, id : int, title : str, url : str):
+    return { 'repo': repo, 'author': author, 'id': id, 'title': title,
+             'url': url }
+
+@event('gh_commit_comment')
+def GHCommitComment(repo : str, author : str, commit : str, url : str):
+    return { 'repo': repo, 'author': author, 'commit': commit, 'url': url }

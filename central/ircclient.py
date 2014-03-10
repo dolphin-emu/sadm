@@ -49,6 +49,10 @@ class EventTarget(events.EventTarget):
         accepted_types = [
             events.GCodeIssue.TYPE,
             events.GHPush.TYPE,
+            events.GHPullRequest.TYPE,
+            events.GHPullRequestComment.TYPE,
+            events.GHIssueComment.TYPE,
+            events.GHCommitComment.TYPE,
         ]
         return evt.type in accepted_types
 
@@ -59,6 +63,14 @@ class EventTarget(events.EventTarget):
                 self.handle_gcode_issue(evt)
             elif evt.type == events.GHPush.TYPE:
                 self.handle_gh_push(evt)
+            elif evt.type == events.GHPullRequest.TYPE:
+                self.handle_gh_pull_request(evt)
+            elif evt.type == events.GHPullRequestComment.TYPE:
+                self.handle_gh_pull_request_comment(evt)
+            elif evt.type == events.GHIssueComment.TYPE:
+                self.handle_gh_issue_comment(evt)
+            elif evt.type == events.GHCommitComment.TYPE:
+                self.handle_gh_commit_comment(evt)
             else:
                 logging.error('Got unknown event for irc: %r' % evt.type)
 
@@ -142,6 +154,28 @@ class EventTarget(events.EventTarget):
         if len(distinct_commits) > 4:
             self.bot.say('... and %d more commits'
                          % (len(distinct_commits) - 4))
+
+    def handle_gh_pull_request(self, evt):
+        self.bot.say('[%s] %s %s pull request #%d: %s (%s...%s): %s' % (
+            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author), evt.action,
+            evt.id, evt.title, Tags.Purple(evt.base_ref_name),
+            Tags.Purple(evt.head_ref_name),
+            Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+
+    def handle_gh_pull_request_comment(self, evt):
+        self.bot.say('[%s] %s commented on #%s %s: %s' % (
+            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author), evt.id,
+            evt.hash[:6], Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+
+    def handle_gh_issue_comment(self, evt):
+        self.bot.say('[%s] %s commented on #%s (%s): %s' % (
+            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author), evt.id,
+            evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+
+    def handle_gh_commit_comment(self, evt):
+        self.bot.say('[%s] %s commented on commit %s: %s' % (
+            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author),
+            evt.commit, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
 def start():
     """Starts the IRC client."""

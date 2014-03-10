@@ -110,9 +110,46 @@ class GHEventParser(events.EventTarget):
                              base_ref_name, ref_name, ref_type, created,
                              deleted, forced)
 
+    def convert_pull_request_event(self, raw):
+        repo = raw.repository.owner.login + '/' + raw.repository.name
+        author = raw.sender.login
+        base_ref_name = raw.pull_request.base.label.split(':')[-1]
+        head_ref_name = raw.pull_request.head.label.split(':')[-1]
+        return events.GHPullRequest(repo, author, raw.action,
+                                    raw.pull_request.number,
+                                    raw.pull_request.title, base_ref_name,
+                                    head_ref_name, raw.pull_request.html_url)
+
+    def convert_pull_request_comment_event(self, raw):
+        repo = raw.repository.owner.login + '/' + raw.repository.name
+        id = int(raw.comment.pull_request_url.split('/')[-1])
+        return events.GHPullRequestComment(repo, raw.sender.login, id,
+                                           raw.comment.commit_id,
+                                           raw.comment.html_url)
+
+    def convert_issue_comment_event(self, raw):
+        repo = raw.repository.owner.login + '/' + raw.repository.name
+        id = int(raw.issue.html_url.split('/')[-1])
+        return events.GHIssueComment(repo, raw.sender.login, id,
+                                     raw.issue.title, raw.comment.html_url)
+
+    def convert_commit_comment_event(self, raw):
+        repo = raw.repository.owner.login + '/' + raw.repository.name
+        return events.GHCommitComment(repo, raw.sender.login,
+                                      raw.comment.commit_id,
+                                      raw.comment.html_url)
+
     def push_event(self, evt):
         if evt.gh_type == 'push':
             obj = self.convert_push_event(evt.raw)
+        elif evt.gh_type == 'pull_request':
+            obj = self.convert_pull_request_event(evt.raw)
+        elif evt.gh_type == 'pull_request_review_comment':
+            obj = self.convert_pull_request_comment_event(evt.raw)
+        elif evt.gh_type == 'issue_comment':
+            obj = self.convert_issue_comment_event(evt.raw)
+        elif evt.gh_type == 'commit_comment':
+            obj = self.convert_commit_comment_event(evt.raw)
         else:
             logging.error('Unhandled event type %r in GH parser' % evt.gh_type)
             return

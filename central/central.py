@@ -4,6 +4,7 @@ Initializes and registers the required components then starts the main event
 loop of the process.
 """
 
+import buildbot
 import config
 import events
 import gcodepoller
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     logging.info('Configuration loaded, starting modules initialization.')
 
     # Start the modules.
-    for mod in [gcodepoller, github, ircclient, webserver]:
+    for mod in [buildbot, gcodepoller, github, ircclient, webserver]:
         mod.start()
 
     logging.info('Modules started, waiting for events.')

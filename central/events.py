@@ -87,10 +87,12 @@ def GHPush(repo : str, pusher : str, before_sha : str, after_sha : str,
 @event('gh_pull_request')
 def GHPullRequest(repo : str, author : str, action : str, id : int,
                   title : str, base_ref_name : str, head_ref_name : str,
-                  url : str):
+                  base_sha : str, head_sha : str, url : str,
+                  safe_author : bool):
     return { 'repo': repo, 'author': author, 'action': action, 'id': id,
              'title': title, 'base_ref_name': base_ref_name, 'url': url,
-             'head_ref_name': head_ref_name }
+             'head_ref_name': head_ref_name, 'safe_author': safe_author,
+             'base_sha': base_sha, 'head_sha': head_sha }
 
 @event('gh_pull_request_comment')
 def GHPullRequestComment(repo : str, author : str, id : int, hash : str,
@@ -106,3 +108,9 @@ def GHIssueComment(repo : str, author : str, id : int, title : str, url : str):
 @event('gh_commit_comment')
 def GHCommitComment(repo : str, author : str, commit : str, url : str):
     return { 'repo': repo, 'author': author, 'commit': commit, 'url': url }
+
+@event('pull_request_build_status')
+def PullRequestBuildStatus(repo : str, hash : str, status : str, url : str,
+                           description : str):
+    return { 'repo': repo, 'hash': hash, 'status': status, 'url': url,
+             'description': description }

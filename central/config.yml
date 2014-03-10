@@ -24,10 +24,20 @@ github:
         - dolphin-emu/sadm
         - dolphin-emu/www
     trusted_users:
-        group: dolphin-emu/contributors
+        group: dolphin-emu/trusted-developers
         refresh_interval: 300
     hook_hmac_secret: SECRET
 
 gcode:
     atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic
     refresh_interval: 10
+
+buildbot:
+    jobdir: /home/buildbot/pr-jobdir
+    pr_builders:
+        - pr-android
+        - pr-deb-x64
+        - pr-osx-x64
+        - pr-ubu-x64
+        - pr-win-x64
+        - pr-win-x86

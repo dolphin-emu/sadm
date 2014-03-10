@@ -33,6 +33,44 @@ def webhook_url():
     return cfg.web.external_url + '/gh/hook/'
 
 
+TRUSTED_USERS = set()
+def sync_trusted_users():
+    """Synchronizes the list of trusted users by querying a given group."""
+    global TRUSTED_USERS
+    while True:
+        org = cfg.github.trusted_users.group.split('/')[0]
+        team = cfg.github.trusted_users.group.split('/')[1]
+        logging.info('Refreshing list of trusted users (from %s/%s)',
+                     org, team)
+
+        teams = requests.get('https://api.github.com/orgs/%s/teams' % org,
+                             auth=basic_auth()).json()
+        logging.info(teams)
+        team_id = None
+        for t in teams:
+            if t['slug'] == team:
+                team_id = t['id']
+                break
+
+        if team_id is not None:
+            team_info = requests.get('https://api.github.com/teams/%s/members'
+                                     % team_id, auth=basic_auth()).json()
+            trusted = set()
+            for member in team_info:
+                trusted.add(member['login'])
+            TRUSTED_USERS = trusted
+            logging.info('New GH trusted users: %s', ','.join(trusted))
+        else:
+            logging.error('Could not find team %r in org %r', team, org)
+
+
+        time.sleep(cfg.github.trusted_users.refresh_interval)
+
+
+def is_safe_author(login):
+    return login in TRUSTED_USERS
+
+
 def periodic_hook_maintainer():
     """Function that checks watched repositories for presence of a webhook that
     points to us. If not present, installs the hook."""
@@ -81,7 +119,7 @@ def periodic_hook_maintainer():
         time.sleep(600)
 
 
-class GHEventParser(events.EventTarget):
+class GHHookEventParser(events.EventTarget):
     def accept_event(self, evt):
         return evt.type == events.RawGHHook.TYPE
 
@@ -115,10 +153,14 @@ class GHEventParser(events.EventTarget):
         author = raw.sender.login
         base_ref_name = raw.pull_request.base.label.split(':')[-1]
         head_ref_name = raw.pull_request.head.label.split(':')[-1]
+        base_sha = raw.pull_request.base.sha
+        head_sha = raw.pull_request.head.sha
         return events.GHPullRequest(repo, author, raw.action,
                                     raw.pull_request.number,
                                     raw.pull_request.title, base_ref_name,
-                                    head_ref_name, raw.pull_request.html_url)
+                                    head_ref_name, base_sha, head_sha,
+                                    raw.pull_request.html_url,
+                                    is_safe_author(author))
 
     def convert_pull_request_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
@@ -153,11 +195,26 @@ class GHEventParser(events.EventTarget):
         else:
             logging.error('Unhandled event type %r in GH parser' % evt.gh_type)
             return
-        events.dispatcher.dispatch('ghparser', obj)
+        events.dispatcher.dispatch('ghhookparser', obj)
+
+
+class GHPRStatusUpdater(events.EventTarget):
+    def accept_event(self, evt):
+        return evt.type == events.PullRequestBuildStatus.TYPE
+
+    def push_event(self, evt):
+        url = 'https://api.github.com/repos/' + evt.repo + '/statuses/' + evt.hash
+        data = { 'state': evt.status, 'target_url': evt.url,
+                 'description': evt.description }
+        requests.post(url, headers={'Content-Type': 'application/json'},
+                      data=json.dumps(data), auth=basic_auth())
+
 
 def start():
     """Starts all the GitHub related services."""
 
-    events.dispatcher.register_target(GHEventParser())
+    events.dispatcher.register_target(GHHookEventParser())
+    events.dispatcher.register_target(GHPRStatusUpdater())
 
     utils.DaemonThread(target=periodic_hook_maintainer).start()
+    utils.DaemonThread(target=sync_trusted_users).start()

@@ -115,7 +115,7 @@ class PullRequestListener(events.EventTarget):
         return evt.type == events.GHPullRequest.TYPE
 
     def push_event(self, evt):
-        if evt.action != 'opened' or evt.action != 'synchronize':
+        if evt.action == 'opened' or evt.action == 'synchronize':
             if evt.repo in cfg.github.maintain:
                 self.builder.push(evt)
 

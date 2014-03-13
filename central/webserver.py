@@ -13,7 +13,12 @@ import datetime
 import hashlib
 import hmac
 import io
+import json
 import logging
+
+# Buildbot sometimes batches events and gets rejected by the small default
+# bottle size. Increase it.
+bottle.BaseRequest.MEMFILE_MAX = 64 * 1024 * 1024  # 32MB
 
 
 class EventLogger(events.EventTarget):
@@ -69,6 +74,18 @@ def gh_hook():
     evt_type = bottle.request.headers['X-Github-Event']
     evt = events.RawGHHook(evt_type, bottle.request.json)
     events.dispatcher.dispatch('webserver', evt)
+
+    return 'OK'
+
+
+@bottle.route('/buildbot/', method='POST')
+def buildbot_hook():
+    packets = bottle.request.POST['packets']
+    packets = json.loads(packets)
+
+    for packet in packets:
+        evt = events.RawBBHook(packet['event'], packet)
+        events.dispatcher.dispatch('webserver', evt)
 
     return 'OK'
 

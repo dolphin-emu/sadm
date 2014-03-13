@@ -114,3 +114,7 @@ def PullRequestBuildStatus(repo : str, hash : str, status : str, url : str,
                            description : str):
     return { 'repo': repo, 'hash': hash, 'status': status, 'url': url,
              'description': description }
+
+@event('raw_bb_hook')
+def RawBBHook(bb_type : str, raw : dict):
+    return { 'bb_type': bb_type, 'raw': raw }

@@ -33,6 +33,7 @@ gcode:
     refresh_interval: 10
 
 buildbot:
+    url: https://buildbot.dolphin-emu.org/
     jobdir: /home/buildbot/pr-jobdir
     pr_builders:
         - pr-android

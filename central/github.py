@@ -37,33 +37,29 @@ TRUSTED_USERS = set()
 def sync_trusted_users():
     """Synchronizes the list of trusted users by querying a given group."""
     global TRUSTED_USERS
-    while True:
-        org = cfg.github.trusted_users.group.split('/')[0]
-        team = cfg.github.trusted_users.group.split('/')[1]
-        logging.info('Refreshing list of trusted users (from %s/%s)',
-                     org, team)
+    org = cfg.github.trusted_users.group.split('/')[0]
+    team = cfg.github.trusted_users.group.split('/')[1]
+    logging.info('Refreshing list of trusted users (from %s/%s)',
+                 org, team)
 
-        teams = requests.get('https://api.github.com/orgs/%s/teams' % org,
-                             auth=basic_auth()).json()
-        team_id = None
-        for t in teams:
-            if t['slug'] == team:
-                team_id = t['id']
-                break
+    teams = requests.get('https://api.github.com/orgs/%s/teams' % org,
+                         auth=basic_auth()).json()
+    team_id = None
+    for t in teams:
+        if t['slug'] == team:
+            team_id = t['id']
+            break
 
-        if team_id is not None:
-            team_info = requests.get('https://api.github.com/teams/%s/members'
-                                     % team_id, auth=basic_auth()).json()
-            trusted = set()
-            for member in team_info:
-                trusted.add(member['login'])
-            TRUSTED_USERS = trusted
-            logging.info('New GH trusted users: %s', ','.join(trusted))
-        else:
-            logging.error('Could not find team %r in org %r', team, org)
-
-
-        time.sleep(cfg.github.trusted_users.refresh_interval)
+    if team_id is not None:
+        team_info = requests.get('https://api.github.com/teams/%s/members'
+                                 % team_id, auth=basic_auth()).json()
+        trusted = set()
+        for member in team_info:
+            trusted.add(member['login'])
+        TRUSTED_USERS = trusted
+        logging.info('New GH trusted users: %s', ','.join(trusted))
+    else:
+        logging.error('Could not find team %r in org %r', team, org)
 
 
 def is_safe_author(login):
@@ -74,48 +70,46 @@ def periodic_hook_maintainer():
     """Function that checks watched repositories for presence of a webhook that
     points to us. If not present, installs the hook."""
 
-    while True:
-        logging.info('Checking watched repositories for webhook presence')
-        for repo in watched_repositories():
-            hs = requests.get('https://api.github.com/repos/%s/hooks' % repo,
-                              auth=basic_auth()).json()
-            hook_present = False
-            for h in hs:
-                if "config" not in h:
-                    continue
-                config = h["config"]
-                if "url" not in config:
-                    continue
-                if config["url"] != webhook_url():
-                    continue
-                hook_present = True
-                break
+    logging.info('Checking watched repositories for webhook presence')
+    for repo in watched_repositories():
+        hs = requests.get('https://api.github.com/repos/%s/hooks' % repo,
+                          auth=basic_auth()).json()
+        hook_present = False
+        for h in hs:
+            if "config" not in h:
+                continue
+            config = h["config"]
+            if "url" not in config:
+                continue
+            if config["url"] != webhook_url():
+                continue
+            hook_present = True
+            break
 
-            hook_data = {
-                'name': 'web',
-                'active': 'true',
-                'events': GH_WEBHOOK_EVENTS,
-                'config': {
-                    'url': webhook_url(),
-                    'content_type': 'json',
-                    'secret': cfg.github.hook_hmac_secret,
-                    'insecure_ssl': '0',
-                },
-            }
+        hook_data = {
+            'name': 'web',
+            'active': 'true',
+            'events': GH_WEBHOOK_EVENTS,
+            'config': {
+                'url': webhook_url(),
+                'content_type': 'json',
+                'secret': cfg.github.hook_hmac_secret,
+                'insecure_ssl': '0',
+            },
+        }
 
-            if hook_present:
-                logging.info('Watched repo %r has our hook installed' % repo)
-                url = h['url']
-                method = requests.patch
-            else:
-                logging.warning('Repo %r is missing our hook, installing'
-                                % repo)
-                url = 'https://api.github.com/repos/%s/hooks' % repo
-                method = requests.post
+        if hook_present:
+            logging.info('Watched repo %r has our hook installed' % repo)
+            url = h['url']
+            method = requests.patch
+        else:
+            logging.warning('Repo %r is missing our hook, installing'
+                            % repo)
+            url = 'https://api.github.com/repos/%s/hooks' % repo
+            method = requests.post
 
-            method(url, headers={'Content-Type': 'application/json'},
-                   data=json.dumps(hook_data), auth=basic_auth())
-        time.sleep(600)
+        method(url, headers={'Content-Type': 'application/json'},
+               data=json.dumps(hook_data), auth=basic_auth())
 
 
 class GHHookEventParser(events.EventTarget):
@@ -215,5 +209,6 @@ def start():
     events.dispatcher.register_target(GHHookEventParser())
     events.dispatcher.register_target(GHPRStatusUpdater())
 
-    utils.DaemonThread(target=periodic_hook_maintainer).start()
-    utils.DaemonThread(target=sync_trusted_users).start()
+    utils.spawn_periodic_task(600, periodic_hook_maintainer)
+    utils.spawn_periodic_task(cfg.github.trusted_users.refresh_interval,
+                              sync_trusted_users)

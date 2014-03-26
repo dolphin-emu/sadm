@@ -1,8 +1,10 @@
 """Utility functions and classes."""
 
 import json
+import logging
 import requests
 import threading
+import time
 
 
 def shorten_url(url):
@@ -38,3 +40,14 @@ class ObjectLike:
 
     def __repr__(self):
         return repr(self.dictlike)
+
+
+def spawn_periodic_task(interval, f, *args, **kwargs):
+    def wrapper():
+        while True:
+            try:
+                f(*args, **kwargs)
+            except Exception:
+                logging.exception('Periodic task %s failed')
+            time.sleep(interval)
+    DaemonThread(target=wrapper).start()

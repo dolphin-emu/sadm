@@ -101,9 +101,10 @@ def GHPullRequestComment(repo : str, author : str, id : int, hash : str,
              'url': url }
 
 @event('gh_issue_comment')
-def GHIssueComment(repo : str, author : str, id : int, title : str, url : str):
+def GHIssueComment(repo : str, author : str, id : int, title : str, url : str,
+                   safe_author : bool, body : str):
     return { 'repo': repo, 'author': author, 'id': id, 'title': title,
-             'url': url }
+             'url': url, 'safe_author': safe_author, 'body': body }
 
 @event('gh_commit_comment')
 def GHCommitComment(repo : str, author : str, commit : str, url : str):

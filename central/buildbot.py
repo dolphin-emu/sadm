@@ -61,44 +61,47 @@ class PullRequestBuilder:
     def __init__(self):
         self.queue = queue.Queue()
 
-    def push(self, evt):
-        self.queue.put(evt)
+    def push(self, in_behalf_of, trusted, repo, pr_id):
+        self.queue.put((in_behalf_of, trusted, repo, pr_id))
 
     def run(self):
         while True:
-            evt = self.queue.get()
-
-            if not evt.safe_author:
-                status_evt = events.PullRequestBuildStatus(evt.repo,
-                        evt.head_sha, 'failure', '',
-                        'PR not built because %s is not auto-trusted.'
-                            % evt.author)
-                events.dispatcher.dispatch('prbuilder', status_evt)
-                continue
+            in_behalf_of, trusted, repo, pr_id = self.queue.get()
 
             # To check if a PR is mergeable, we need to request it directly.
             pr = requests.get('https://api.github.com/repos/%s/pulls/%s'
-                    % (evt.repo, evt.id)).json()
-            logging.info('PR %s mergeable: %s (%s)', evt.id, pr['mergeable'],
+                    % (repo, pr_id)).json()
+            logging.info('PR %s mergeable: %s (%s)', pr_id, pr['mergeable'],
                     pr['mergeable_state'])
 
+            base_sha = pr['base']['sha']
+            head_sha = pr['head']['sha']
+
+            if not trusted:
+                status_evt = events.PullRequestBuildStatus(repo,
+                        head_sha, 'failure', '',
+                        'PR not built because %s is not auto-trusted.'
+                            % in_behalf_of)
+                events.dispatcher.dispatch('prbuilder', status_evt)
+                continue
+
             if not pr['mergeable']:
-                status_evt = events.PullRequestBuildStatus(evt.repo,
-                        evt.head_sha, 'failure', '',
+                status_evt = events.PullRequestBuildStatus(repo, head_sha,
+                        'failure', '',
                         'PR cannot be merged, please rebase.')
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 
             patch = requests.get('https://github.com/%s/pull/%d.patch'
-                                 % (evt.repo, evt.id)).text
-            req = make_build_request(evt.repo, evt.id,
-                    '%d-%s' % (evt.id, evt.head_sha[:6]), evt.base_sha,
-                    evt.head_sha, patch,
-                    'Central (on behalf of: %s)' % evt.author,
-                    'Auto build for PR #%d (%s).' % (evt.id, evt.head_sha))
+                                 % (repo, pr_id)).text
+            req = make_build_request(repo, pr_id,
+                    '%d-%s' % (pr_id, head_sha[:6]), base_sha,
+                    head_sha, patch,
+                    'Central (on behalf of: %s)' % in_behalf_of,
+                    'Auto build for PR #%d (%s).' % (pr_id, head_sha))
             send_build_request(req)
 
-            status_evt = events.PullRequestBuildStatus(evt.repo, evt.head_sha,
+            status_evt = events.PullRequestBuildStatus(repo, head_sha,
                     'pending', cfg.buildbot.url + '/waterfall',
                     'Auto build in progress')
             events.dispatcher.dispatch('prbuilder', status_evt)
@@ -117,7 +120,29 @@ class PullRequestListener(events.EventTarget):
     def push_event(self, evt):
         if evt.action == 'opened' or evt.action == 'synchronize':
             if evt.repo in cfg.github.maintain:
-                self.builder.push(evt)
+                self.builder.push(evt.author, evt.safe_author, evt.repo,
+                                  evt.id)
+
+
+class ManualPullRequestListener(events.EventTarget):
+    """Listens for comments from trusted users on PRs for a keyword to build
+    a PR from an untrusted user."""
+
+    def __init__(self, builder):
+        super(ManualPullRequestListener, self).__init__()
+        self.builder = builder
+
+    def accept_event(self, evt):
+        return evt.type == events.GHIssueComment.TYPE
+
+    def push_event(self, evt):
+        if not evt.safe_author:
+            return
+        if cfg.github.rebuild_command.lower() not in evt.body.lower():
+            return
+        if evt.repo not in cfg.github.maintain:
+            return
+        self.builder.push(evt.author, evt.safe_author, evt.repo, evt.id)
 
 
 class BuildStatusCollector:
@@ -173,6 +198,7 @@ def start():
 
     pr_builder = PullRequestBuilder()
     events.dispatcher.register_target(PullRequestListener(pr_builder))
+    events.dispatcher.register_target(ManualPullRequestListener(pr_builder))
     utils.DaemonThread(target=pr_builder.run).start()
 
     collector = BuildStatusCollector()

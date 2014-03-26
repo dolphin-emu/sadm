@@ -27,7 +27,7 @@ github:
         group: dolphin-emu/trusted-developers
         refresh_interval: 300
     hook_hmac_secret: SECRET
-    rebuild_command: "@dolphin-emu-bot ForcePRBuild"
+    rebuild_command: "@dolphin-emu-bot rebuild"
 
 gcode:
     atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic

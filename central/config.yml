@@ -43,3 +43,4 @@ buildbot:
         - pr-ubu-x64
         - pr-win-x64
         - pr-win-x86
+        - lint

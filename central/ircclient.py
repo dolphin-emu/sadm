@@ -74,9 +74,15 @@ class EventTarget(events.EventTarget):
             else:
                 logging.error('Got unknown event for irc: %r' % evt.type)
 
+    def format_nickname(self, nickname, avoid_hl=True):
+        # Add a unicode zero-width space in the nickname to avoid highlights.
+        if avoid_hl and nickname:
+            nickname = nickname[0] + '\ufeff' + nickname[1:]
+        return Tags.Green(nickname)
+
     def handle_gcode_issue(self, evt):
         """Sends an IRC message notifying of a new GCode issue update."""
-        author = Tags.Green(evt.author)
+        author = self.format_nickname(evt.author)
         url = Tags.UnderlineBlue(utils.shorten_url(evt.url))
         if evt.new:
             msg = 'Issue %d created: "%s" by %s - %s'
@@ -89,7 +95,6 @@ class EventTarget(events.EventTarget):
     def handle_gh_push(self, evt):
         fmt_url = Tags.UnderlineBlue
         fmt_repo_name = Tags.UnderlinePink
-        fmt_name = Tags.LtGrey
         fmt_ref = Tags.Purple
         fmt_hash = lambda h: Tags.Grey(h[:6])
 
@@ -100,7 +105,7 @@ class EventTarget(events.EventTarget):
 
         parts = []
         parts.append(Tags.Black('[' + fmt_repo_name(evt.repo) + ']'))
-        parts.append(fmt_name(evt.pusher))
+        parts.append(self.format_nickname(evt.pusher))
 
         if evt.created:
             if evt.ref_type == 'tags':
@@ -157,24 +162,25 @@ class EventTarget(events.EventTarget):
 
     def handle_gh_pull_request(self, evt):
         self.bot.say('[%s] %s %s pull request #%d: %s (%s...%s): %s' % (
-            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author), evt.action,
-            evt.id, evt.title, Tags.Purple(evt.base_ref_name),
+            Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
+            evt.action, evt.id, evt.title, Tags.Purple(evt.base_ref_name),
             Tags.Purple(evt.head_ref_name),
             Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_pull_request_comment(self, evt):
         self.bot.say('[%s] %s commented on #%s %s: %s' % (
-            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author), evt.id,
-            evt.hash[:6], Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+            Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
+            evt.id, evt.hash[:6],
+            Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_issue_comment(self, evt):
         self.bot.say('[%s] %s commented on #%s (%s): %s' % (
-            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author), evt.id,
-            evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+            Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
+            evt.id, evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_commit_comment(self, evt):
         self.bot.say('[%s] %s commented on commit %s: %s' % (
-            Tags.UnderlinePink(evt.repo), Tags.LtGrey(evt.author),
+            Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
             evt.commit, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
 def start():

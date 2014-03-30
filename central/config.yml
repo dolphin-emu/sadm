@@ -39,8 +39,9 @@ buildbot:
     pr_builders:
         - pr-android
         - pr-deb-x64
+        - pr-deb-dbg-x64
         - pr-osx-x64
         - pr-ubu-x64
-        - pr-win-x64
+        - pr-win-dbg-x64
         - pr-win-x86
         - lint

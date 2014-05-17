@@ -172,12 +172,14 @@ class BuildStatusCollector:
                 evt = events.PullRequestBuildStatus(repo, headrev, 'failure',
                         url, 'Build failed on builder %s' % builder)
                 events.dispatcher.dispatch('buildbot', evt)
+                self.successes[headrev] = 0
             else:
                 self.successes[headrev] += 1
                 if self.successes[headrev] == len(cfg.buildbot.pr_builders):
                     evt = events.PullRequestBuildStatus(repo, headrev,
                             'success', url, 'Build succeeded on the Buildbot.')
                     events.dispatcher.dispatch('buildbot', evt)
+                    self.successes[headrev] = 0
 
 
 class BBHookListener(events.EventTarget):

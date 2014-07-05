@@ -61,8 +61,9 @@ def InternalLog(level : str, pathname : str, lineno : int, msg : str,
              'msg': msg, 'args': args }
 
 @event('irc_message')
-def IRCMessage(who : str, where : str, what : str):
-    return { 'who': who, 'where': where, 'what': what }
+def IRCMessage(who : str, where : str, what : str, modes : str, direct : bool):
+    return { 'who': who, 'where': where, 'what': what, 'modes': modes,
+             'direct': direct }
 
 @event('gcode_issue')
 def GCodeIssue(new : bool, update : int, issue : int, title : str,

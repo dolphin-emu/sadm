@@ -33,7 +33,10 @@ class Bot(IRC):
         if self.cfg.nick in msg:
             self.message(channel, Tags.LtGreen(Tags.Bold('WARK WARK WARK')))
 
-        evt = events.IRCMessage(str(who), channel, msg)
+        direct = msg.startswith(self.cfg.nick + ':')
+
+        modes = who.user.modes_in(channel)
+        evt = events.IRCMessage(str(who), channel, msg, modes, direct)
         events.dispatcher.dispatch('ircclient', evt)
 
 

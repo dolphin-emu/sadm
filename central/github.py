@@ -33,12 +33,53 @@ def webhook_url():
     return cfg.web.external_url + '/gh/hook/'
 
 
+def user_from_oauth(token):
+    return requests.get('https://api.github.com/user',
+                        headers={'Authorization': 'token ' + token}).json()
+
+
+def get_pull_request(owner, repo, pr_id):
+    return requests.get('https://api.github.com/repos/%s/%s/pulls/%s'
+                        % (owner, repo, pr_id)).json()
+
+
+def get_pull_request_comments(pr):
+    return requests.get(pr['_links']['comments']['href']).json()
+
+
+def is_pull_request_buildable(pr):
+    statuses = requests.get(pr['_links']['statuses']['href']).json()
+    if not statuses:
+        return False
+    st = list(sorted((s['id'], s['state']) for s in statuses))[-1]
+    return st[1] == 'success'
+
+
+def is_pull_request_self_mergeable(pr):
+    comments = get_pull_request_comments(pr)
+    comments = [c for c in comments if c['user']['login'] in CORE_USERS]
+    allowed = False
+    for c in comments:
+        if cfg.github.allow_self_merge_command in c['body']:
+            allowed = True
+        if cfg.github.disallow_self_merge_command in c['body']:
+            allowed = False
+    return allowed
+
+
+def merge_pr(pr):
+    merge_url = pr['_links']['self']['href'] + '/merge'
+    requests.put(merge_url,
+        data=json.dumps({'commit_message': pr['title']}),
+        auth=basic_auth())
+
+
 TRUSTED_USERS = set()
-def sync_trusted_users():
+CORE_USERS = set()
+def sync_github_group(group, group_name):
     """Synchronizes the list of trusted users by querying a given group."""
-    global TRUSTED_USERS
-    org = cfg.github.trusted_users.group.split('/')[0]
-    team = cfg.github.trusted_users.group.split('/')[1]
+    org = group_name.split('/')[0]
+    team = group_name.split('/')[1]
     logging.info('Refreshing list of trusted users (from %s/%s)',
                  org, team)
 
@@ -53,13 +94,20 @@ def sync_trusted_users():
     if team_id is not None:
         team_info = requests.get('https://api.github.com/teams/%s/members'
                                  % team_id, auth=basic_auth()).json()
-        trusted = set()
+        group.clear()
         for member in team_info:
-            trusted.add(member['login'])
-        TRUSTED_USERS = trusted
-        logging.info('New GH trusted users: %s', ','.join(trusted))
+            group.add(member['login'])
+        logging.info('New GH %s: %s', group_name, ','.join(group))
     else:
         logging.error('Could not find team %r in org %r', team, org)
+
+
+def sync_trusted_users():
+    sync_github_group(TRUSTED_USERS, cfg.github.trusted_users.group)
+
+
+def sync_core_users():
+    sync_github_group(CORE_USERS, cfg.github.core_users.group)
 
 
 def is_safe_author(login):
@@ -167,8 +215,9 @@ class GHHookEventParser(events.EventTarget):
         repo = raw.repository.owner.login + '/' + raw.repository.name
         id = int(raw.issue.html_url.split('/')[-1])
         return events.GHIssueComment(repo, author, id, raw.issue.title,
-                                     raw.comment.html_url,
-                                     is_safe_author(author), raw.comment.body)
+                                     raw.comment.html_url, 
+                                     is_safe_author(author), raw.comment.body,
+                                     raw)
 
     def convert_commit_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
@@ -205,12 +254,38 @@ class GHPRStatusUpdater(events.EventTarget):
                       data=json.dumps(data), auth=basic_auth())
 
 
+class GHAllowMergeEditer(events.EventTarget):
+    def accept_event(self, evt):
+        return evt.type == events.GHIssueComment.TYPE
+
+    def push_event(self, evt):
+        if evt.author not in CORE_USERS:
+            return
+        if cfg.github.allow_self_merge_command not in evt.body:
+            return
+        pr_author = evt.raw.issue.user.login
+        merge_url = cfg.web.external_url + '/gh/merge/%s/%s/' % (
+                evt.repo, evt.id)
+        new_body = '@%s: This comment grants you the permission to merge ' \
+                   'this pull request whenever you think it is ready. ' \
+                   'After addressing the remaining comments, click ' \
+                   '[this link to merge](%s).\n\n---\n\n'
+        new_body %= (pr_author, merge_url)
+        new_body += evt.body
+        requests.patch(evt.raw.comment.url,
+                data=json.dumps({'body': new_body}),
+                auth=basic_auth())
+
+
 def start():
     """Starts all the GitHub related services."""
 
     events.dispatcher.register_target(GHHookEventParser())
     events.dispatcher.register_target(GHPRStatusUpdater())
+    events.dispatcher.register_target(GHAllowMergeEditer())
 
     utils.spawn_periodic_task(600, periodic_hook_maintainer)
     utils.spawn_periodic_task(cfg.github.trusted_users.refresh_interval,
                               sync_trusted_users)
+    utils.spawn_periodic_task(cfg.github.core_users.refresh_interval,
+                              sync_core_users)

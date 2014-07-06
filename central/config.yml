@@ -26,8 +26,16 @@ github:
     trusted_users:
         group: dolphin-emu/trusted-developers
         refresh_interval: 300
+    core_users:
+        group: dolphin-emu/core-developers
+        refresh_interval: 600
     hook_hmac_secret: SECRET
+    oauth:
+        client_id: CLIENT_ID
+        client_secret: CLIENT_SECRET
     rebuild_command: "@dolphin-emu-bot rebuild"
+    allow_self_merge_command: "@dolphin-emu-bot allowmerge"
+    disallow_self_merge_command: "@dolphin-emu-bot disallowmerge"
 
 gcode:
     atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic

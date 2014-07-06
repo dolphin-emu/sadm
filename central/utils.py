@@ -1,7 +1,12 @@
 """Utility functions and classes."""
 
+from Crypto.Cipher import AES
+
+import base64
 import json
+import hashlib
 import logging
+import os
 import requests
 import threading
 import time
@@ -51,3 +56,27 @@ def spawn_periodic_task(interval, f, *args, **kwargs):
                 logging.exception('Periodic task %s failed')
             time.sleep(interval)
     DaemonThread(target=wrapper).start()
+
+
+def encrypt_data(data, key):
+    key = hashlib.sha1(key.encode('ascii')).digest()[:16]
+    iv = os.urandom(16)
+    aes = AES.new(key, AES.MODE_CBC, iv)
+    length = len(data)
+    if length % 16 != 0:
+        data += b'\x00' * (16 - (length % 16))
+    cipher = aes.encrypt(data)
+    out = str(length).encode('ascii') + b'.'
+    out += base64.b64encode(iv) + b'.'
+    out += base64.b64encode(cipher)
+    return out.decode('ascii')
+
+
+def decrypt_data(data, key):
+    key = hashlib.sha1(key.encode('ascii')).digest()[:16]
+    length, iv, cipher = data.split(b'.', 3)
+    length = int(length.decode('ascii'))
+    iv = base64.b64decode(iv)
+    cipher = base64.b64decode(cipher)
+    aes = AES.new(key, AES.MODE_CBC, iv)
+    return aes.decrypt(cipher)[:length].decode('ascii')

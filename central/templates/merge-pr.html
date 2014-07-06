@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Merging PR #{{pr_id}} - Central</title>
+</head>
+<body>
+<h1>Merging PR #{{pr_id}} ({{owner}}/{{repo}})</h1>
+<p>A Dolphin core developer allowed you to submit your change to the
+{{owner}}/{{repo}} repository. Thank you for your contribution!</p>
+<p>Clicking the button below will merge your change. Before doing so, make sure
+that you adressed all the comments that were discussed in the pull request!</p>
+<form action="/gh/merge/do/{{owner}}/{{repo}}/{{pr_id}}/" method="POST">
+<input type="submit" value="Merge!">
+</form>
+</body>
+</html>

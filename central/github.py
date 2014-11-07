@@ -92,7 +92,7 @@ def sync_github_group(group, group_name):
             break
 
     if team_id is not None:
-        team_info = requests.get('https://api.github.com/teams/%s/members'
+        team_info = requests.get('https://api.github.com/teams/%s/members?per_page=100'
                                  % team_id, auth=basic_auth()).json()
         group.clear()
         for member in team_info:

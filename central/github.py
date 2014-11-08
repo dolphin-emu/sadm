@@ -73,6 +73,15 @@ def merge_pr(pr):
         data=json.dumps({'commit_message': pr['title']}),
         auth=basic_auth())
 
+def request_get_all(url):
+    """Github uses Link header for pagination, this loops through all pages."""
+    data = []
+    r = requests.get(url, auth=basic_auth())
+    data += r.json()
+    while "next" in r.links:
+        r = requests.get(r.links['next']['url'], auth=basic_auth())
+        data += r.json()
+    return data
 
 TRUSTED_USERS = set()
 CORE_USERS = set()
@@ -83,8 +92,7 @@ def sync_github_group(group, group_name):
     logging.info('Refreshing list of trusted users (from %s/%s)',
                  org, team)
 
-    teams = requests.get('https://api.github.com/orgs/%s/teams' % org,
-                         auth=basic_auth()).json()
+    teams = request_get_all('https://api.github.com/orgs/%s/teams' % org)
     team_id = None
     for t in teams:
         if t['slug'] == team:
@@ -92,8 +100,7 @@ def sync_github_group(group, group_name):
             break
 
     if team_id is not None:
-        team_info = requests.get('https://api.github.com/teams/%s/members'
-                                 % team_id, auth=basic_auth()).json()
+        team_info = request_get_all('https://api.github.com/teams/%s/members' % team_id)
         group.clear()
         for member in team_info:
             group.add(member['login'])
@@ -120,8 +127,7 @@ def periodic_hook_maintainer():
 
     logging.info('Checking watched repositories for webhook presence')
     for repo in watched_repositories():
-        hs = requests.get('https://api.github.com/repos/%s/hooks' % repo,
-                          auth=basic_auth()).json()
+        hs = request_get_all('https://api.github.com/repos/%s/hooks' % repo)
         hook_present = False
         for h in hs:
             if "config" not in h:

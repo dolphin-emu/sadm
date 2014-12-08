@@ -255,7 +255,7 @@ class GHPRStatusUpdater(events.EventTarget):
     def push_event(self, evt):
         url = 'https://api.github.com/repos/' + evt.repo + '/statuses/' + evt.hash
         data = { 'state': evt.status, 'target_url': evt.url,
-                 'description': evt.description }
+                'description': evt.description, 'context': evt.service }
         requests.post(url, headers={'Content-Type': 'application/json'},
                       data=json.dumps(data), auth=basic_auth())
 

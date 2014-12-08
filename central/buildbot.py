@@ -78,8 +78,8 @@ class PullRequestBuilder:
             head_sha = pr['head']['sha']
 
             if not trusted:
-                status_evt = events.PullRequestBuildStatus(repo,
-                        head_sha, 'failure', '',
+                status_evt = events.PullRequestBuildStatus(repo, head_sha,
+                        'default', 'failure', '',
                         'PR not built because %s is not auto-trusted.'
                             % in_behalf_of)
                 events.dispatcher.dispatch('prbuilder', status_evt)
@@ -87,10 +87,15 @@ class PullRequestBuilder:
 
             if not pr['mergeable']:
                 status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                        'failure', '',
+                        'default', 'failure', '',
                         'PR cannot be merged, please rebase.')
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
+
+            status_evt = events.PullRequestBuildStatus(repo, head_sha,
+                        'default', 'success', '',
+                        'Very basic checks passed, handed off to Buildbot.')
+            events.dispatcher.dispatch('prbuilder', status_evt)
 
             patch = requests.get('https://github.com/%s/pull/%d.patch'
                                  % (repo, pr_id)).text
@@ -101,10 +106,11 @@ class PullRequestBuilder:
                     'Auto build for PR #%d (%s).' % (pr_id, head_sha))
             send_build_request(req)
 
-            status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                    'pending', cfg.buildbot.url + '/waterfall',
-                    'Auto build in progress')
-            events.dispatcher.dispatch('prbuilder', status_evt)
+            for builder in cfg.buildbot.pr_builders:
+                status_evt = events.PullRequestBuildStatus(repo, head_sha,
+                        builder, 'pending', cfg.buildbot.url + '/waterfall',
+                        'Auto build in progress')
+                events.dispatcher.dispatch('prbuilder', status_evt)
 
 
 class PullRequestListener(events.EventTarget):
@@ -148,7 +154,6 @@ class ManualPullRequestListener(events.EventTarget):
 class BuildStatusCollector:
     def __init__(self):
         self.queue = queue.Queue()
-        self.successes = collections.defaultdict(int)
 
     def push(self, evt):
         self.queue.put(evt)
@@ -169,17 +174,13 @@ class BuildStatusCollector:
                                                                  buildnumber)
 
             if not success:
-                evt = events.PullRequestBuildStatus(repo, headrev, 'failure',
-                        url, 'Build failed on builder %s' % builder)
+                evt = events.PullRequestBuildStatus(repo, headrev, builder,
+                        'failure', url, 'Build failed on builder %s' % builder)
                 events.dispatcher.dispatch('buildbot', evt)
-                self.successes[headrev] = 0
             else:
-                self.successes[headrev] += 1
-                if self.successes[headrev] == len(cfg.buildbot.pr_builders):
-                    evt = events.PullRequestBuildStatus(repo, headrev,
-                            'success', url, 'Build succeeded on the Buildbot.')
-                    events.dispatcher.dispatch('buildbot', evt)
-                    self.successes[headrev] = 0
+                evt = events.PullRequestBuildStatus(repo, headrev, builder,
+                        'success', url, 'Build succeeded on the Buildbot.')
+                events.dispatcher.dispatch('buildbot', evt)
 
 
 class BBHookListener(events.EventTarget):

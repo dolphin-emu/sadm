@@ -112,10 +112,10 @@ def GHCommitComment(repo : str, author : str, commit : str, url : str):
     return { 'repo': repo, 'author': author, 'commit': commit, 'url': url }
 
 @event('pull_request_build_status')
-def PullRequestBuildStatus(repo : str, hash : str, status : str, url : str,
-                           description : str):
-    return { 'repo': repo, 'hash': hash, 'status': status, 'url': url,
-             'description': description }
+def PullRequestBuildStatus(repo : str, hash : str, service : str, status : str,
+                           url : str, description : str):
+    return { 'repo': repo, 'hash': hash, 'service': service, 'status': status,
+             'url': url, 'description': description }
 
 @event('raw_bb_hook')
 def RawBBHook(bb_type : str, raw : dict):

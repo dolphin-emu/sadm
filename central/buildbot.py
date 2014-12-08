@@ -97,6 +97,12 @@ class PullRequestBuilder:
                         'Very basic checks passed, handed off to Buildbot.')
             events.dispatcher.dispatch('prbuilder', status_evt)
 
+            for builder in cfg.buildbot.pr_builders:
+                status_evt = events.PullRequestBuildStatus(repo, head_sha,
+                        builder, 'pending', cfg.buildbot.url + '/waterfall',
+                        'Auto build in progress')
+                events.dispatcher.dispatch('prbuilder', status_evt)
+
             patch = requests.get('https://github.com/%s/pull/%d.patch'
                                  % (repo, pr_id)).text
             req = make_build_request(repo, pr_id,
@@ -105,12 +111,6 @@ class PullRequestBuilder:
                     'Central (on behalf of: %s)' % in_behalf_of,
                     'Auto build for PR #%d (%s).' % (pr_id, head_sha))
             send_build_request(req)
-
-            for builder in cfg.buildbot.pr_builders:
-                status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                        builder, 'pending', cfg.buildbot.url + '/waterfall',
-                        'Auto build in progress')
-                events.dispatcher.dispatch('prbuilder', status_evt)
 
 
 class PullRequestListener(events.EventTarget):

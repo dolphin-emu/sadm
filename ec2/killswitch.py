@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 n_without_pending += 1
             else:
                 logging.warning('%d builds pending, %d builds running...',
-                        pending, len(building))
+                        pending, building)
                 n_without_pending = 0
         except Exception:
             logging.exception('Could not fetch current queue status')

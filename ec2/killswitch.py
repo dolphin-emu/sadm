@@ -6,6 +6,7 @@ import logging
 import logging.handlers
 import os
 import requests
+import sys
 import time
 import yaml
 
@@ -35,18 +36,23 @@ def setup_logging(program, verbose=False, local=True):
 if __name__ == '__main__':
     setup_logging('killswitch')
 
-    CFG = yaml.load(open('/etc/killswitch.yml'))
+    cfg_file = '/etc/killswitch.yml'
+    if len(sys.argv) > 1:
+        cfg_file = sys.argv[1]
+    CFG = yaml.load(open(cfg_file))
     n_without_pending = 0
     while True:
         try:
             data = requests.get(CFG['url']).json()
             pending = data.get('pendingBuilds', 0)
-            if not pending:
+            building = data.get('currentBuilds', [])
+            if not pending and not building:
                 logging.warning('No tasks pending, currently at %d',
                                 n_without_pending)
                 n_without_pending += 1
             else:
-                logging.warning('%d builds pending...', data['pendingBuilds'])
+                logging.warning('%d builds pending, %d builds running...',
+                        pending, len(building))
                 n_without_pending = 0
         except Exception:
             logging.exception('Could not fetch current queue status')

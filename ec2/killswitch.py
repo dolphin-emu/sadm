@@ -43,9 +43,12 @@ if __name__ == '__main__':
     n_without_pending = 0
     while True:
         try:
-            data = requests.get(CFG['url']).json()
-            pending = data.get('pendingBuilds', 0)
-            building = data.get('currentBuilds', [])
+            pending = 0
+            building = 0
+            for url in CFG['url']:
+                data = requests.get(url).json()
+                pending += data.get('pendingBuilds', 0)
+                building += len(data.get('currentBuilds', []))
             if not pending and not building:
                 logging.warning('No tasks pending, currently at %d',
                                 n_without_pending)

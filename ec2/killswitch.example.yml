@@ -1,5 +1,6 @@
-# URL to periodically fetch to get queue status.
-url: https://buildbot.dolphin-emu.org/json/builders/fifoci-ogl-lin-nv
+# URLs to periodically fetch to get queue status.
+url:
+  - https://buildbot.dolphin-emu.org/json/builders/fifoci-ogl-lin-nv
 
 # Number of consecutive tries that must return 0 pending before halting.
 threshold: 10

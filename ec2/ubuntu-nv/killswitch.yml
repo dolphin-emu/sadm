@@ -8,3 +8,5 @@ threshold: 10
 
 # Interval between each fetch (in seconds).
 interval: 10
+
+shutdown_command: ./shutdown.sh

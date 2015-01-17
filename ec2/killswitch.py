@@ -62,6 +62,6 @@ if __name__ == '__main__':
             n_without_pending += 1
 
         if n_without_pending > CFG.get('threshold', 10):
-            os.system('/sbin/halt')
+            os.system(CFG.get('shutdown_command', '/sbin/halt'))
 
         time.sleep(CFG.get('interval', 10))

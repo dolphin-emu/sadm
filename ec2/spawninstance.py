@@ -27,9 +27,12 @@ class Spawner(object):
     def get_queue_avg_length(self):
         pending = 0
         for builder in self.cfg['builders']:
-            url = self.buildbot_cfg['url'] + '/json/builders/' + builder
-            data = requests.get(url).json()
-            pending += data.get('pendingBuilds', 0)
+            try:
+                url = self.buildbot_cfg['url'] + '/json/builders/' + builder
+                data = requests.get(url).json()
+                pending += data.get('pendingBuilds', 0)
+            except Exception as e:
+                self.log('Error while fetching builder %s: %s', builder, e)
         return pending / len(self.cfg['builders'])
 
     def has_unfulfilled_spot_request(self):
@@ -46,7 +49,7 @@ class Spawner(object):
                 product_description=self.cfg['product'],
                 max_results=50)
         median_price = median([h.price for h in history])
-        return median_price * 0.0095
+        return median_price * 0.9995
 
     def create_spot_request(self):
         price = self.get_spot_price()

@@ -1,0 +1,20 @@
+ec2:
+    region: us-east-1
+    access_key_id: ACCESS_KEY
+    secret_access_key: SECRET_KEY
+
+buildbot:
+    url: https://buildbot.dolphin-emu.org
+
+spawners:
+    -
+        name: ubuntu-nv
+        builders:
+            - fifoci-ogl-lin-nv
+            - pr-fifoci-ogl-lin-nv
+        ami: ami-d87e01b0
+        security_group: sg-7de69518
+        type: g2.2xlarge
+        keypair: delroth
+        max_latency: 7200
+        max_queue_avg: 5

@@ -17,6 +17,17 @@ while ! ip l | grep tap0; do
 done
 ip l set tap0 mtu 1400
 
+cat > /etc/hosts <<EOF
+127.0.0.1 localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+EOF
 for host in fifoci buildbot dl; do
   echo "192.168.150.100 $host.dolphin-emu.org" >> /etc/hosts
 done

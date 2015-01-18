@@ -12,9 +12,10 @@ spawners:
         builders:
             - fifoci-ogl-lin-nv
             - pr-fifoci-ogl-lin-nv
+        type: g2.2xlarge
+        product: Linux/UNIX
         ami: ami-d87e01b0
         security_group: sg-7de69518
-        type: g2.2xlarge
         keypair: delroth
         max_latency: 7200
-        max_queue_avg: 5
+        max_queue_size: 5

@@ -117,6 +117,10 @@ def PullRequestBuildStatus(repo : str, hash : str, service : str, status : str,
     return { 'repo': repo, 'hash': hash, 'service': service, 'status': status,
              'url': url, 'description': description }
 
+@event('pull_request_fifoci_status')
+def PullRequestFifoCIStatus(repo : str, hash : str, service : str, pr : int):
+    return { 'repo': repo, 'hash': hash, 'service': service, 'pr': pr }
+
 @event('raw_bb_hook')
 def RawBBHook(bb_type : str, raw : dict):
     return { 'bb_type': bb_type, 'raw': raw }

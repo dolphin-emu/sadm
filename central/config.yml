@@ -55,3 +55,10 @@ buildbot:
         - pr-win-dbg-x64
         - pr-win-x86
         - lint
+    fifoci_builders:
+        - pr-fifoci-ogl-lin-mesa
+        - pr-fifoci-ogl-lin-nv
+        - pr-fifoci-sw-lin-mesa
+
+fifoci:
+    url: https://fifoci.dolphin-emu.org/

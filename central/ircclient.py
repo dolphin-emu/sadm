@@ -177,6 +177,8 @@ class EventTarget(events.EventTarget):
             Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_issue_comment(self, evt):
+        if evt.author == cfg.github.account.login:
+            return
         self.bot.say('[%s] %s commented on #%s (%s): %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
             evt.id, evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))

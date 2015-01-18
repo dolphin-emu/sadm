@@ -39,6 +39,7 @@ def make_build_request(repo, pr_id, job_id, baserev, headrev, patch, who,
             'branchname': 'pr-%d' % pr_id,
             'headrev': headrev,
             'shortrev': headrev[:6],
+            'pr_id': pr_id,
             'repo': repo,
         },
     }

@@ -76,14 +76,16 @@ class Spawner(object):
             ts -= datetime.datetime.utcnow()
             az_data.append({'tsdelta': ts.total_seconds(),
                             'price': record.price})
-        per_az_avg = {az: avg(r['price'] for r in per_az_history[az])
+        per_az_med = {az: median(r['price'] for r in per_az_history[az])
                       for az in per_az_history}
-        max_az = max(per_az_avg.items(), key=lambda r: r[1])[0]
+        max_az = max(per_az_med.items(), key=lambda r: r[1])[0]
         recent_history = [r['price'] for r in per_az_history[max_az]
                           if r['tsdelta'] > -3600 * 4]
+        if not recent_history:
+            recent_history = [r['price'] for r in per_az_history[max_az]][:20]
         proposed_price = max(recent_history) * 0.99995
-        if proposed_price > avg(recent_history) * 1.05:
-            proposed_price = avg(recent_history) * 1.05
+        if proposed_price > median(recent_history) * 1.05:
+            proposed_price = median(recent_history) * 1.05
         return proposed_price
 
     def create_spot_request(self):

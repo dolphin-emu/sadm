@@ -45,7 +45,16 @@ def get_pull_request(owner, repo, pr_id):
 
 
 def get_pull_request_comments(pr):
-    return requests.get(pr['_links']['comments']['href']).json()
+    comments = []
+    url = pr['_links']['comments']['href']
+    while True:
+        r = requests.get(url)
+        comments.extend(r.json())
+        if 'link' in r.headers and 'next' in r.links:
+            url = r.links['next']['url']
+        else:
+            break
+    return comments
 
 
 def delete_comment(owner, repo, cmt_id):

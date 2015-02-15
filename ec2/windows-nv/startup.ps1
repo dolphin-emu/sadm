@@ -8,4 +8,5 @@
 cd \buildslave
 start-process buildslave start
 
-# TODO(delroth): killswitch.
+cd $PSScriptRoot
+start-process python3 killswitch.py

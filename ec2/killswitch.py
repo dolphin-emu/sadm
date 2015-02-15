@@ -22,7 +22,8 @@ def setup_logging(program, verbose=False, local=True):
       local: If true, log to stdout as well as syslog.
     """
     loggers = []
-    loggers.append(logging.handlers.SysLogHandler('/dev/log'))
+    if sys.platform.startswith('linux'):
+        loggers.append(logging.handlers.SysLogHandler('/dev/log'))
     if local:
         loggers.append(logging.StreamHandler())
     for logger in loggers:

@@ -83,7 +83,7 @@ class Spawner(object):
                           if r['tsdelta'] > -3600 * 4]
         if not recent_history:
             recent_history = [r['price'] for r in per_az_history[max_az]][:20]
-        proposed_price = max(recent_history) * 0.99995
+        proposed_price = max(recent_history)
         if proposed_price > median(recent_history) * 1.05:
             proposed_price = median(recent_history) * 1.05
         return proposed_price

@@ -9,4 +9,4 @@ cd \buildslave
 start-process buildslave start
 
 cd $PSScriptRoot
-start-process python3 killswitch.py
+start-process python3 "..\killswitch.py killswitch.yml"

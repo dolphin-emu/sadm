@@ -6,6 +6,6 @@
 # * The buildslave.
 
 cd \buildslave
-Start-Service Buildbot
+start-process buildslave start
 
 # TODO(delroth): killswitch.

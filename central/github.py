@@ -329,10 +329,10 @@ class GHFifoCIEditer(events.EventTarget):
 
         body = textwrap.dedent('''\
             [FifoCI](%s/about/) detected that this change impacts graphical \
-            rendering. Here are the behavior differences detected by the \
-            system:
+            rendering. Here are the [behavior differences](%s/version/%s/) \
+            detected by the system:
 
-        ''' % cfg.fifoci.url)
+        ''' % (cfg.fifoci.url, cfg.fifoci.url, evt.hash))
         for diff in diff_data:
             l = '* `%s` on `%s`: ' % (diff['dff'], diff['type'])
             if diff['failure']:

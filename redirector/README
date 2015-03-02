@@ -1,0 +1,21 @@
+Dolphin redirector
+==================
+
+A simple web server running on dolp.in and redirecting short URLs to their
+longer equivalent.
+
+Currently supports:
+
+* http://dolp.in/r$GIT_HASH (github link to a commit)
+* http://dolp.in/pr$PR_NUMBER (github link to a pull request)
+* http://dolp.in/pr (github list of pull requests)
+* http://dolp.in/dl (download page)
+* http://dolp.in/gh (github project)
+* http://dolp.in/faq (FAQ page)
+* http://dolp.in/bbs (forums)
+
+Planned support (Coming Soon™):
+
+* http://dolp.in/v$VERSION (for example 4.0-1234, links to download page)
+* http://dolp.in/rv$VERSION (github link to commit matching the given version)
+* http://dolp.in/$IDENTIFIER (with an API to generate short links!)

@@ -63,6 +63,9 @@ func Router(w http.ResponseWriter, req *http.Request) {
 				fmt.Fprintf(w, "Error: %v: %v", r.Handler, err)
 				return
 			}
+			if req.URL.RawQuery != "" {
+				url += "?" + req.URL.RawQuery
+			}
 			http.Redirect(w, req, url, 302)
 			return
 		}

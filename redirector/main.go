@@ -36,7 +36,7 @@ func HandleGitRevision(args []string) (string, error) {
 }
 
 func HandlePullRequest(args []string) (string, error) {
-	return fmt.Sprintf("https://github.com/dolphin-emu/pull/%s", args[0]), nil
+	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/pull/%s", args[0]), nil
 }
 
 var readmeContents = GetReadme()

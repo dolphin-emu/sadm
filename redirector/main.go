@@ -16,6 +16,7 @@ type Redirector struct {
 
 var redirectors = []Redirector{
 	Redirector{`/r([0-9a-fA-F]{6,40})/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/commit/")},
+	Redirector{`/i(\d+)/?`, MakeStaticRedirector("https://code.google.com/p/dolphin-emu/issues/detail?id=")},
 	Redirector{`/pr/?(\d+)/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pull/")},
 	Redirector{`/pr(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pulls")},
 	Redirector{`/dl(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/download/")},

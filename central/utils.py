@@ -53,7 +53,7 @@ def spawn_periodic_task(interval, f, *args, **kwargs):
             try:
                 f(*args, **kwargs)
             except Exception:
-                logging.exception('Periodic task %s failed')
+                logging.exception('Periodic task %s failed', f.__name__)
             time.sleep(interval)
     DaemonThread(target=wrapper).start()
 

@@ -17,6 +17,7 @@ type Redirector struct {
 var redirectors = []Redirector{
 	Redirector{`/r([0-9a-fA-F]{6,40})/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/commit/")},
 	Redirector{`/i(\d+)/?`, MakeStaticRedirector("https://code.google.com/p/dolphin-emu/issues/detail?id=")},
+	Redirector{`/i(\d+)/(\d+)/?`, HandleIssueComment},
 	Redirector{`/pr/?(\d+)/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pull/")},
 	Redirector{`/pr(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pulls")},
 	Redirector{`/dl(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/download/")},
@@ -33,6 +34,10 @@ func MakeStaticRedirector(url string) RedirectHandler {
 		}
 		return url, nil
 	}
+}
+
+func HandleIssueComment(args []string) (string, error) {
+	return fmt.Sprintf("https://code.google.com/p/dolphin-emu/issues/detail?id=%s#c%s", args[0], args[1]), nil
 }
 
 var readmeContents = GetReadme()

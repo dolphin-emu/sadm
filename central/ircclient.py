@@ -30,10 +30,10 @@ class Bot(IRC):
             self.message(chan, what)
 
     def on_channel_message(self, who, channel, msg):
-        if self.cfg.nick in msg:
-            self.message(channel, Tags.LtGreen(Tags.Bold('WARK WARK WARK')))
+        direct = msg.startswith(self.cfg.nick)
 
-        direct = msg.startswith(self.cfg.nick + ':')
+        if direct:
+            self.message(channel, Tags.LtGreen(Tags.Bold('WARK WARK WARK')))
 
         modes = who.user.modes_in(channel)
         evt = events.IRCMessage(str(who), channel, msg, modes, direct)

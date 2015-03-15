@@ -62,3 +62,6 @@ buildbot:
 
 fifoci:
     url: https://fifoci.dolphin-emu.org/
+
+shortener:
+    api_key: API_KEY

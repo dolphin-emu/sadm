@@ -15,10 +15,8 @@ type Redirector struct {
 }
 
 var redirectors = []Redirector{
-	Redirector{`/r([0-9a-fA-F]{6,40})/?`, HandleGitRevision},
-	Redirector{`/pr(\d+)/?`, HandlePullRequest},
-	Redirector{`/pr/(\d+)/?`, HandlePullRequest},
-
+	Redirector{`/r([0-9a-fA-F]{6,40})/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/commit/")},
+	Redirector{`/pr/?(\d+)/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pull/")},
 	Redirector{`/pr(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pulls")},
 	Redirector{`/dl(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/download/")},
 	Redirector{`/gh(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin")},
@@ -34,14 +32,6 @@ func MakeStaticRedirector(url string) RedirectHandler {
 		}
 		return url, nil
 	}
-}
-
-func HandleGitRevision(args []string) (string, error) {
-	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/commit/%s", args[0]), nil
-}
-
-func HandlePullRequest(args []string) (string, error) {
-	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/pull/%s", args[0]), nil
 }
 
 var readmeContents = GetReadme()

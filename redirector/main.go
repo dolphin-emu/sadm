@@ -15,10 +15,11 @@ type Redirector struct {
 }
 
 var redirectors = []Redirector{
-	Redirector{`/r([0-9a-fA-F]{6,40})/?`, HandleGitRevision},
-	Redirector{`/pr(\d+)/?`, HandlePullRequest},
-	Redirector{`/pr/(\d+)/?`, HandlePullRequest},
-
+	Redirector{`/r([0-9a-fA-F]{6,40})/(\d+)/?`, HandleCommitComment},
+	Redirector{`/r([0-9a-fA-F]{6,40})/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/commit/")},
+	Redirector{`/i(\d+)/?`, MakeStaticRedirector("https://code.google.com/p/dolphin-emu/issues/detail?id=")},
+	Redirector{`/i(\d+)/(\d+)/?`, HandleIssueComment},
+	Redirector{`/pr/?(\d+)/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pull/")},
 	Redirector{`/pr(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pulls")},
 	Redirector{`/dl(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/download/")},
 	Redirector{`/gh(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin")},
@@ -36,12 +37,12 @@ func MakeStaticRedirector(url string) RedirectHandler {
 	}
 }
 
-func HandleGitRevision(args []string) (string, error) {
-	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/commit/%s", args[0]), nil
+func HandleCommitComment(args []string) (string, error) {
+	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/commit/%s#commitcomment-%s", args[0], args[1]), nil
 }
 
-func HandlePullRequest(args []string) (string, error) {
-	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/pull/%s", args[0]), nil
+func HandleIssueComment(args []string) (string, error) {
+	return fmt.Sprintf("https://code.google.com/p/dolphin-emu/issues/detail?id=%s#c%s", args[0], args[1]), nil
 }
 
 var readmeContents = GetReadme()

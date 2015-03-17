@@ -86,7 +86,8 @@ class PullRequestBuilder:
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 
-            if not pr['mergeable']:
+            # mergeable can be None!
+            if pr['mergeable'] is False:
                 status_evt = events.PullRequestBuildStatus(repo, head_sha,
                         'default', 'failure', '',
                         'PR cannot be merged, please rebase.')

@@ -12,6 +12,7 @@ import gcodepoller
 import github
 import ircclient
 import webserver
+import youtrack
 
 import argparse
 import logging
@@ -74,7 +75,7 @@ if __name__ == '__main__':
     logging.info('Configuration loaded, starting modules initialization.')
 
     # Start the modules.
-    for mod in [admin, buildbot, gcodepoller, github, ircclient, webserver]:
+    for mod in [admin, buildbot, gcodepoller, github, ircclient, webserver, youtrack]:
         mod.start()
 
     logging.info('Modules started, waiting for events.')

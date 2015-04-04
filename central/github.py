@@ -1,16 +1,17 @@
 """GitHub module that handles most interactions with GitHub. It handles
 incoming events but also provides an API."""
 
-from config import cfg
-
-import events
 import json
 import logging
+import re
+import requests
 import textwrap
 import time
-import utils
 
-import requests
+from config import cfg
+import events
+import utils
+import youtrack
 
 
 GH_WEBHOOK_EVENTS = [
@@ -236,7 +237,8 @@ class GHHookEventParser(events.EventTarget):
         id = int(raw.comment.pull_request_url.split('/')[-1])
         return events.GHPullRequestComment(repo, raw.sender.login, id,
                                            raw.comment.commit_id,
-                                           raw.comment.html_url)
+                                           raw.comment.html_url,
+                                           raw)
 
     def convert_issue_comment_event(self, raw):
         author = raw.sender.login
@@ -251,7 +253,8 @@ class GHHookEventParser(events.EventTarget):
         repo = raw.repository.owner.login + '/' + raw.repository.name
         return events.GHCommitComment(repo, raw.sender.login,
                                       raw.comment.commit_id,
-                                      raw.comment.html_url)
+                                      raw.comment.html_url,
+                                      raw)
 
     def push_event(self, evt):
         if evt.gh_type == 'push':
@@ -344,6 +347,27 @@ class GHFifoCIEditer(events.EventTarget):
         body += '\n<sub><sup>' + self.MAGIC_WORDS + '</sup></sub>'
         post_comment(owner, repo, evt.pr, body)
 
+
+class GHCommentYouTrackLinker(events.EventTarget):
+    def accept_event(self, evt):
+        accepted_types = [
+            events.GHCommitComment.TYPE,
+            events.GHIssueComment.TYPE,
+            events.GHPullRequestComment.TYPE,
+        ]
+        return evt.type in accepted_types
+
+    def push_event(self, evt):
+        # XYZ-123 -> [XYZ-123](http://youtrack/issue/XYZ-123)
+        new_body, subs = re.subn(r'(?<!\[)\b(?:{projects})-\d+\b'.format(projects='|'.join(youtrack.projects)),
+                                 r'[\g<0>]({youtrack}/issue/\g<0>)'.format(youtrack=cfg.youtrack.base_url),
+                                 evt.raw.comment.body)
+        if subs > 0:
+            requests.patch(evt.raw.comment.url,
+                           data=json.dumps({'body': new_body}),
+                           auth=basic_auth())
+
+
 def start():
     """Starts all the GitHub related services."""
 
@@ -351,6 +375,7 @@ def start():
     events.dispatcher.register_target(GHPRStatusUpdater())
     events.dispatcher.register_target(GHAllowMergeEditer())
     events.dispatcher.register_target(GHFifoCIEditer())
+    events.dispatcher.register_target(GHCommentYouTrackLinker())
 
     utils.spawn_periodic_task(600, periodic_hook_maintainer)
     utils.spawn_periodic_task(cfg.github.trusted_users.refresh_interval,

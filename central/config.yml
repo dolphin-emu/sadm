@@ -6,6 +6,7 @@ irc:
     channels:
         - "#dolphin-dev"
         - "#dolphin-test"
+    rebuild_repo: dolphin-emu/dolphin
 
 web:
     external_url: https://central.dolphin-emu.org

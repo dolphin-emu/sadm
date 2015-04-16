@@ -12,6 +12,7 @@ import logging
 import os
 import os.path
 import queue
+import re
 import requests
 import uuid
 
@@ -153,6 +154,27 @@ class ManualPullRequestListener(events.EventTarget):
         self.builder.push(evt.author, evt.safe_author, evt.repo, evt.id)
 
 
+class IRCRebuildListener(events.EventTarget):
+    """Listen for rebuild commands on IRC."""
+
+    def __init__(self, builder):
+        super(IRCRebuildListener, self).__init__()
+        self.builder = builder
+
+    def accept_event(self, evt):
+        return evt.type == events.IRCMessage.TYPE
+
+    def push_event(self, evt):
+        trusted = 'o' in evt.modes
+        if not evt.direct or not trusted:
+            return
+        matches = re.search(r'\brebuild (pr ?)?(?P<pr_id>\d+)\b', evt.msg, re.I)
+        if not matches:
+            return
+        pr_id = matches.group('pr_id')
+        self.builder.push(evt.who, trusted, cfg.irc.rebuild_repo, pr_id)
+
+
 class BuildStatusCollector:
     def __init__(self):
         self.queue = queue.Queue()
@@ -216,6 +238,7 @@ def start():
     pr_builder = PullRequestBuilder()
     events.dispatcher.register_target(PullRequestListener(pr_builder))
     events.dispatcher.register_target(ManualPullRequestListener(pr_builder))
+    events.dispatcher.register_target(IRCRebuildListener(pr_builder))
     utils.DaemonThread(target=pr_builder.run).start()
 
     collector = BuildStatusCollector()

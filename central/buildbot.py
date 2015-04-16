@@ -71,7 +71,7 @@ class PullRequestBuilder:
             in_behalf_of, trusted, repo, pr_id = self.queue.get()
 
             # To check if a PR is mergeable, we need to request it directly.
-            pr = requests.get('https://api.github.com/repos/%s/pulls/%s'
+            pr = requests.get('https://api.github.com/repos/%s/pulls/%d'
                     % (repo, pr_id)).json()
             logging.info('PR %s mergeable: %s (%s)', pr_id, pr['mergeable'],
                     pr['mergeable_state'])
@@ -168,10 +168,14 @@ class IRCRebuildListener(events.EventTarget):
         trusted = 'o' in evt.modes
         if not evt.direct or not trusted:
             return
-        matches = re.search(r'\brebuild (pr ?)?(?P<pr_id>\d+)\b', evt.msg, re.I)
+        matches = re.search(r'\brebuild (pr ?)?(?P<pr_id>\d+)\b', evt.what, re.I)
         if not matches:
             return
         pr_id = matches.group('pr_id')
+        try:
+            pr_id = int(pr_id)
+        except ValueError:
+            return
         self.builder.push(evt.who, trusted, cfg.irc.rebuild_repo, pr_id)
 
 

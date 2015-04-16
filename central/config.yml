@@ -6,8 +6,7 @@ irc:
     channels:
         - "#dolphin-dev"
         - "#dolphin-test"
-    trusted_users:
-        - delroth
+    rebuild_repo: dolphin-emu/dolphin
 
 web:
     external_url: https://central.dolphin-emu.org

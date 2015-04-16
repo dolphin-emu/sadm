@@ -6,8 +6,6 @@ irc:
     channels:
         - "#dolphin-dev"
         - "#dolphin-test"
-    trusted_users:
-        - delroth
 
 web:
     external_url: https://central.dolphin-emu.org

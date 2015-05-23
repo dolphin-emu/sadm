@@ -5,7 +5,7 @@ import hmac
 import os
 import requests
 
-CALLBACK_URL = 'http://dolphin-emu.org/download/new/'
+CALLBACK_URL = 'https://dolphin-emu.org/download/new/'
 DOWNLOADS_CREATE_KEY = 'password'
 
 def get_env_var(name):
@@ -21,12 +21,14 @@ if __name__ == '__main__':
     description = get_env_var('DESCRIPTION')
     build_type = get_env_var('BUILD_TYPE')
     build_url = get_env_var('BUILD_URL')
+    builder_ver = get_env_var('BUILDER_VER')
 
-    msg = "%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s" % (
+    msg = "%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s" % (
         len(branch), len(shortrev), len(hash), len(author), len(description),
-        len(build_type), len(build_url),
+        len(build_type), len(build_url), len(builder_ver),
 
-        branch, shortrev, hash, author, description, build_type, build_url
+        branch, shortrev, hash, author, description, build_type, build_url,
+        builder_ver
     )
     hm = hmac.new(DOWNLOADS_CREATE_KEY, msg, hashlib.sha1)
 
@@ -38,6 +40,7 @@ if __name__ == '__main__':
         'description': description,
         'build_type': build_type,
         'build_url': build_url,
+        'builder_ver': builder_ver,
         'hmac': hm.hexdigest()
     }
 

@@ -150,7 +150,7 @@ class EventTarget(events.EventTarget):
 
         for commit in distinct_commits[:4]:
             firstline = commit.message.split('\n')[0]
-            author = Tags.Green(commit.author.name)
+            author = self.format_nickname(commit.author.name)
             added = Tags.LtGreen(str(len(commit.added)))
             modified = Tags.LtGreen(str(len(commit.modified)))
             removed = Tags.Red(str(len(commit.removed)))

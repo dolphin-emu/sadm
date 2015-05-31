@@ -107,7 +107,7 @@ class EventTarget(events.EventTarget):
         num_commits = len(distinct_commits)
 
         parts = []
-        parts.append(Tags.Black('[' + fmt_repo_name(evt.repo) + ']'))
+        parts.append('[' + fmt_repo_name(evt.repo) + ']')
         parts.append(self.format_nickname(evt.pusher))
 
         if evt.created:

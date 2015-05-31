@@ -1,48 +1,78 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 )
 
-type RedirectHandler func([]string) (string, error)
-
-type Redirector struct {
-	Pattern string
-	Handler RedirectHandler
+type RawRedirect struct {
+	ShortUrl       string   // format string for local URLs
+	LongUrl        string   // format string for where to redirect
+	PatternParams  []string // format arguments to turn ShortUrl/LongUrl into a valid pattern for Regexp.MustCompile()
+	TemplateParams []string // format arguments to turn ShortUrl/LongUrl into a valid template for Regexp.ExpandString()
 }
 
-var redirectors = []Redirector{
-	Redirector{`/r([0-9a-fA-F]{6,40})/(\d+)/?`, HandleCommitComment},
-	Redirector{`/r([0-9a-fA-F]{6,40})/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/commit/")},
-	Redirector{`/i(\d+)/?`, MakeStaticRedirector("https://code.google.com/p/dolphin-emu/issues/detail?id=")},
-	Redirector{`/i(\d+)/(\d+)/?`, HandleIssueComment},
-	Redirector{`/pr/?(\d+)/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pull/")},
-	Redirector{`/pr(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pulls")},
-	Redirector{`/dl(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/download/")},
-	Redirector{`/gh(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin")},
-	Redirector{`/git(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin")},
-	Redirector{`/faq(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/docs/faq/")},
-	Redirector{`/bbs(/.*)?`, MakeStaticRedirector("https://forums.dolphin-emu.org/")},
+type Redirect struct {
+	ShortRegex    *regexp.Regexp
+	LongRegex     *regexp.Regexp
+	ShortTemplate string
+	LongTemplate  string
 }
 
-func MakeStaticRedirector(url string) RedirectHandler {
-	return func(args []string) (string, error) {
-		if len(args) > 0 {
-			return url + args[0], nil
-		}
-		return url, nil
+var redirects = []Redirect{
+	Compile(RawRedirect{"/r%s/%s", "https://github.com/dolphin-emu/dolphin/commit/%s#commitcomment-%s", []string{`([0-9a-fA-F]{6,40})`, `(\d+)`}, []string{"$1", "$2"}}),
+	Compile(RawRedirect{"/r%s", "https://github.com/dolphin-emu/dolphin/commit/%s", []string{`([0-9a-fA-F]{6,40})`}, []string{"$1"}}),
+	Compile(RawRedirect{"/i%s%s", "https://code.google.com/p/dolphin-emu/issues/detail?id=%s%s", []string{`(\d+)`, `/?`}, []string{"$1", ""}}),
+	Compile(RawRedirect{"/i%s/%s", "https://code.google.com/p/dolphin-emu/issues/detail?id=$1#c$2", []string{`(\d+)`, `(\d+)`}, []string{"$1", "$2"}}),
+	Compile(RawRedirect{"/pr%s%s", "https://github.com/dolphin-emu/dolphin/pull/%[2]s%[1]s", []string{`/?`, `(\d+)`}, []string{"", "$1"}}),
+	Compile(RawRedirect{"/pr%s", "https://github.com/dolphin-emu/dolphin/pulls%s", []string{`(/.*)?`}, []string{"$1"}}),
+	Compile(RawRedirect{"/dl%s", "https://dolphin-emu.org/download%s", []string{`(/.*)?`}, []string{"$1"}}),
+	Compile(RawRedirect{"/gh%s", "https://github.com/dolphin-emu/dolphin%s", []string{`(/.*)?`}, []string{"$1"}}),
+	Compile(RawRedirect{"/git%s", "https://github.com/dolphin-emu/dolphin%s", []string{`(/.*)?`}, []string{"$1"}}),
+	Compile(RawRedirect{"/faq%s", "https://dolphin-emu.org/docs/faq%s", []string{`(/.*)?`}, []string{"$1"}}),
+	Compile(RawRedirect{"/bbs%s", "https://forums.dolphin-emu.org%s", []string{`(/.*)?`}, []string{"$1"}}),
+}
+
+func Compile(rr RawRedirect) Redirect {
+	var r Redirect
+	r.ShortRegex = regexp.MustCompile(fmt.Sprintf("^%s$", FillParams(rr.ShortUrl, rr.PatternParams)))
+	r.LongRegex = regexp.MustCompile(fmt.Sprintf("^%s$", FillParams(rr.LongUrl, rr.PatternParams)))
+	r.ShortTemplate = FillParams(rr.ShortUrl, rr.TemplateParams)
+	r.LongTemplate = FillParams(rr.LongUrl, rr.TemplateParams)
+	return r
+}
+
+func FillParams(format string, params []string) string {
+	p := make([]interface{}, len(params))
+	for i, v := range params {
+		p[i] = v
 	}
+	return fmt.Sprintf(format, p...)
 }
 
-func HandleCommitComment(args []string) (string, error) {
-	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/commit/%s#commitcomment-%s", args[0], args[1]), nil
-}
+func HandleShorten(w *http.ResponseWriter, req *http.Request) {
+	var msg struct {
+		LongUrl string `json:"longUrl"`
+	}
+	if json.NewDecoder(req.Body).Decode(&msg) != nil {
+		http.Error(*w, "Could not decode JSON.", 400)
+		return
+	}
 
-func HandleIssueComment(args []string) (string, error) {
-	return fmt.Sprintf("https://code.google.com/p/dolphin-emu/issues/detail?id=%s#c%s", args[0], args[1]), nil
+	for _, redirect := range redirects {
+		if matches := redirect.LongRegex.FindStringSubmatchIndex(msg.LongUrl); matches != nil {
+			var result struct {
+				ShortUrl string `json:"id"`
+			}
+			result.ShortUrl = string(redirect.LongRegex.ExpandString(nil, redirect.ShortTemplate, msg.LongUrl, matches))
+			json.NewEncoder(*w).Encode(result)
+			return
+		}
+	}
+	http.Error(*w, "Could not shorten URL.", 400)
 }
 
 var readmeContents = GetReadme()
@@ -56,15 +86,15 @@ func GetReadme() string {
 }
 
 func Router(w http.ResponseWriter, req *http.Request) {
-	for _, r := range redirectors {
-		re := regexp.MustCompile("^" + r.Pattern + "$")
-		matches := re.FindStringSubmatch(req.URL.Path)
+	if req.Method == "POST" {
+		HandleShorten(&w, req)
+		return
+	}
+
+	for _, r := range redirects {
+		matches := r.ShortRegex.FindStringSubmatchIndex(req.URL.Path)
 		if matches != nil {
-			url, err := r.Handler(matches[1:])
-			if err != nil {
-				fmt.Fprintf(w, "Error: %v: %v", r.Handler, err)
-				return
-			}
+			url := string(r.ShortRegex.ExpandString(nil, r.LongTemplate, req.URL.Path, matches))
 			if req.URL.RawQuery != "" {
 				url += "?" + req.URL.RawQuery
 			}

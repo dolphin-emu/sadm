@@ -9,29 +9,33 @@ import logging
 import os
 import requests
 import threading
+import traceback
 import time
 
 
 def shorten_url(url):
     """Minify a URL using goo.gl."""
     from config import cfg  # Cannot be done at toplevel - circular import.
-    try:
-        headers = {'Content-Type': 'application/json'}
-        data = {'longUrl': url}
-        api_url = 'https://www.googleapis.com/urlshortener/v1/url'
-        api_url += '?key=' + cfg.shortener.api_key
-        result = requests.post(api_url, headers=headers,
-                             data=json.dumps(data)).json()
-    except Exception:
-        logging.exception('URL shortening failed because of a network error')
-        return '<goo.gl network error>'
+    googl_url = 'https://www.googleapis.com/urlshortener/v1/url?key=' + cfg.shortener.api_key
+    for api_url in ['https://dolp.in/shorten', googl_url]:
+        try:
+            headers = {'Content-Type': 'application/json'}
+            data = {'longUrl': url}
+            result = requests.post(api_url, headers=headers,
+                                   data=json.dumps(data)).json()
+        except:
+            logging.exception('URL shortening failed because of a network error')
+            continue
 
-    try:
-        return result['id']
-    except KeyError:
-        logging.exception('URL shortening failed because of response: %s',
-                          result)
-        return '<goo.gl invalid response>'
+        try:
+            return result['id']
+        except KeyError:
+            logging.exception('URL shortening failed because of response: %s',
+                              result)
+            continue
+
+    # Fall back to unshortened URL.
+    return url
 
 
 class DaemonThread(threading.Thread):

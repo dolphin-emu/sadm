@@ -21,6 +21,13 @@ Currently supports:
   * http://dolp.in/faq (FAQ page)
   * http://dolp.in/bbs (forums)
 
+
+To shorten known URLs (similar API to goo.gl):
+
+  $ curl -d '{"longUrl": "https://github.com/dolphin-emu/dolphin/pull/1234"}' https://dolp.in/shorten
+  {"id": "https://dolp.in/pr1234"}
+
+
 Planned support (Coming Soon™):
 
 * http://dolp.in/v$VERSION (for example 4.0-1234, links to download page)

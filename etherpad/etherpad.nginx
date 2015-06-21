@@ -1,6 +1,8 @@
 server {
     listen 443 ssl;
     server_name etherpad.dolphin-emu.org etherpad.dolphin-emu.net;
+    gzip on;
+    gzip_types text/html application/javascript;
 
     access_log logs/etherpad.access.log main;
 

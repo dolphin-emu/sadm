@@ -1,0 +1,15 @@
+server {
+    listen 443 ssl;
+    server_name etherpad.dolphin-emu.org etherpad.dolphin-emu.net;
+
+    access_log logs/etherpad.access.log main;
+
+    location / {
+        proxy_pass http://localhost:8014;
+    }
+}
+
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}

@@ -5,6 +5,7 @@ server {
     access_log logs/etherpad.access.log main;
 
     location / {
+        add_header X-Frame-Options ALLOW;
         proxy_pass http://localhost:8014;
     }
 }

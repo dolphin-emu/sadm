@@ -6,6 +6,7 @@ server {
 
     location / {
         proxy_pass http://localhost:8010;
+        proxy_buffering off;
     }
 }
 

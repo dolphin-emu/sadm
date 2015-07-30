@@ -1,0 +1,44 @@
+[
+    {
+        "pattern": "(/kythe_builtins/include)/(.*)",
+        "vname": {
+            "corpus": "cstdlib",
+            "root": "@1@",
+            "path": "@2@"
+        }
+    },
+
+    {
+        "pattern": "(/usr/include)/(.*)",
+        "vname": {
+            "corpus": "cstdlib",
+            "root": "@1@",
+            "path": "@2@"
+        }
+    },
+
+    {
+        "pattern": "(/usr/.*/include)/(.*)",
+        "vname": {
+            "corpus": "cstdlib",
+            "root": "@1@",
+            "path": "@2@"
+        }
+    },
+
+    {
+        "pattern": "/home/ubuntu/dolphin/(.*)",
+        "vname": {
+            "corpus": "dolphin",
+            "path": "@1@"
+        }
+    },
+
+    {
+        "pattern": "(.*)",
+        "vname": {
+            "corpus": "dolphin",
+            "path": "@1@"
+        }
+    }
+]

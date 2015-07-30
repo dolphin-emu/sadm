@@ -1,0 +1,16 @@
+#! /bin/bash
+
+cxx_extractor \
+  --with_executable "$(basename "$0")" \
+  -resource-dir=/usr/lib/llvm-3.6/lib/clang/3.6.0/include \
+  -I/usr/include/c++/4.9 \
+  -I/usr/include/x86_64-linux-gnu/c++/4.9 \
+  -I/usr/include/c++/4.9/backward \
+  -I/usr/local/include \
+  -I/usr/lib/llvm-3.6/lib/clang/3.6.0/include \
+  -I/usr/lib/gcc/x86_64-linux-gnu/4.9/include \
+  -I/usr/include/x86_64-linux-gnu \
+  -I/usr/include \
+  $@
+
+exec "$(basename "$0")" $@

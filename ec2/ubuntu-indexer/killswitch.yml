@@ -1,0 +1,11 @@
+# URLs to periodically fetch to get queue status.
+url:
+  - https://buildbot.dolphin-emu.org/json/builders/nightly-index
+
+# Number of consecutive tries that must return 0 pending before halting.
+threshold: 10
+
+# Interval between each fetch (in seconds).
+interval: 10
+
+shutdown_command: ./shutdown.sh

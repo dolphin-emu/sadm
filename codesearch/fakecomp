@@ -13,4 +13,4 @@ cxx_extractor \
   -I/usr/include \
   $@
 
-exec "$(basename "$0")" $@
+exec "/usr/bin/$(basename "$0")" $@

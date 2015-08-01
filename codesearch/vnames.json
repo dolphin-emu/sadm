@@ -27,7 +27,7 @@
     },
 
     {
-        "pattern": "/home/ubuntu/dolphin/(.*)",
+        "pattern": "/home/ubuntu/buildslave/nightly-index/build/(.*)",
         "vname": {
             "corpus": "dolphin",
             "path": "@1@"

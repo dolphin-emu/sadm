@@ -1,5 +1,4 @@
 ec2:
-    region: us-east-1
     access_key_id: ACCESS_KEY
     secret_access_key: SECRET_KEY
 
@@ -9,6 +8,7 @@ buildbot:
 spawners:
     -
         name: ubuntu-nv
+        region: us-east-1
         builders:
             - fifoci-ogl-lin-nv
             - pr-fifoci-ogl-lin-nv

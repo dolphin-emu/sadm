@@ -122,12 +122,14 @@ if __name__ == '__main__':
     cfg_file = sys.argv[1]
     CFG = yaml.load(open(cfg_file))
 
-    ec2 = boto.ec2.connect_to_region(
-            CFG['ec2']['region'],
-            aws_access_key_id=CFG['ec2']['access_key_id'],
-            aws_secret_access_key=CFG['ec2']['secret_access_key'])
+    regions = {}
+    for cfg in CFG['spawners']:
+        regions[cfg['region']] = boto.ec2.connect_to_region(
+                cfg['region'], aws_access_key_id=CFG['ec2']['access_key_id'],
+                aws_secret_access_key=CFG['ec2']['secret_access_key'])
 
-    spawners = [Spawner(cfg, ec2, CFG['buildbot']) for cfg in CFG['spawners']]
+    spawners = [Spawner(cfg, regions[cfg['region']], CFG['buildbot'])
+                for cfg in CFG['spawners']]
     while True:
         for spawner in spawners:
             spawner.update()

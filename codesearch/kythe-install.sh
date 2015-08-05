@@ -2,6 +2,7 @@
 
 set -e
 
+test -d $HOME/kythe || git clone https://github.com/google/kythe $HOME/kythe
 cd $HOME/kythe
 git fetch origin master
 git reset --hard origin/master
@@ -23,3 +24,9 @@ for target in kythe/cxx/extractor/cxx_extractor \
     binary=$(basename "${target}")
     cp -f "${builtbin}/${target}" "${HOME}/bin/${binary}"
 done
+
+test -d $HOME/csui || git clone https://github.com/dolphin-emu/codesearch-ui $HOME/csui
+cd $HOME/csui
+git fetch origin master
+git reset --hard origin/master
+go build -o ~/bin/csindexer indexer/indexer.go

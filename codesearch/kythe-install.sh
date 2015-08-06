@@ -25,8 +25,6 @@ for target in kythe/cxx/extractor/cxx_extractor \
     cp -f "${builtbin}/${target}" "${HOME}/bin/${binary}"
 done
 
-test -d $HOME/csui || git clone https://github.com/dolphin-emu/codesearch-ui $HOME/csui
-cd $HOME/csui
-git fetch origin master
-git reset --hard origin/master
-go build -o ~/bin/csindexer indexer/indexer.go
+sudo apt-get -y install libleveldb-dev
+go get -d -u github.com/dolphin-emu/codesearch-ui/indexer
+go build -o ~/bin/csindexer github.com/dolphin-emu/codesearch-ui/indexer

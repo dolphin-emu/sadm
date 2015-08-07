@@ -12,7 +12,7 @@ time find "$1/units" -type f -printf "%f\n" | \
     sort -R | \
     {
         parallel --gnu -t -L1 \
-            indexer -ignore_unimplemented=true -index_pack "$1" -static_claim "$2" || \
+            indexer -ignore_unimplemented=true -index_pack "$1" || \
         echo "$? failures" >&2
     } | \
     dedup_stream --cache_size=8GiB | \

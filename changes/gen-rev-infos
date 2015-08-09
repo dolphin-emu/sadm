@@ -25,7 +25,7 @@ for r in $REV_TO_HANDLE; do
     if [ ! -z "$svn" ]; then
         svn=r$svn
     fi
-    v=$(cd $REPO && git describe --always --long $r | cut -d - -f -2)
+    v=$(cd $REPO && git describe --always --long $r | sed 's/-[^-]*$//')
     echo "<tr><td>$v</td><td>$svn</td>$log</tr>" >> $BASE/rev-infos-new
     if ! echo "$branch" | fgrep -q " " 2>/dev/null; then
         if [ "$branch" = "master" ]; then

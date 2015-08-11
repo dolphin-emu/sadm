@@ -40,6 +40,10 @@ gcode:
     atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic
     refresh_interval: 10
 
+youtrack:
+    base_url: http://issues.dolphin-emu.org/youtrack
+    projects_refresh_interval: 600
+
 buildbot:
     url: https://buildbot.dolphin-emu.org/
     jobdir: /home/buildbot/pr-jobdir

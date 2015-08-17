@@ -91,19 +91,19 @@ class PullRequestBuilder:
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 
-            if not trusted:
-                status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                        'default', 'failure', '',
-                        'PR not built because %s is not auto-trusted.'
-                            % in_behalf_of)
-                events.dispatcher.dispatch('prbuilder', status_evt)
-                continue
-
             # mergeable can be None!
             if pr['mergeable'] is False:
                 status_evt = events.PullRequestBuildStatus(repo, head_sha,
                         'default', 'failure', '',
                         'PR cannot be merged, please rebase.')
+                events.dispatcher.dispatch('prbuilder', status_evt)
+                continue
+
+            if not trusted:
+                status_evt = events.PullRequestBuildStatus(repo, head_sha,
+                        'default', 'failure', '',
+                        'PR not built because %s is not auto-trusted.'
+                            % in_behalf_of)
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 

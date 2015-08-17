@@ -79,6 +79,18 @@ class PullRequestBuilder:
             base_sha = pr['base']['sha']
             head_sha = pr['head']['sha']
 
+            # check if the PR contains any merge commits
+            commits = requests.get('https://api.github.com/repos/%s/pulls/%d/commits'
+                    % (repo, pr_id)).json()
+            has_merge_commits = any(len(c['parents']) > 1 for c in commits)
+
+            if has_merge_commits:
+                status_evt = events.PullRequestBuildStatus(repo, head_sha,
+                        'default', 'failure', '',
+                        'PR contains a merge commit, please use rebase instead.')
+                events.dispatcher.dispatch('prbuilder', status_evt)
+                continue
+
             if not trusted:
                 status_evt = events.PullRequestBuildStatus(repo, head_sha,
                         'default', 'failure', '',

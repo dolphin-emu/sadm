@@ -1,0 +1,24 @@
+server {
+    listen 443 ssl;
+    server_name bugs.dolphin-emu.org b.dolp.in;
+
+    access_log logs/bugs.access.log main;
+
+    location / {
+        proxy_pass http://localhost:8035;
+    }
+}
+
+server {
+    listen 80;
+    server_name bugs.dolphin-emu.org;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 80;
+    server_name b.dolp.in;
+
+    return 301 https://bugs.dolphin-emu.org$request_uri;
+}

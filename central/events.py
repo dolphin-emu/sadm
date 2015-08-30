@@ -65,9 +65,9 @@ def IRCMessage(who : str, where : str, what : str, modes : str, direct : bool):
     return { 'who': who, 'where': where, 'what': what, 'modes': modes,
              'direct': direct }
 
-@event('gcode_issue')
-def GCodeIssue(new : bool, update : int, issue : int, title : str,
-               author : str, url : str):
+@event('issue')
+def Issue(new : bool, update : int, issue : int, title : str,
+          author : str, url : str):
     return { 'new': new, 'update': update, 'issue': issue, 'title': title,
              'author': author, 'url': url }
 
@@ -124,3 +124,7 @@ def PullRequestFifoCIStatus(repo : str, hash : str, service : str, pr : int):
 @event('raw_bb_hook')
 def RawBBHook(bb_type : str, raw : dict):
     return { 'bb_type': bb_type, 'raw': raw }
+
+@event('raw_redmine_hook')
+def RawRedmineHook(rm_type : str, raw : dict):
+    return { 'rm_type': rm_type, 'raw': raw }

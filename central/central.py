@@ -8,9 +8,9 @@ import admin
 import buildbot
 import config
 import events
-import gcodepoller
 import github
 import ircclient
+import redmine
 import webserver
 
 import argparse
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     logging.info('Configuration loaded, starting modules initialization.')
 
     # Start the modules.
-    for mod in [admin, buildbot, gcodepoller, github, ircclient, webserver]:
+    for mod in [admin, buildbot, github, ircclient, redmine, webserver]:
         mod.start()
 
     logging.info('Modules started, waiting for events.')

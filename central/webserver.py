@@ -206,6 +206,19 @@ def buildbot_hook():
     return 'OK'
 
 
+@bottle.route('/redmine/', method='POST')
+def redmine_hook():
+    packet = bottle.request.json
+    if 'payload' not in packet:
+        raise bottle.HTTPError(400, 'Could not find payload object')
+    packet = packet['payload']
+
+    evt = events.RawRedmineHook(packet['action'], packet)
+    events.dispatcher.dispatch('webserver', evt)
+
+    return 'OK'
+
+
 def start():
     """Starts the web server."""
     port = cfg.web.port

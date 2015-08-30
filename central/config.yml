@@ -36,10 +36,6 @@ github:
     allow_self_merge_command: "@dolphin-emu-bot allowmerge"
     disallow_self_merge_command: "@dolphin-emu-bot disallowmerge"
 
-gcode:
-    atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic
-    refresh_interval: 10
-
 buildbot:
     url: https://buildbot.dolphin-emu.org/
     jobdir: /home/buildbot/pr-jobdir
@@ -64,3 +60,6 @@ fifoci:
 
 shortener:
     api_key: API_KEY
+
+redmine:
+    url: https://bugs.dolphin-emu.org/

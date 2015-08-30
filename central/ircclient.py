@@ -50,7 +50,7 @@ class EventTarget(events.EventTarget):
 
     def accept_event(self, evt):
         accepted_types = [
-            events.GCodeIssue.TYPE,
+            events.Issue.TYPE,
             events.GHPush.TYPE,
             events.GHPullRequest.TYPE,
             events.GHPullRequestComment.TYPE,
@@ -62,8 +62,8 @@ class EventTarget(events.EventTarget):
     def run(self):
         while True:
             evt = self.queue.get()
-            if evt.type == events.GCodeIssue.TYPE:
-                self.handle_gcode_issue(evt)
+            if evt.type == events.Issue.TYPE:
+                self.handle_issue(evt)
             elif evt.type == events.GHPush.TYPE:
                 self.handle_gh_push(evt)
             elif evt.type == events.GHPullRequest.TYPE:
@@ -83,8 +83,8 @@ class EventTarget(events.EventTarget):
             nickname = nickname[0] + '\ufeff' + nickname[1:]
         return Tags.Green(nickname)
 
-    def handle_gcode_issue(self, evt):
-        """Sends an IRC message notifying of a new GCode issue update."""
+    def handle_issue(self, evt):
+        """Sends an IRC message notifying of a new issue update."""
         author = self.format_nickname(evt.author)
         url = Tags.UnderlineBlue(utils.shorten_url(evt.url))
         if evt.new:

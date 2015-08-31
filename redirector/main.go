@@ -17,7 +17,7 @@ type Redirector struct {
 var redirectors = []Redirector{
 	Redirector{`/r([0-9a-fA-F]{6,40})/(\d+)/?`, HandleCommitComment},
 	Redirector{`/r([0-9a-fA-F]{6,40})/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/commit/")},
-	Redirector{`/i(\d+)/?`, MakeStaticRedirector("https://code.google.com/p/dolphin-emu/issues/detail?id=")},
+	Redirector{`/i(\d+)/?`, MakeStaticRedirector("https://bugs.dolphin-emu.org/issues/")},
 	Redirector{`/i(\d+)/(\d+)/?`, HandleIssueComment},
 	Redirector{`/pr/?(\d+)/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pull/")},
 	Redirector{`/pr(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pulls")},
@@ -42,7 +42,7 @@ func HandleCommitComment(args []string) (string, error) {
 }
 
 func HandleIssueComment(args []string) (string, error) {
-	return fmt.Sprintf("https://code.google.com/p/dolphin-emu/issues/detail?id=%s#c%s", args[0], args[1]), nil
+	return fmt.Sprintf("https://bugs.dolphin-emu.org/issues/%s#note-%s", args[0], args[1]), nil
 }
 
 var readmeContents = GetReadme()

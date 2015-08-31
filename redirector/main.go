@@ -42,7 +42,7 @@ func HandleCommitComment(args []string) (string, error) {
 }
 
 func HandleIssueComment(args []string) (string, error) {
-	return fmt.Sprintf("https://code.google.com/p/dolphin-emu/issues/detail?id=%s#c%s", args[0], args[1]), nil
+	return fmt.Sprintf("https://bugs.dolphin-emu.org/issues/%s#note-%s", args[0], args[1]), nil
 }
 
 var readmeContents = GetReadme()

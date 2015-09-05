@@ -86,7 +86,9 @@ class EventTarget(events.EventTarget):
     def handle_issue(self, evt):
         """Sends an IRC message notifying of a new issue update."""
         author = self.format_nickname(evt.author)
-        url = Tags.UnderlineBlue(utils.shorten_url(evt.url))
+        short_url = evt.url.replace('https://bugs.dolphin-emu.org/issues/',
+                                    'https://dolp.in/i')
+        url = Tags.UnderlineBlue(short_url)
         if evt.new:
             msg = 'Issue %d created: "%s" by %s - %s'
             msg = msg % (evt.issue, evt.title, author, url)

@@ -4,6 +4,9 @@ server {
 
     access_log logs/bugs.access.log main;
 
+    # To allow for large attachments.
+    client_max_body_size 128M;
+
     location / {
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;

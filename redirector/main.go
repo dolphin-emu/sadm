@@ -35,11 +35,25 @@ var redirectors = []Redirector{
 	// Issues.
 	MakeStaticRedirector(`/i(\d+)/?`, `https://bugs.dolphin-emu.org/issues/`),
 	MakeStaticRedirector(`/i(\d+)/(\d+)/?`, `https://bugs.dolphin-emu.org/issues/%s#note-%s`),
+
+	// Google Code compatibility.
+	MakeStaticRedirector(`/p/dolphin-emu/issues/list.*`, `https://bugs.dolphin-emu.org/projects/emulator/issues/#`),
+	MakeStaticRedirector(`/p/dolphin-emu/issues/detail.*id=(\d+).*`, `https://bugs.dolphin-emu.org/issues/`),
+	MakeStaticRedirector(`/p/dolphin-emu/source/browse(/?(?:$|.*/$))`, `https://github.com/dolphin-emu/dolphin/tree/master`),
+	MakeStaticRedirector(`/p/dolphin-emu/source/browse(/?.*)`, `https://github.com/dolphin-emu/dolphin/blob/master`),
+	MakeStaticRedirector(`/p/dolphin-emu/source/detail.*r=([0-9a-f]{6,40}).*`, `https://github.com/dolphin-emu/dolphin/commit/`),
+	MakeStaticRedirector(`/p/dolphin-emu/source/list/?.*`, `https://github.com/dolphin-emu/dolphin/commits/master/#`),
+	MakeStaticRedirector(`/p/dolphin-emu/source/?.*`, `https://github.com/dolphin-emu/dolphin/#`),
+	MakeStaticRedirector(`/p/dolphin-emu/w/?.*`, `https://github.com/dolphin-emu/dolphin/wiki#`),
+	MakeStaticRedirector(`/p/dolphin-emu/wiki/?.*`, `https://github.com/dolphin-emu/dolphin/wiki#`),
+	MakeStaticRedirector(`/p/dolphin-emu/?.*`, `https://dolphin-emu.org/#`),
 }
 
 func MakeStaticRedirector(pattern string, url string) Redirector {
 	re := regexp.MustCompile("(?i)^" + pattern + "$")
-	if !strings.Contains(url, "%") {
+	if url[len(url)-1] == '#' {
+		url = url[:len(url)-1]
+	} else if !strings.Contains(url, "%") {
 		url += "%s"
 	}
 	return Redirector{
@@ -69,15 +83,16 @@ func GetReadme() string {
 
 func Router(w http.ResponseWriter, req *http.Request) {
 	for _, r := range redirectors {
-		matches := r.Matcher.FindStringSubmatch(req.URL.Path)
+		p := req.URL.Path
+		if req.URL.RawQuery != "" {
+			p += "?" + req.URL.RawQuery
+		}
+		matches := r.Matcher.FindStringSubmatch(p)
 		if matches != nil {
 			url, err := r.Handler(matches[1:])
 			if err != nil {
 				fmt.Fprintf(w, "Error: %v: %v", r.Handler, err)
 				return
-			}
-			if req.URL.RawQuery != "" {
-				url += "?" + req.URL.RawQuery
 			}
 			http.Redirect(w, req, url, 302)
 			return

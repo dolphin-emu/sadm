@@ -5,44 +5,56 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
 )
 
 type RedirectHandler func([]string) (string, error)
 
 type Redirector struct {
-	Pattern string
+	Matcher *regexp.Regexp
 	Handler RedirectHandler
 }
 
 var redirectors = []Redirector{
-	Redirector{`/r([0-9a-fA-F]{6,40})/(\d+)/?`, HandleCommitComment},
-	Redirector{`/r([0-9a-fA-F]{6,40})/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/commit/")},
-	Redirector{`/i(\d+)/?`, MakeStaticRedirector("https://bugs.dolphin-emu.org/issues/")},
-	Redirector{`/i(\d+)/(\d+)/?`, HandleIssueComment},
-	Redirector{`/pr/?(\d+)/?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pull/")},
-	Redirector{`/pr(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin/pulls")},
-	Redirector{`/dl(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/download/")},
-	Redirector{`/gh(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin")},
-	Redirector{`/git(/.*)?`, MakeStaticRedirector("https://github.com/dolphin-emu/dolphin")},
-	Redirector{`/faq(/.*)?`, MakeStaticRedirector("https://dolphin-emu.org/docs/faq/")},
-	Redirector{`/bbs(/.*)?`, MakeStaticRedirector("https://forums.dolphin-emu.org/")},
+	// Random website locations.
+	MakeStaticRedirector(`/dl(/.*)?`, `https://dolphin-emu.org/download`),
+	MakeStaticRedirector(`/gh(/.*)?`, `https://github.com/dolphin-emu/dolphin`),
+	MakeStaticRedirector(`/git(/.*)?`, `https://github.com/dolphin-emu/dolphin`),
+	MakeStaticRedirector(`/faq(/.*)?`, `https://dolphin-emu.org/docs/faq`),
+	MakeStaticRedirector(`/bbs(/.*)?`, `https://forums.dolphin-emu.org`),
+	MakeStaticRedirector(`/pr(/.*)?`, `https://github.com/dolphin-emu/dolphin/pulls`),
+	MakeStaticRedirector(`/i(/.*)?`, `https://bugs.dolphin-emu.org/projects/emulator/issues`),
+
+	// Commits.
+	MakeStaticRedirector(`/r([0-9a-f]{6,40})/?`, `https://github.com/dolphin-emu/dolphin/commit/`),
+	MakeStaticRedirector(`/r([0-9a-f]{6,40})/(\d+)/?`, `https://github.com/dolphin-emu/dolphin/commit/%s#commitcomment-%s`),
+
+	// Pull requests.
+	MakeStaticRedirector(`/pr/?(\d+)/?`, `https://github.com/dolphin-emu/dolphin/pull/`),
+
+	// Issues.
+	MakeStaticRedirector(`/i(\d+)/?`, `https://bugs.dolphin-emu.org/issues/`),
+	MakeStaticRedirector(`/i(\d+)/(\d+)/?`, `https://bugs.dolphin-emu.org/issues/%s#note-%s`),
 }
 
-func MakeStaticRedirector(url string) RedirectHandler {
-	return func(args []string) (string, error) {
-		if len(args) > 0 {
-			return url + args[0], nil
-		}
-		return url, nil
+func MakeStaticRedirector(pattern string, url string) Redirector {
+	re := regexp.MustCompile("(?i)^" + pattern + "$")
+	if !strings.Contains(url, "%") {
+		url += "%s"
 	}
-}
-
-func HandleCommitComment(args []string) (string, error) {
-	return fmt.Sprintf("https://github.com/dolphin-emu/dolphin/commit/%s#commitcomment-%s", args[0], args[1]), nil
-}
-
-func HandleIssueComment(args []string) (string, error) {
-	return fmt.Sprintf("https://bugs.dolphin-emu.org/issues/%s#note-%s", args[0], args[1]), nil
+	return Redirector{
+		Matcher: re,
+		Handler: func(args []string) (string, error) {
+			if len(args) > 0 {
+				iargs := make([]interface{}, len(args))
+				for i, v := range args {
+					iargs[i] = v
+				}
+				return fmt.Sprintf(url, iargs...), nil
+			}
+			return url, nil
+		},
+	}
 }
 
 var readmeContents = GetReadme()
@@ -57,8 +69,7 @@ func GetReadme() string {
 
 func Router(w http.ResponseWriter, req *http.Request) {
 	for _, r := range redirectors {
-		re := regexp.MustCompile("^" + r.Pattern + "$")
-		matches := re.FindStringSubmatch(req.URL.Path)
+		matches := r.Matcher.FindStringSubmatch(req.URL.Path)
 		if matches != nil {
 			url, err := r.Handler(matches[1:])
 			if err != nil {

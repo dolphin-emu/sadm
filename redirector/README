@@ -13,7 +13,8 @@ Currently supports:
   * http://dolp.in/pr (list of pull requests)
   * http://dolp.in/gh (project page)
   * http://dolp.in/git (Git repository — can be cloned!)
-* Google Code:
+* bugs.dolphin-emu.org:
+  * http://dolp.in/i (list of bugs)
   * http://dolp.in/i$ISSUE_NUMBER (issue page)
   * http://dolp.in/i$ISSUE_NUMBER/$COMMENT_NUMBER (issue comment)
 * dolphin-emu.org:

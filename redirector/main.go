@@ -27,6 +27,7 @@ var redirectors = []Redirector{
 
 	// Versions
 	MakeStaticRedirector(`/v(\d.*)/?`, `https://dolphin-emu.org/download/dev/master/`),
+	MakeStaticRedirector(`/(\d+[.]\d+-\d+)/?`, `https://dolphin-emu.org/download/dev/master/`),
 
 	// Commits.
 	MakeStaticRedirector(`/r([0-9a-f]{6,40})/?`, `https://github.com/dolphin-emu/dolphin/commit/`),

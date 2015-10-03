@@ -23,6 +23,9 @@ Currently supports:
   * http://dolp.in/bbs (forums)
 * Google Code compatibility mappings (not documented here)
   * http://dolp.in/p/dolphin-emu/...
+* Versions:
+  * http://dolp.in/v$VERSION (for example 4.0-1234, links to download page)
+  * http://dolp.in/$VERSION (same, but requires more strict version format)
 
 Planned support (Coming Soon™):
 

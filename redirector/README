@@ -26,6 +26,8 @@ Currently supports:
 * Versions:
   * http://dolp.in/v$VERSION (for example 4.0-1234, links to download page)
   * http://dolp.in/$VERSION (same, but requires more strict version format)
+* Wiki:
+  * http://dolp.in/$GAMEID (for example GZLE01)
 
 Planned support (Coming Soon™):
 

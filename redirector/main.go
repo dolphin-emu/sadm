@@ -40,6 +40,9 @@ var redirectors = []Redirector{
 	MakeStaticRedirector(`/i(\d+)/?`, `https://bugs.dolphin-emu.org/issues/`),
 	MakeStaticRedirector(`/i(\d+)/(\d+)/?`, `https://bugs.dolphin-emu.org/issues/%s#note-%s`),
 
+	// Wiki.
+	MakeStaticRedirector(`/([A-Z0-9]{6})/?`, `https://wiki.dolphin-emu.org/dolphin-redirect.php?gameid=`),
+
 	// Google Code compatibility.
 	MakeStaticRedirector(`/p/dolphin-emu/issues/list.*`, `https://bugs.dolphin-emu.org/projects/emulator/issues/#`),
 	MakeStaticRedirector(`/p/dolphin-emu/issues/detail.*id=(\d+).*`, `https://bugs.dolphin-emu.org/issues/`),

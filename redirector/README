@@ -26,6 +26,5 @@ Currently supports:
 
 Planned support (Coming Soon™):
 
-* http://dolp.in/v$VERSION (for example 4.0-1234, links to download page)
 * http://dolp.in/rv$VERSION (GitHub link to commit matching the given version)
 * http://dolp.in/$IDENTIFIER (with an API to generate short links!)

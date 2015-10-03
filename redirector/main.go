@@ -25,6 +25,9 @@ var redirectors = []Redirector{
 	MakeStaticRedirector(`/pr(/.*)?`, `https://github.com/dolphin-emu/dolphin/pulls`),
 	MakeStaticRedirector(`/i(/.*)?`, `https://bugs.dolphin-emu.org/projects/emulator/issues`),
 
+	// Versions
+	MakeStaticRedirector(`/v(\d.*)/?`, `https://dolphin-emu.org/download/dev/master/`),
+
 	// Commits.
 	MakeStaticRedirector(`/r([0-9a-f]{6,40})/?`, `https://github.com/dolphin-emu/dolphin/commit/`),
 	MakeStaticRedirector(`/r([0-9a-f]{6,40})/(\d+)/?`, `https://github.com/dolphin-emu/dolphin/commit/%s#commitcomment-%s`),

@@ -88,6 +88,8 @@ class EventTarget(events.EventTarget):
         author = self.format_nickname(evt.author)
         short_url = evt.url.replace('https://bugs.dolphin-emu.org/issues/',
                                     'https://dolp.in/i')
+        if not evt.new:
+            short_url = '{}/{}'.format(short_url, evt.update)
         url = Tags.UnderlineBlue(short_url)
         if evt.new:
             msg = 'Issue %d created: "%s" by %s - %s'

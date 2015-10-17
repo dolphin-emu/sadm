@@ -20,13 +20,9 @@ done
 true >$BASE/rev-infos-new
 for r in $REV_TO_HANDLE; do
     log=$(cd $REPO && git log --format=format:"<td><a href=\"$URL$r\"><tt>%H</tt></a></td><td>%an</td><td>%s</td>" -1 $r)
-    svn=$(cd $REPO && git log --format=full -1 $r | grep git-svn-id | cut -d @ -f 2 | cut -d ' ' -f 1 | head -1)
     branch=$(cd $REPO && $BASE/git-what-branch --allbranches $r | cut -d / -f 3- | cut -d '(' -f 1 | xargs echo)
-    if [ ! -z "$svn" ]; then
-        svn=r$svn
-    fi
     v=$(cd $REPO && git describe --always --long $r | sed 's/-[^-]*$//')
-    echo "<tr><td>$v</td><td>$svn</td>$log</tr>" >> $BASE/rev-infos-new
+    echo "<tr><td>$v</td>$log</tr>" >> $BASE/rev-infos-new
     if ! echo "$branch" | fgrep -q " " 2>/dev/null; then
         if [ "$branch" = "master" ]; then
             echo "$v" > $BASE/latest-master

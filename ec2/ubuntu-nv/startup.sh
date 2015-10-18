@@ -34,8 +34,4 @@ done
 
 python ../killswitch.py killswitch.yml &
 
-apt-get update
-apt-get install ninja-build
-rm -rf /home/ubuntu/buildslave/*/build/build
-
 su - ubuntu -c "cd /home/ubuntu/buildslave && buildslave start"

@@ -67,9 +67,9 @@ def IRCMessage(who : str, where : str, what : str, modes : str, direct : bool):
 
 @event('issue')
 def Issue(new : bool, update : int, issue : int, title : str,
-          author : str, url : str):
+          author : str):
     return { 'new': new, 'update': update, 'issue': issue, 'title': title,
-             'author': author, 'url': url }
+             'author': author }
 
 @event('raw_gh_hook')
 def RawGHHook(gh_type : str, raw : dict):

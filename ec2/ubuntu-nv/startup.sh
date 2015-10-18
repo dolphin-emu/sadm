@@ -34,4 +34,8 @@ done
 
 python ../killswitch.py killswitch.yml &
 
-su - ubuntu -c "cd /home/ubuntu/buildslave && buildslave start"
+# Prepare ephemeral space.
+cp -r /home/ubuntu/buildslave /mnt/buildslave
+chown -R ubuntu:ubuntu /mnt/buildslave
+
+su - ubuntu -c "cd /mnt/buildslave && buildslave start"

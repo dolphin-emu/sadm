@@ -60,6 +60,3 @@ fifoci:
 
 shortener:
     api_key: API_KEY
-
-redmine:
-    url: https://bugs.dolphin-emu.org/

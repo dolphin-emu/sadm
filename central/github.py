@@ -320,12 +320,6 @@ class GHFifoCIEditer(events.EventTarget):
         comments = get_pull_request_comments(pr)
         comments = [c for c in comments
                       if c['user']['login'] == cfg.github.account.login]
-        for c in comments:
-            if self.MAGIC_WORDS in c['body']:
-                delete_comment(owner, repo, c['id'])
-
-        if not diff_data:
-            return
 
         body = textwrap.dedent('''\
             [FifoCI](%s/about/) detected that this change impacts graphical \
@@ -342,6 +336,17 @@ class GHFifoCIEditer(events.EventTarget):
             l += '(%s%s)' % (cfg.fifoci.url, diff['url'])
             body += l + '\n'
         body += '\n<sub><sup>' + self.MAGIC_WORDS + '</sup></sub>'
+
+        if comments and comments[-1]['body'] == body:
+            return
+
+        for c in comments:
+            if self.MAGIC_WORDS in c['body']:
+                delete_comment(owner, repo, c['id'])
+
+        if not diff_data:
+            return
+
         post_comment(owner, repo, evt.pr, body)
 
 def start():

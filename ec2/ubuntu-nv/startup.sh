@@ -8,6 +8,9 @@ git reset --hard origin/master
 
 python ../killswitch.py killswitch.yml &
 
+# Clear some persisted remains.
+sed -i '/192.168/d' /etc/hosts
+
 # Prepare ephemeral space.
 cp -r /home/ubuntu/buildslave /mnt/buildslave
 chown -R ubuntu:ubuntu /mnt/buildslave

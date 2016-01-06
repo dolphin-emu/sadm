@@ -34,7 +34,7 @@ def render_template(template, **kwargs):
     if _JINJA_ENV is None:
         this_dir = os.path.dirname(__file__)
         loader = jinja2.FileSystemLoader(os.path.join(this_dir, 'templates'))
-        _JINJA_ENV = jinja2.Environment(loader=loader)
+        _JINJA_ENV = jinja2.Environment(loader=loader, autoescape=True)
     return _JINJA_ENV.get_template(template).render(**kwargs)
 
 

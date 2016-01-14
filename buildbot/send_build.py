@@ -19,16 +19,16 @@ if __name__ == '__main__':
     hash = get_env_var('HASH')
     author = get_env_var('AUTHOR')
     description = get_env_var('DESCRIPTION')
-    build_type = get_env_var('BUILD_TYPE')
+    target_system = get_env_var('TARGET_SYSTEM')
     build_url = get_env_var('BUILD_URL')
-    builder_ver = get_env_var('BUILDER_VER')
+    user_os_matcher = get_env_var('USER_OS_MATCHER')
 
     msg = "%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s" % (
         len(branch), len(shortrev), len(hash), len(author), len(description),
-        len(build_type), len(build_url), len(builder_ver),
+        len(target_system), len(build_url), len(user_os_matcher),
 
-        branch, shortrev, hash, author, description, build_type, build_url,
-        builder_ver
+        branch, shortrev, hash, author, description, target_system, build_url,
+        user_os_matcher
     )
     hm = hmac.new(DOWNLOADS_CREATE_KEY, msg, hashlib.sha1)
 
@@ -38,9 +38,9 @@ if __name__ == '__main__':
         'hash': hash,
         'author': author,
         'description': description,
-        'build_type': build_type,
+        'target_system': target_system,
         'build_url': build_url,
-        'builder_ver': builder_ver,
+        'user_os_matcher': user_os_matcher,
         'hmac': hm.hexdigest()
     }
 

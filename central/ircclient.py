@@ -174,6 +174,8 @@ class EventTarget(events.EventTarget):
             Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_pull_request_comment(self, evt):
+        if evt.action != 'created':
+            return
         self.bot.say('[%s] %s commented on #%s %s: %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
             evt.id, evt.hash[:6],

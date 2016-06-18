@@ -96,9 +96,9 @@ def GHPullRequest(repo : str, author : str, action : str, id : int,
              'base_sha': base_sha, 'head_sha': head_sha }
 
 @event('gh_pull_request_comment')
-def GHPullRequestComment(repo : str, author : str, id : int, hash : str,
+def GHPullRequestComment(repo : str, author : str, action : str, id : int, hash : str,
                          url : str):
-    return { 'repo': repo, 'author': author, 'id': id, 'hash': hash,
+    return { 'repo': repo, 'author': author, 'action': action, 'id': id, 'hash': hash,
              'url': url }
 
 @event('gh_issue_comment')

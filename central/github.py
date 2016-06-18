@@ -234,15 +234,15 @@ class GHHookEventParser(events.EventTarget):
     def convert_pull_request_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
         id = int(raw.comment.pull_request_url.split('/')[-1])
-        return events.GHPullRequestComment(repo, raw.sender.login, id,
-                                           raw.comment.commit_id,
+        return events.GHPullRequestComment(repo, raw.sender.login, raw.action,
+                                           id, raw.comment.commit_id,
                                            raw.comment.html_url)
 
     def convert_issue_comment_event(self, raw):
         author = raw.sender.login
         repo = raw.repository.owner.login + '/' + raw.repository.name
         id = int(raw.issue.html_url.split('/')[-1])
-        return events.GHIssueComment(repo, author, raw.action, id, raw.issue.title,
+        return events.GHIssueComment(repo, author, id, raw.issue.title,
                                      raw.comment.html_url,
                                      is_safe_author(author), raw.comment.body,
                                      raw)

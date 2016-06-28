@@ -37,6 +37,14 @@ def shorten_url(url):
 class DaemonThread(threading.Thread):
     daemon = True
 
+    def run(self):
+        while True:
+            try:
+                super(DaemonThread, self).run()
+            except Exception:
+                logging.exception('Daemon thread %r failed', self)
+                time.sleep(1)
+
 
 class ObjectLike:
     """Transforms a dict-like structure into an object-like structure."""

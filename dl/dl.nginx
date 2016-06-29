@@ -5,7 +5,7 @@ server {
     access_log logs/dl.access.log main;
 
     location / {
-        root /srv/http/dl;
+        root /data/nas/dl;
         autoindex on;
     }
 }

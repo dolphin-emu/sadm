@@ -69,6 +69,13 @@ def post_comment(owner, repo, pr_id, body):
             auth=basic_auth())
 
 
+def merge_branch(owner, repo, base, head):
+    requests.post('https://api.github.com/repos/%s/%s/merges' %
+            (owner, repo), data=json.dumps({'base': base, 'head': head}),
+            headers={'Content-Type': 'application/json'},
+            auth=basic_auth())
+
+
 def is_pull_request_buildable(pr):
     statuses = requests.get(pr['_links']['statuses']['href']).json()
     if not statuses:
@@ -349,6 +356,16 @@ class GHFifoCIEditer(events.EventTarget):
 
         post_comment(owner, repo, evt.pr, body)
 
+class GHStableMerger(events.EventTarget):
+    def accept_event(self, evt):
+        return evt.type == events.GHPush.TYPE
+
+    def push_event(self, evt):
+        owner, repo = evt.repo.split('/')
+
+        if evt.base_ref_name == 'stable':
+            merge_branch(owner, repo, 'master', 'stable')
+
 def start():
     """Starts all the GitHub related services."""
 
@@ -356,6 +373,7 @@ def start():
     events.dispatcher.register_target(GHPRStatusUpdater())
     events.dispatcher.register_target(GHAllowMergeEditer())
     events.dispatcher.register_target(GHFifoCIEditer())
+    events.dispatcher.register_target(GHStableMerger())
 
     utils.spawn_periodic_task(600, periodic_hook_maintainer)
     utils.spawn_periodic_task(cfg.github.trusted_users.refresh_interval,

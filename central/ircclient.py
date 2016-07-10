@@ -40,9 +40,34 @@ class Bot(IRC):
         events.dispatcher.dispatch('ircclient', evt)
 
 
+class EventSettler(utils.DaemonThread):
+    SETTLE_TIMEOUT_SECS = 30.0
+
+    def __init__(self, handler):
+        super(EventSettler, self).__init__()
+        self.handler = handler
+        self.queue = queue.Queue()
+        self.start()
+
+    def push(self, item):
+        self.queue.put(item)
+
+    def run(self):
+        l = []
+        while True:
+            l = [self.queue.get()]
+            try:
+                while True:
+                    l.append(self.queue.get(timeout=self.SETTLE_TIMEOUT_SECS))
+            except queue.Empty:
+                self.handler(l)
+
+
 class EventTarget(events.EventTarget):
     def __init__(self, bot):
         self.bot = bot
+        self.build_status_settler = EventSettler(
+                self.handle_build_status_settled)
         self.queue = queue.Queue()
 
     def push_event(self, evt):
@@ -56,6 +81,7 @@ class EventTarget(events.EventTarget):
             events.GHPullRequestComment.TYPE,
             events.GHIssueComment.TYPE,
             events.GHCommitComment.TYPE,
+            events.BuildStatus.TYPE
         ]
         return evt.type in accepted_types
 
@@ -74,6 +100,8 @@ class EventTarget(events.EventTarget):
                 self.handle_gh_issue_comment(evt)
             elif evt.type == events.GHCommitComment.TYPE:
                 self.handle_gh_commit_comment(evt)
+            elif evt.type == events.BuildStatus.TYPE:
+                self.handle_build_status(evt)
             else:
                 logging.error('Got unknown event for irc: %r' % evt.type)
 
@@ -192,6 +220,27 @@ class EventTarget(events.EventTarget):
         self.bot.say('[%s] %s commented on commit %s: %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
             evt.commit, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+
+    def handle_build_status(self, evt):
+        if evt.success or evt.pending:
+            return
+        self.build_status_settler.push(evt)
+
+    def handle_build_status_settled(self, evts):
+        per_shortrev = {}
+        for evt in evts:
+            per_shortrev.setdefault(evt.shortrev, []).append(evt)
+        for shortrev, evts in per_shortrev.items():
+            builders = [evt.service for evt in evts]
+            builders.sort()
+
+            evt = evts[0]
+            if evt.pr is not None:
+                shortrev = '#%s' % evt.pr
+            self.bot.say('[%s] build for %s %s on builders [%s]: %s' % (
+                Tags.UnderlinePink(evt.repo), shortrev, Tags.Red('failed'),
+                ', '.join(builders),
+                Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
 def start():
     """Starts the IRC client."""

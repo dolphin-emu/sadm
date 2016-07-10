@@ -79,9 +79,11 @@ class PullRequestBuilder:
             base_sha = pr['base']['sha']
             head_sha = pr['head']['sha']
 
+            shortrev = head_sha[:6]
+
             if not trusted:
-                status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                        'default', 'failure', '',
+                status_evt = events.BuildStatus(repo, head_sha, shortrev,
+                        'default', pr_id, False, False, '',
                         'PR not built because %s is not auto-trusted.'
                             % in_behalf_of)
                 events.dispatcher.dispatch('prbuilder', status_evt)
@@ -89,20 +91,21 @@ class PullRequestBuilder:
 
             # mergeable can be None!
             if pr['mergeable'] is False:
-                status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                        'default', 'failure', '',
+                status_evt = events.BuildStatus(repo, head_sha, shortrev,
+                        'default', pr_id, False, False, '',
                         'PR cannot be merged, please rebase.')
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 
-            status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                        'default', 'success', '',
+            status_evt = events.BuildStatus(repo, head_sha, shortrev,
+                        'default', pr_id, True, False, '',
                         'Very basic checks passed, handed off to Buildbot.')
             events.dispatcher.dispatch('prbuilder', status_evt)
 
             for builder in cfg.buildbot.pr_builders:
-                status_evt = events.PullRequestBuildStatus(repo, head_sha,
-                        builder, 'pending', cfg.buildbot.url + '/waterfall',
+                status_evt = events.BuildStatus(repo, head_sha, shortrev,
+                        builder, pr_id, False, True,
+                        cfg.buildbot.url + '/waterfall',
                         'Auto build in progress')
                 events.dispatcher.dispatch('prbuilder', status_evt)
 
@@ -192,32 +195,32 @@ class BuildStatusCollector:
             builder = evt.payload.build.builderName
             props = { a: b for (a, b, _) in evt.payload.build.properties }
             has_all_required = True
-            for required in ('headrev', 'repo', 'buildnumber', 'pr_id'):
+            for required in ('headrev', 'repo', 'buildnumber', 'shortrev'):
                 if required not in props:
                     has_all_required = False
-                    break  # Not PR build.
+                    break
             if not has_all_required:
                 continue
             headrev = props['headrev']
             repo = props['repo']
             buildnumber = props['buildnumber']
-            pr_id = props['pr_id']
+            pr_id = props.get('pr_id')
+            shortrev = props['shortrev']
             success = evt.payload.results in (0, 1)  # SUCCESS/WARNING
 
             if builder in cfg.buildbot.pr_builders:
                 url = cfg.buildbot.url + '/builders/%s/builds/%s' % (
                         builder, buildnumber)
 
-                if not success:
-                    evt = events.PullRequestBuildStatus(repo, headrev, builder,
-                            'failure', url,
-                            'Build failed on builder %s' % builder)
-                    events.dispatcher.dispatch('buildbot', evt)
+                if success:
+                    description = 'Build succeeded on builder %s' % builder
                 else:
-                    evt = events.PullRequestBuildStatus(repo, headrev, builder,
-                            'success', url, 'Build succeeded on the Buildbot.')
-                    events.dispatcher.dispatch('buildbot', evt)
-            elif builder in cfg.buildbot.fifoci_builders and success:
+                    description = 'Build failed on builder %s' % builder
+
+                evt = events.BuildStatus(repo, headrev, shortrev, builder,
+                        pr_id, success, False, url, description)
+                events.dispatcher.dispatch('buildbot', evt)
+            elif pr_id and builder in cfg.buildbot.fifoci_builders and success:
                 evt = events.PullRequestFifoCIStatus(
                         repo, headrev, builder, pr_id)
                 events.dispatcher.dispatch('buildbot', evt)

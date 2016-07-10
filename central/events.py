@@ -111,11 +111,13 @@ def GHIssueComment(repo : str, author : str, id : int, title : str, url : str,
 def GHCommitComment(repo : str, author : str, commit : str, url : str):
     return { 'repo': repo, 'author': author, 'commit': commit, 'url': url }
 
-@event('pull_request_build_status')
-def PullRequestBuildStatus(repo : str, hash : str, service : str, status : str,
-                           url : str, description : str):
-    return { 'repo': repo, 'hash': hash, 'service': service, 'status': status,
-             'url': url, 'description': description }
+@event('build_status')
+def BuildStatus(repo : str, hash : str, shortrev : str, service : str,
+                pr: int, success : bool, pending : bool, url : str,
+                description : str):
+    return { 'repo': repo, 'hash': hash, 'shortrev': shortrev,
+            'service': service, 'pr': pr, 'success': success,
+            'pending': pending, 'url': url, 'description': description }
 
 @event('pull_request_fifoci_status')
 def PullRequestFifoCIStatus(repo : str, hash : str, service : str, pr : int):

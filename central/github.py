@@ -272,11 +272,21 @@ class GHHookEventParser(events.EventTarget):
 
 class GHPRStatusUpdater(events.EventTarget):
     def accept_event(self, evt):
-        return evt.type == events.PullRequestBuildStatus.TYPE
+        return evt.type == events.BuildStatus.TYPE
 
     def push_event(self, evt):
+        if evt.pr is None:
+            return
+
+        if evt.pending:
+            state = 'pending'
+        elif evt.success:
+            state = 'success'
+        else:
+            state = 'failure'
+
         url = 'https://api.github.com/repos/' + evt.repo + '/statuses/' + evt.hash
-        data = { 'state': evt.status, 'target_url': evt.url,
+        data = { 'state': state, 'target_url': evt.url,
                 'description': evt.description, 'context': evt.service }
         requests.post(url, headers={'Content-Type': 'application/json'},
                       data=json.dumps(data), auth=basic_auth())

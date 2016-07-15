@@ -20,8 +20,9 @@ def shorten_url(url):
         data = {'longUrl': url}
         api_url = 'https://www.googleapis.com/urlshortener/v1/url'
         api_url += '?key=' + cfg.shortener.api_key
-        result = requests.post(api_url, headers=headers,
-                             data=json.dumps(data)).json()
+        result = requests.post(api_url,
+                               headers=headers,
+                               data=json.dumps(data)).json()
     except Exception:
         logging.exception('URL shortening failed because of a network error')
         return '<goo.gl network error>'
@@ -86,6 +87,7 @@ def spawn_periodic_task(interval, f, *args, **kwargs):
             except Exception:
                 logging.exception('Periodic task %s failed', f.__name__)
             time.sleep(interval)
+
     DaemonThread(target=wrapper).start()
 
 

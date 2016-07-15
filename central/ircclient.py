@@ -10,6 +10,7 @@ import logging
 import queue
 import utils
 
+
 class Bot(IRC):
     def __init__(self, cfg):
         super(Bot, self).__init__()
@@ -67,7 +68,7 @@ class EventTarget(events.EventTarget):
     def __init__(self, bot):
         self.bot = bot
         self.build_status_settler = EventSettler(
-                self.handle_build_status_settled)
+            self.handle_build_status_settled)
         self.queue = queue.Queue()
 
     def push_event(self, evt):
@@ -75,13 +76,9 @@ class EventTarget(events.EventTarget):
 
     def accept_event(self, evt):
         accepted_types = [
-            events.Issue.TYPE,
-            events.GHPush.TYPE,
-            events.GHPullRequest.TYPE,
-            events.GHPullRequestComment.TYPE,
-            events.GHIssueComment.TYPE,
-            events.GHCommitComment.TYPE,
-            events.BuildStatus.TYPE
+            events.Issue.TYPE, events.GHPush.TYPE, events.GHPullRequest.TYPE,
+            events.GHPullRequestComment.TYPE, events.GHIssueComment.TYPE,
+            events.GHCommitComment.TYPE, events.BuildStatus.TYPE
         ]
         return evt.type in accepted_types
 
@@ -144,8 +141,8 @@ class EventTarget(events.EventTarget):
         if evt.created:
             if evt.ref_type == 'tags':
                 parts.append('tagged ' + fmt_ref(evt.ref_name) + ' at')
-                parts.append(fmt_ref(evt.base_ref_name) if evt.base_ref_name
-                                 else fmt_hash(evt.after_sha))
+                parts.append(fmt_ref(evt.base_ref_name)
+                             if evt.base_ref_name else fmt_hash(evt.after_sha))
             else:
                 parts.append('created ' + fmt_ref(evt.ref_name))
                 if evt.base_ref_name:
@@ -155,8 +152,8 @@ class EventTarget(events.EventTarget):
 
                 if distinct_commits:
                     parts.append('+' + Tags.Bold(str(num_commits)))
-                    parts.append('new commit' +
-                                    ('s' if num_commits > 1 else ''))
+                    parts.append('new commit' + ('s'
+                                                 if num_commits > 1 else ''))
         elif evt.deleted:
             parts.append(Tags.Red('deleted ') + fmt_ref(evt.ref_name))
             parts.append('at ' + fmt_hash(evt.before_sha))
@@ -186,13 +183,13 @@ class EventTarget(events.EventTarget):
             modified = Tags.LtGreen(str(len(commit.modified)))
             removed = Tags.Red(str(len(commit.removed)))
             url = Tags.UnderlineBlue(utils.shorten_url(commit.url))
-            self.bot.say('%s by %s [%s|%s|%s] %s %s' % (
-                commit.hash[:6], author, added, modified, removed, url,
-                firstline))
+            self.bot.say('%s by %s [%s|%s|%s] %s %s' %
+                         (commit.hash[:6], author, added, modified, removed,
+                          url, firstline))
 
         if len(distinct_commits) > 4:
-            self.bot.say('... and %d more commits'
-                         % (len(distinct_commits) - 4))
+            self.bot.say('... and %d more commits' %
+                         (len(distinct_commits) - 4))
 
     def handle_gh_pull_request(self, evt):
         self.bot.say('[%s] %s %s pull request #%d: %s (%s...%s): %s' % (
@@ -204,10 +201,10 @@ class EventTarget(events.EventTarget):
     def handle_gh_pull_request_comment(self, evt):
         if evt.action != 'created':
             return
-        self.bot.say('[%s] %s commented on #%s %s: %s' % (
-            Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
-            evt.id, evt.hash[:6],
-            Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+        self.bot.say('[%s] %s commented on #%s %s: %s' %
+                     (Tags.UnderlinePink(evt.repo),
+                      self.format_nickname(evt.author), evt.id, evt.hash[:6],
+                      Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_issue_comment(self, evt):
         if evt.author == cfg.github.account.login:
@@ -237,10 +234,11 @@ class EventTarget(events.EventTarget):
             evt = evts[0]
             if evt.pr is not None:
                 shortrev = '#%s' % evt.pr
-            self.bot.say('[%s] build for %s %s on builders [%s]: %s' % (
-                Tags.UnderlinePink(evt.repo), shortrev, Tags.Red('failed'),
-                ', '.join(builders),
-                Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+            self.bot.say('[%s] build for %s %s on builders [%s]: %s' %
+                         (Tags.UnderlinePink(evt.repo), shortrev,
+                          Tags.Red('failed'), ', '.join(builders),
+                          Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+
 
 def start():
     """Starts the IRC client."""

@@ -12,7 +12,6 @@ import utils
 
 import requests
 
-
 GH_WEBHOOK_EVENTS = [
     'push',
     'pull_request',
@@ -40,8 +39,8 @@ def user_from_oauth(token):
 
 
 def get_pull_request(owner, repo, pr_id):
-    return requests.get('https://api.github.com/repos/%s/%s/pulls/%s'
-                        % (owner, repo, pr_id)).json()
+    return requests.get('https://api.github.com/repos/%s/%s/pulls/%s' %
+                        (owner, repo, pr_id)).json()
 
 
 def get_pull_request_comments(pr):
@@ -59,14 +58,16 @@ def get_pull_request_comments(pr):
 
 def delete_comment(owner, repo, cmt_id):
     requests.delete('https://api.github.com/repos/%s/%s/issues/comments/%d' %
-            (owner, repo, cmt_id), auth=basic_auth())
+                    (owner, repo, cmt_id),
+                    auth=basic_auth())
 
 
 def post_comment(owner, repo, pr_id, body):
     requests.post('https://api.github.com/repos/%s/%s/issues/%s/comments' %
-            (owner, repo, pr_id), data=json.dumps({'body': body}),
-            headers={'Content-Type': 'application/json'},
-            auth=basic_auth())
+                  (owner, repo, pr_id),
+                  data=json.dumps({'body': body}),
+                  headers={'Content-Type': 'application/json'},
+                  auth=basic_auth())
 
 
 def is_pull_request_buildable(pr):
@@ -92,8 +93,9 @@ def is_pull_request_self_mergeable(pr):
 def merge_pr(pr):
     merge_url = pr['_links']['self']['href'] + '/merge'
     requests.put(merge_url,
-        data=json.dumps({'commit_message': pr['title']}),
-        auth=basic_auth())
+                 data=json.dumps({'commit_message': pr['title']}),
+                 auth=basic_auth())
+
 
 def request_get_all(url):
     """Github uses Link header for pagination, this loops through all pages."""
@@ -105,14 +107,16 @@ def request_get_all(url):
         data += r.json()
     return data
 
+
 TRUSTED_USERS = set()
 CORE_USERS = set()
+
+
 def sync_github_group(group, group_name):
     """Synchronizes the list of trusted users by querying a given group."""
     org = group_name.split('/')[0]
     team = group_name.split('/')[1]
-    logging.info('Refreshing list of trusted users (from %s/%s)',
-                 org, team)
+    logging.info('Refreshing list of trusted users (from %s/%s)', org, team)
 
     teams = request_get_all('https://api.github.com/orgs/%s/teams' % org)
     team_id = None
@@ -122,7 +126,8 @@ def sync_github_group(group, group_name):
             break
 
     if team_id is not None:
-        team_info = request_get_all('https://api.github.com/teams/%s/members' % team_id)
+        team_info = request_get_all('https://api.github.com/teams/%s/members' %
+                                    team_id)
         group.clear()
         for member in team_info:
             group.add(member['login'])
@@ -179,13 +184,14 @@ def periodic_hook_maintainer():
             url = h['url']
             method = requests.patch
         else:
-            logging.warning('Repo %r is missing our hook, installing'
-                            % repo)
+            logging.warning('Repo %r is missing our hook, installing' % repo)
             url = 'https://api.github.com/repos/%s/hooks' % repo
             method = requests.post
 
-        method(url, headers={'Content-Type': 'application/json'},
-               data=json.dumps(hook_data), auth=basic_auth())
+        method(url,
+               headers={'Content-Type': 'application/json'},
+               data=json.dumps(hook_data),
+               auth=basic_auth())
 
 
 class GHHookEventParser(events.EventTarget):
@@ -194,10 +200,14 @@ class GHHookEventParser(events.EventTarget):
 
     def convert_commit(self, commit):
         commit = utils.ObjectLike(commit)
-        return { 'author': commit.author, 'distinct': commit.distinct,
-                 'added': commit.added, 'modified': commit.modified,
-                 'removed': commit.removed, 'message': commit.message,
-                 'url': commit.url, 'hash': commit.id }
+        return {'author': commit.author,
+                'distinct': commit.distinct,
+                'added': commit.added,
+                'modified': commit.modified,
+                'removed': commit.removed,
+                'message': commit.message,
+                'url': commit.url,
+                'hash': commit.id}
 
     def convert_push_event(self, raw):
         repo = raw.repository.owner.name + '/' + raw.repository.name
@@ -224,12 +234,10 @@ class GHHookEventParser(events.EventTarget):
         head_ref_name = raw.pull_request.head.label.split(':')[-1]
         base_sha = raw.pull_request.base.sha
         head_sha = raw.pull_request.head.sha
-        return events.GHPullRequest(repo, author, raw.action,
-                                    raw.pull_request.number,
-                                    raw.pull_request.title, base_ref_name,
-                                    head_ref_name, base_sha, head_sha,
-                                    raw.pull_request.html_url,
-                                    is_safe_author(author))
+        return events.GHPullRequest(
+            repo, author, raw.action, raw.pull_request.number,
+            raw.pull_request.title, base_ref_name, head_ref_name, base_sha,
+            head_sha, raw.pull_request.html_url, is_safe_author(author))
 
     def convert_pull_request_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
@@ -242,10 +250,9 @@ class GHHookEventParser(events.EventTarget):
         author = raw.sender.login
         repo = raw.repository.owner.login + '/' + raw.repository.name
         id = int(raw.issue.html_url.split('/')[-1])
-        return events.GHIssueComment(repo, author, id, raw.issue.title,
-                                     raw.comment.html_url,
-                                     is_safe_author(author), raw.comment.body,
-                                     raw)
+        return events.GHIssueComment(
+            repo, author, id, raw.issue.title, raw.comment.html_url,
+            is_safe_author(author), raw.comment.body, raw)
 
     def convert_commit_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
@@ -286,10 +293,14 @@ class GHPRStatusUpdater(events.EventTarget):
             state = 'failure'
 
         url = 'https://api.github.com/repos/' + evt.repo + '/statuses/' + evt.hash
-        data = { 'state': state, 'target_url': evt.url,
-                'description': evt.description, 'context': evt.service }
-        requests.post(url, headers={'Content-Type': 'application/json'},
-                      data=json.dumps(data), auth=basic_auth())
+        data = {'state': state,
+                'target_url': evt.url,
+                'description': evt.description,
+                'context': evt.service}
+        requests.post(url,
+                      headers={'Content-Type': 'application/json'},
+                      data=json.dumps(data),
+                      auth=basic_auth())
 
 
 class GHAllowMergeEditer(events.EventTarget):
@@ -302,8 +313,8 @@ class GHAllowMergeEditer(events.EventTarget):
         if cfg.github.allow_self_merge_command not in evt.body:
             return
         pr_author = evt.raw.issue.user.login
-        merge_url = cfg.web.external_url + '/gh/merge/%s/%s/' % (
-                evt.repo, evt.id)
+        merge_url = cfg.web.external_url + '/gh/merge/%s/%s/' % (evt.repo,
+                                                                 evt.id)
         new_body = '@%s: This comment grants you the permission to merge ' \
                    'this pull request whenever you think it is ready. ' \
                    'After addressing the remaining comments, click ' \
@@ -311,8 +322,8 @@ class GHAllowMergeEditer(events.EventTarget):
         new_body %= (pr_author, merge_url)
         new_body += evt.body
         requests.patch(evt.raw.comment.url,
-                data=json.dumps({'body': new_body}),
-                auth=basic_auth())
+                       data=json.dumps({'body': new_body}),
+                       auth=basic_auth())
 
 
 class GHFifoCIEditer(events.EventTarget):
@@ -329,7 +340,7 @@ class GHFifoCIEditer(events.EventTarget):
         pr = get_pull_request(owner, repo, evt.pr)
         comments = get_pull_request_comments(pr)
         comments = [c for c in comments
-                      if c['user']['login'] == cfg.github.account.login]
+                    if c['user']['login'] == cfg.github.account.login]
 
         body = textwrap.dedent('''\
             [FifoCI](%s/about/) detected that this change impacts graphical \
@@ -358,6 +369,7 @@ class GHFifoCIEditer(events.EventTarget):
             return
 
         post_comment(owner, repo, evt.pr, body)
+
 
 def start():
     """Starts all the GitHub related services."""

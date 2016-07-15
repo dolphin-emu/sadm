@@ -27,8 +27,9 @@ import urllib.parse
 # bottle size. Increase it.
 bottle.BaseRequest.MEMFILE_MAX = 64 * 1024 * 1024  # 32MB
 
-
 _JINJA_ENV = None
+
+
 def render_template(template, **kwargs):
     global _JINJA_ENV
     if _JINJA_ENV is None:
@@ -44,6 +45,7 @@ def requires_gh_auth(requested_scope):
 
     Cookies are encrypted using the OAuth client secret.
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -54,16 +56,18 @@ def requires_gh_auth(requested_scope):
                     req.get_cookie('gh_oauth_scope', secret=key) is not None:
                 token = req.get_cookie('gh_oauth_token', secret=key)
                 scope = req.get_cookie('gh_oauth_scope', secret=key)
-                token = utils.decrypt_data(token.encode('ascii'),
-                                           cfg.github.oauth.client_secret)
-                scope = utils.decrypt_data(scope.encode('ascii'),
-                                           cfg.github.oauth.client_secret)
+                token = utils.decrypt_data(
+                    token.encode('ascii'), cfg.github.oauth.client_secret)
+                scope = utils.decrypt_data(
+                    scope.encode('ascii'), cfg.github.oauth.client_secret)
                 scope = set(scope.split(','))
                 if requested_scope.issubset(scope):
                     req.oauth_token = token
                     return func(*args, **kwargs)
             return ask_for_gh_auth(requested_scope | scope)
+
         return wrapper
+
     return decorator
 
 
@@ -85,19 +89,22 @@ class EventLogger(events.EventTarget):
     def __init__(self):
         self.events = collections.deque(maxlen=25)
         self.per_type = collections.defaultdict(
-                lambda: collections.deque(maxlen=25))
+            lambda: collections.deque(maxlen=25))
 
     def push_event(self, evt):
         ts = datetime.datetime.now()
         self.events.append((ts, evt))
         self.per_type[evt.type].append((ts, evt))
+
+
 event_logger = EventLogger()
 
 
 @bottle.route('/')
 def status():
     out = io.StringIO()
-    out.write('<h2 style="text-align: center; background: #0ff">Status for Dolphin Central</h2>')
+    out.write(
+        '<h2 style="text-align: center; background: #0ff">Status for Dolphin Central</h2>')
 
     def display_recent_events(l):
         out.write('<pre>')
@@ -125,8 +132,9 @@ def gh_hook():
         logging.error('X-Hub-Signature not HMAC-SHA1 (%r)' % received_sig)
         raise bottle.HTTPError(500, 'X-Hub-Signature not HMAC-SHA1')
     received_sig = received_sig.split('=', 1)[1]
-    computed_sig = hmac.new(cfg.github.hook_hmac_secret.encode('ascii'),
-                            payload, hashlib.sha1).hexdigest()
+    computed_sig = hmac.new(
+        cfg.github.hook_hmac_secret.encode('ascii'), payload,
+        hashlib.sha1).hexdigest()
     if received_sig != computed_sig:
         logging.error('Received signature %r does not match' % received_sig)
         raise bottle.HTTPError(403, 'Signature mismatch')
@@ -144,10 +152,11 @@ def gh_oauth():
     if 'code' not in args or 'r' not in args:
         raise bottle.HTTPError(404, 'Missing arguments')
     response = requests.post('https://github.com/login/oauth/access_token',
-            data={'client_id': cfg.github.oauth.client_id,
-                  'client_secret': cfg.github.oauth.client_secret,
-                  'code': args['code']},
-            headers={'Accept': 'application/json'}).json()
+                             data={'client_id': cfg.github.oauth.client_id,
+                                   'client_secret':
+                                   cfg.github.oauth.client_secret,
+                                   'code': args['code']},
+                             headers={'Accept': 'application/json'}).json()
     if 'access_token' not in response:
         raise bottle.HTTPError(403, 'No response token from GitHub')
 
@@ -155,11 +164,17 @@ def gh_oauth():
                                cfg.github.oauth.client_secret)
     scope = utils.encrypt_data(response['scope'].encode('ascii'),
                                cfg.github.oauth.client_secret)
-    bottle.response.set_cookie('gh_oauth_token', token, secure=True,
-                               httponly=True, path='/',
+    bottle.response.set_cookie('gh_oauth_token',
+                               token,
+                               secure=True,
+                               httponly=True,
+                               path='/',
                                secret=cfg.github.oauth.client_secret)
-    bottle.response.set_cookie('gh_oauth_scope', scope, secure=True,
-                               httponly=True, path='/',
+    bottle.response.set_cookie('gh_oauth_scope',
+                               scope,
+                               secure=True,
+                               httponly=True,
+                               path='/',
                                secret=cfg.github.oauth.client_secret)
 
     bottle.redirect(args['r'])
@@ -169,6 +184,7 @@ def gh_oauth():
 @requires_gh_auth(set())
 def gh_merge(**kwargs):
     return render_template('merge-pr.html', **kwargs)
+
 
 @bottle.route('/gh/merge/do/<owner>/<repo>/<pr_id>/', method='POST')
 @requires_gh_auth(set())
@@ -227,5 +243,5 @@ def start():
 
     logging.info('Starting web server: port=%d' % port)
     utils.DaemonThread(target=bottle.run,
-                       kwargs={ 'host': cfg.web.bind,
-                                'port': cfg.web.port }).start()
+                       kwargs={'host': cfg.web.bind,
+                               'port': cfg.web.port}).start()

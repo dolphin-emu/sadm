@@ -71,10 +71,10 @@ class PullRequestBuilder:
             in_behalf_of, trusted, repo, pr_id = self.queue.get()
 
             # To check if a PR is mergeable, we need to request it directly.
-            pr = requests.get('https://api.github.com/repos/%s/pulls/%d'
-                    % (repo, pr_id)).json()
+            pr = requests.get('https://api.github.com/repos/%s/pulls/%d' %
+                              (repo, pr_id)).json()
             logging.info('PR %s mergeable: %s (%s)', pr_id, pr['mergeable'],
-                    pr['mergeable_state'])
+                         pr['mergeable_state'])
 
             base_sha = pr['base']['sha']
             head_sha = pr['head']['sha']
@@ -82,40 +82,38 @@ class PullRequestBuilder:
             shortrev = head_sha[:6]
 
             if not trusted:
-                status_evt = events.BuildStatus(repo, head_sha, shortrev,
-                        'default', pr_id, False, False, '',
-                        'PR not built because %s is not auto-trusted.'
-                            % in_behalf_of)
+                status_evt = events.BuildStatus(
+                    repo, head_sha, shortrev, 'default', pr_id, False, False,
+                    '', 'PR not built because %s is not auto-trusted.' %
+                    in_behalf_of)
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 
             # mergeable can be None!
             if pr['mergeable'] is False:
-                status_evt = events.BuildStatus(repo, head_sha, shortrev,
-                        'default', pr_id, False, False, '',
-                        'PR cannot be merged, please rebase.')
+                status_evt = events.BuildStatus(
+                    repo, head_sha, shortrev, 'default', pr_id, False, False,
+                    '', 'PR cannot be merged, please rebase.')
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 
-            status_evt = events.BuildStatus(repo, head_sha, shortrev,
-                        'default', pr_id, True, False, '',
-                        'Very basic checks passed, handed off to Buildbot.')
+            status_evt = events.BuildStatus(
+                repo, head_sha, shortrev, 'default', pr_id, True, False, '',
+                'Very basic checks passed, handed off to Buildbot.')
             events.dispatcher.dispatch('prbuilder', status_evt)
 
             for builder in cfg.buildbot.pr_builders:
-                status_evt = events.BuildStatus(repo, head_sha, shortrev,
-                        builder, pr_id, False, True,
-                        cfg.buildbot.url + '/waterfall',
-                        'Auto build in progress')
+                status_evt = events.BuildStatus(
+                    repo, head_sha, shortrev, builder, pr_id, False, True,
+                    cfg.buildbot.url + '/waterfall', 'Auto build in progress')
                 events.dispatcher.dispatch('prbuilder', status_evt)
 
-            patch = requests.get('https://github.com/%s/pull/%d.patch'
-                                 % (repo, pr_id)).text
-            req = make_build_request(repo, pr_id,
-                    '%d-%s' % (pr_id, head_sha[:6]), base_sha,
-                    head_sha, patch,
-                    'Central (on behalf of: %s)' % in_behalf_of,
-                    'Auto build for PR #%d (%s).' % (pr_id, head_sha))
+            patch = requests.get('https://github.com/%s/pull/%d.patch' %
+                                 (repo, pr_id)).text
+            req = make_build_request(
+                repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), base_sha,
+                head_sha, patch, 'Central (on behalf of: %s)' % in_behalf_of,
+                'Auto build for PR #%d (%s).' % (pr_id, head_sha))
             send_build_request(req)
 
 
@@ -171,7 +169,8 @@ class IRCRebuildListener(events.EventTarget):
         trusted = 'o' in evt.modes
         if not evt.direct or not trusted:
             return
-        matches = re.search(r'\brebuild (pr ?)?(?P<pr_id>\d+)\b', evt.what, re.I)
+        matches = re.search(r'\brebuild (pr ?)?(?P<pr_id>\d+)\b', evt.what,
+                            re.I)
         if not matches:
             return
         pr_id = matches.group('pr_id')
@@ -193,7 +192,7 @@ class BuildStatusCollector:
         while True:
             evt = self.queue.get()
             builder = evt.payload.build.builderName
-            props = { a: b for (a, b, _) in evt.payload.build.properties }
+            props = {a: b for (a, b, _) in evt.payload.build.properties}
             has_all_required = True
             for required in ('headrev', 'repo', 'buildnumber', 'shortrev'):
                 if required not in props:
@@ -210,7 +209,7 @@ class BuildStatusCollector:
 
             if builder in cfg.buildbot.pr_builders:
                 url = cfg.buildbot.url + '/builders/%s/builds/%s' % (
-                        builder, buildnumber)
+                    builder, buildnumber)
 
                 if success:
                     description = 'Build succeeded on builder %s' % builder
@@ -218,11 +217,12 @@ class BuildStatusCollector:
                     description = 'Build failed on builder %s' % builder
 
                 evt = events.BuildStatus(repo, headrev, shortrev, builder,
-                        pr_id, success, False, url, description)
+                                         pr_id, success, False, url,
+                                         description)
                 events.dispatcher.dispatch('buildbot', evt)
             elif pr_id and builder in cfg.buildbot.fifoci_builders and success:
-                evt = events.PullRequestFifoCIStatus(
-                        repo, headrev, builder, pr_id)
+                evt = events.PullRequestFifoCIStatus(repo, headrev, builder,
+                                                     pr_id)
                 events.dispatcher.dispatch('buildbot', evt)
 
 

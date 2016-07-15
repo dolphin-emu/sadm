@@ -26,8 +26,8 @@ class Reactor(events.EventTarget):
             author = evt.raw.issue.author.login
         else:
             author = evt.raw.journal.author.login
-        events.dispatcher.dispatch('redmine',
-                events.Issue(new, update, issue, title, author))
+        events.dispatcher.dispatch(
+            'redmine', events.Issue(new, update, issue, title, author))
 
 
 def start():

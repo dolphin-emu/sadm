@@ -7,7 +7,6 @@ the configuration as a global 'cfg' object.
 import utils
 import yaml
 
-
 cfg = utils.ObjectLike({})
 
 

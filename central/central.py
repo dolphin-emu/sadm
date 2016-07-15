@@ -22,6 +22,7 @@ import time
 class EventLoggingHandler(logging.Handler):
     """Emits internal_log events to the internal event dispatcher when a log
     message is received."""
+
     def emit(self, record):
         evt = events.InternalLog(record.levelname, record.pathname,
                                  record.lineno, record.msg, str(record.args))
@@ -44,9 +45,8 @@ def setup_logging(program, verbose=False, local=True):
     if local:
         loggers.append(logging.StreamHandler())
     for logger in loggers:
-        logger.setFormatter(logging.Formatter(
-            program + ': [%(levelname)s] %(message)s'
-        ))
+        logger.setFormatter(logging.Formatter(program +
+                                              ': [%(levelname)s] %(message)s'))
         logging.getLogger('').addHandler(logger)
     logging.getLogger('').setLevel(logging.DEBUG if verbose else logging.INFO)
 
@@ -54,13 +54,19 @@ def setup_logging(program, verbose=False, local=True):
 if __name__ == '__main__':
     # Parse command line flags.
     parser = argparse.ArgumentParser(description='Dolphin Central event '
-                                                 'dispatching server.')
-    parser.add_argument('--verbose', help='Increases logging level.',
-                        action='store_true', default=False)
-    parser.add_argument('--no_local_logging', help='Disable stderr logging.',
-                        action='store_true', default=False)
-    parser.add_argument('--config', help='Path to configuration file.',
-                        required=True, type=argparse.FileType('r'))
+                                     'dispatching server.')
+    parser.add_argument('--verbose',
+                        help='Increases logging level.',
+                        action='store_true',
+                        default=False)
+    parser.add_argument('--no_local_logging',
+                        help='Disable stderr logging.',
+                        action='store_true',
+                        default=False)
+    parser.add_argument('--config',
+                        help='Path to configuration file.',
+                        required=True,
+                        type=argparse.FileType('r'))
     args = parser.parse_args()
 
     # Initialize logging.

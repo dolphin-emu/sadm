@@ -37,10 +37,19 @@ def shorten_url(url):
 class DaemonThread(threading.Thread):
     daemon = True
 
+    def __init__(self, *args, **kwargs):
+        super(DaemonThread, self).__init__(*args, **kwargs)
+        self.daemon_target = kwargs.get('target')
+        self.args = kwargs.get('args', ())
+        self.kwargs = kwargs.get('kwargs', {})
+        if self.daemon_target is None:
+            self.daemon_target = self.run_daemonized
+
     def run(self):
         while True:
             try:
-                super(DaemonThread, self).run()
+                print('Running %s' % self.daemon_target)
+                self.daemon_target(*self.args, **self.kwargs)
             except Exception:
                 logging.exception('Daemon thread %r failed', self)
                 time.sleep(1)

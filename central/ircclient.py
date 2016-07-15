@@ -52,7 +52,7 @@ class EventSettler(utils.DaemonThread):
     def push(self, item):
         self.queue.put(item)
 
-    def run(self):
+    def run_daemonized(self):
         l = []
         while True:
             l = [self.queue.get()]

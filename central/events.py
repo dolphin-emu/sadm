@@ -135,10 +135,11 @@ def GHPullRequestComment(repo: str, author: str, action: str, id: int, hash:
 
 
 @event('gh_issue_comment')
-def GHIssueComment(repo: str, author: str, id: int, title: str, url: str,
+def GHIssueComment(repo: str, author: str, action: str, id: int, title: str, url: str,
                    safe_author: bool, body: str, raw: dict):
     return {'repo': repo,
             'author': author,
+            'action': action,
             'id': id,
             'title': title,
             'url': url,

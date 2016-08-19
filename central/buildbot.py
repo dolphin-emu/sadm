@@ -152,6 +152,8 @@ class ManualPullRequestListener(events.EventTarget):
             return
         if evt.repo not in cfg.github.maintain:
             return
+        if evt.action != 'created':
+            return
         self.builder.push(evt.author, evt.safe_author, evt.repo, evt.id)
 
 

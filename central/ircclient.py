@@ -209,9 +209,9 @@ class EventTarget(events.EventTarget):
     def handle_gh_issue_comment(self, evt):
         if evt.author == cfg.github.account.login:
             return
-        self.bot.say('[%s] %s commented on #%s (%s): %s' % (
+        self.bot.say('[%s] %s %s comment on #%s (%s): %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
-            evt.id, evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+            evt.action, evt.id, evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_commit_comment(self, evt):
         self.bot.say('[%s] %s commented on commit %s: %s' % (

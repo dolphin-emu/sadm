@@ -251,7 +251,7 @@ class GHHookEventParser(events.EventTarget):
         repo = raw.repository.owner.login + '/' + raw.repository.name
         id = int(raw.issue.html_url.split('/')[-1])
         return events.GHIssueComment(
-            repo, author, id, raw.issue.title, raw.comment.html_url,
+            repo, author, raw.action, id, raw.issue.title, raw.comment.html_url,
             is_safe_author(author), raw.comment.body, raw)
 
     def convert_commit_comment_event(self, raw):

@@ -84,7 +84,7 @@ class PullRequestBuilder:
             if not trusted:
                 status_evt = events.BuildStatus(
                     repo, head_sha, shortrev, 'default', pr_id, False, False,
-                    '', 'PR not built because %s is not auto-trusted.' %
+                    False, '', 'PR not built because %s is not auto-trusted.' %
                     in_behalf_of)
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
@@ -93,18 +93,18 @@ class PullRequestBuilder:
             if pr['mergeable'] is False:
                 status_evt = events.BuildStatus(
                     repo, head_sha, shortrev, 'default', pr_id, False, False,
-                    '', 'PR cannot be merged, please rebase.')
+                    True, '', 'PR cannot be merged, please rebase.')
                 events.dispatcher.dispatch('prbuilder', status_evt)
                 continue
 
             status_evt = events.BuildStatus(
-                repo, head_sha, shortrev, 'default', pr_id, True, False, '',
-                'Very basic checks passed, handed off to Buildbot.')
+                repo, head_sha, shortrev, 'default', pr_id, True, False, True,
+                '', 'Very basic checks passed, handed off to Buildbot.')
             events.dispatcher.dispatch('prbuilder', status_evt)
 
             for builder in cfg.buildbot.pr_builders:
                 status_evt = events.BuildStatus(
-                    repo, head_sha, shortrev, builder, pr_id, False, True,
+                    repo, head_sha, shortrev, builder, pr_id, False, True, True,
                     cfg.buildbot.url + '/waterfall', 'Auto build in progress')
                 events.dispatcher.dispatch('prbuilder', status_evt)
 
@@ -219,7 +219,7 @@ class BuildStatusCollector:
                     description = 'Build failed on builder %s' % builder
 
                 evt = events.BuildStatus(repo, headrev, shortrev, builder,
-                                         pr_id, success, False, url,
+                                         pr_id, success, False, True, url,
                                          description)
                 events.dispatcher.dispatch('buildbot', evt)
             elif pr_id and builder in cfg.buildbot.fifoci_builders and success:

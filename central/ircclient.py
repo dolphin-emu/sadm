@@ -192,10 +192,13 @@ class EventTarget(events.EventTarget):
                          (len(distinct_commits) - 4))
 
     def handle_gh_pull_request(self, evt):
-        self.bot.say('[%s] %s %s pull request #%d: %s (%s...%s): %s' % (
+        trusted_tag = ''
+        if not evt.safe_author:
+            trusted_tag = Tags.Red('[untrusted]')
+        self.bot.say('[%s] %s%s %s pull request #%d: %s (%s...%s): %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
-            evt.action, evt.id, evt.title, Tags.Purple(evt.base_ref_name),
-            Tags.Purple(evt.head_ref_name),
+            trusted_tag, evt.action, evt.id, evt.title,
+            Tags.Purple(evt.base_ref_name), Tags.Purple(evt.head_ref_name),
             Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_pull_request_comment(self, evt):
@@ -219,7 +222,7 @@ class EventTarget(events.EventTarget):
             evt.commit, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_build_status(self, evt):
-        if evt.success or evt.pending:
+        if evt.success or evt.pending or not evt.trusted:
             return
         self.build_status_settler.push(evt)
 

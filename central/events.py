@@ -155,7 +155,8 @@ def GHCommitComment(repo: str, author: str, commit: str, url: str):
 
 @event('build_status')
 def BuildStatus(repo: str, hash: str, shortrev: str, service: str, pr: int,
-                success: bool, pending: bool, url: str, description: str):
+                success: bool, pending: bool, trusted: bool, url: str,
+                description: str):
     return {'repo': repo,
             'hash': hash,
             'shortrev': shortrev,
@@ -163,6 +164,7 @@ def BuildStatus(repo: str, hash: str, shortrev: str, service: str, pr: int,
             'pr': pr,
             'success': success,
             'pending': pending,
+            'trusted': trusted,
             'url': url,
             'description': description}
 

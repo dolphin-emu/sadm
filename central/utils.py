@@ -15,6 +15,8 @@ import time
 def shorten_url(url):
     """Minify a URL using goo.gl."""
     from config import cfg  # Cannot be done at toplevel - circular import.
+    if url == '':
+        return '<no url>'
     try:
         headers = {'Content-Type': 'application/json'}
         data = {'longUrl': url}

@@ -77,6 +77,7 @@ class EventTarget(events.EventTarget):
     def accept_event(self, evt):
         accepted_types = [
             events.Issue.TYPE, events.GHPush.TYPE, events.GHPullRequest.TYPE,
+            events.GHPullRequestReview.TYPE,
             events.GHPullRequestComment.TYPE, events.GHIssueComment.TYPE,
             events.GHCommitComment.TYPE, events.BuildStatus.TYPE
         ]
@@ -91,6 +92,8 @@ class EventTarget(events.EventTarget):
                 self.handle_gh_push(evt)
             elif evt.type == events.GHPullRequest.TYPE:
                 self.handle_gh_pull_request(evt)
+            elif evt.type == events.GHPullRequestReview.TYPE:
+                self.handle_gh_pull_request_review(evt)
             elif evt.type == events.GHPullRequestComment.TYPE:
                 self.handle_gh_pull_request_comment(evt)
             elif evt.type == events.GHIssueComment.TYPE:
@@ -197,6 +200,23 @@ class EventTarget(events.EventTarget):
             evt.action, evt.id, evt.title, Tags.Purple(evt.base_ref_name),
             Tags.Purple(evt.head_ref_name),
             Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+
+    def handle_gh_pull_request_review(self, evt):
+        if evt.action == 'submitted' and evt.state == 'approved':
+            action = 'approved'
+        elif evt.action == 'submitted' and evt.state == 'commented':
+            action = 'reviewed and commented on'
+        elif evt.action == 'submitted' and evt.state == 'changes_requested':
+            action = 'requested changes to'
+        elif evt.state == 'dismissed':
+            action = 'dismissed their review on'
+        else:
+            action = '%s review on' % evt.action
+        self.bot.say('[%s] %s %s pull request #%s (%s): %s' %
+                     (Tags.UnderlinePink(evt.repo),
+                      self.format_nickname(evt.author), action,
+                      evt.pr_id, evt.pr_title,
+                      Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_pull_request_comment(self, evt):
         if evt.action != 'created':

@@ -15,6 +15,7 @@ import requests
 GH_WEBHOOK_EVENTS = [
     'push',
     'pull_request',
+    'pull_request_review',
     'pull_request_review_comment',
     'commit_comment',
     'issue_comment',
@@ -239,6 +240,12 @@ class GHHookEventParser(events.EventTarget):
             raw.pull_request.title, base_ref_name, head_ref_name, base_sha,
             head_sha, raw.pull_request.html_url, is_safe_author(author))
 
+    def convert_pull_request_review(self, raw):
+        repo = raw.repository.owner.login + '/' + raw.repository.name
+        return events.GHPullRequestReview(
+            repo, raw.sender.login, raw.action, raw.pull_request.number,
+            raw.pull_request.title, raw.review.state, raw.review.html_url)
+
     def convert_pull_request_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
         id = int(raw.comment.pull_request_url.split('/')[-1])
@@ -265,6 +272,8 @@ class GHHookEventParser(events.EventTarget):
             obj = self.convert_push_event(evt.raw)
         elif evt.gh_type == 'pull_request':
             obj = self.convert_pull_request_event(evt.raw)
+        elif evt.gh_type == 'pull_request_review':
+            obj = self.convert_pull_request_review(evt.raw)
         elif evt.gh_type == 'pull_request_review_comment':
             obj = self.convert_pull_request_comment_event(evt.raw)
         elif evt.gh_type == 'issue_comment':

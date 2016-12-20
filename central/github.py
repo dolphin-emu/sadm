@@ -249,9 +249,16 @@ class GHHookEventParser(events.EventTarget):
     def convert_pull_request_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
         id = int(raw.comment.pull_request_url.split('/')[-1])
+        # Comments submitted as part of a review can be detected by their
+        # action, the presence of a review ID, and a difference between
+        # created_at and updated_at (because the comment is initially pending).
+        is_part_of_review = raw.action == 'created' and \
+                            'pull_request_review_id' in raw.comment and \
+                            raw.comment.created_at != raw.comment.updated_at
         return events.GHPullRequestComment(repo, raw.sender.login, raw.action,
                                            id, raw.comment.commit_id,
-                                           raw.comment.html_url)
+                                           raw.comment.html_url,
+                                           is_part_of_review)
 
     def convert_issue_comment_event(self, raw):
         author = raw.sender.login

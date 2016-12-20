@@ -137,13 +137,14 @@ def GHPullRequestReview(repo: str, author: str, action: str, pr_id: int,
 
 @event('gh_pull_request_comment')
 def GHPullRequestComment(repo: str, author: str, action: str, id: int, hash:
-                         str, url: str):
+                         str, url: str, is_part_of_review: bool):
     return {'repo': repo,
             'author': author,
             'action': action,
             'id': id,
             'hash': hash,
-            'url': url}
+            'url': url,
+            'is_part_of_review': is_part_of_review}
 
 
 @event('gh_issue_comment')

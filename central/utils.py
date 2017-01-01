@@ -72,6 +72,9 @@ class ObjectLike:
         else:
             return val
 
+    def __contains__(self, name):
+        return name in self.dictlike
+
     def __str__(self):
         return str(self.dictlike)
 

@@ -182,7 +182,7 @@ def periodic_hook_maintainer():
 
         hook_data = {
             'name': 'web',
-            'active': 'true',
+            'active': True,
             'events': GH_WEBHOOK_EVENTS,
             'config': {
                 'url': webhook_url(),

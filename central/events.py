@@ -123,15 +123,28 @@ def GHPullRequest(repo: str, author: str, action: str, id: int, title: str,
             'head_sha': head_sha}
 
 
+@event('gh_pull_request_review')
+def GHPullRequestReview(repo: str, author: str, action: str, pr_id: int,
+                        pr_title: str, state: str, url: str):
+    """This event is triggered when a GitHub review is submitted."""
+    return {'repo': repo,
+            'author': author,
+            'action': action,
+            'pr_id': pr_id,
+            'pr_title': pr_title,
+            'state': state,
+            'url': url}
+
 @event('gh_pull_request_comment')
 def GHPullRequestComment(repo: str, author: str, action: str, id: int, hash:
-                         str, url: str):
+                         str, url: str, is_part_of_review: bool):
     return {'repo': repo,
             'author': author,
             'action': action,
             'id': id,
             'hash': hash,
-            'url': url}
+            'url': url,
+            'is_part_of_review': is_part_of_review}
 
 
 @event('gh_issue_comment')

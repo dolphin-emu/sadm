@@ -202,8 +202,19 @@ class EventTarget(events.EventTarget):
             Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_pull_request_review(self, evt):
+        # GitHub sends a review event in addition to a review comment event
+        # when someone replies to an earlier comment or adds a single comment,
+        # even when they didn't really submit a pull request review.
+        # To prevent useless notifications, we skip any "review" which only has
+        # one comment, since there is already a comment notification for those.
+        if len(evt.comments) == 1 and \
+            evt.comments[0].created_at == evt.comments[0].updated_at:
+            return
+
         if evt.action == 'submitted' and evt.state == 'approved':
             action = 'approved'
+            if len(evt.comments) != 0:
+                action += ' and commented on'
         elif evt.action == 'submitted' and evt.state == 'commented':
             action = 'reviewed and commented on'
         elif evt.action == 'submitted' and evt.state == 'changes_requested':

@@ -99,7 +99,7 @@ def merge_pr(pr):
 
 
 def get_pr_review_comments(owner_and_repo, pr_id, review_id):
-    return requests.get(
+    json = requests.get(
         'https://api.github.com/repos/%s/pulls/%d/reviews/%d/comments' %
         (owner_and_repo, pr_id, review_id),
         headers={'Content-Type': 'application/json',
@@ -107,6 +107,7 @@ def get_pr_review_comments(owner_and_repo, pr_id, review_id):
                  # but it will continue to work after the preview period ends.
                  'Accept': 'application/vnd.github.black-cat-preview+json'},
         auth=basic_auth()).json()
+    return [utils.ObjectLike(c) for c in json]
 
 
 def request_get_all(url):

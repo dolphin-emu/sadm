@@ -98,6 +98,17 @@ def merge_pr(pr):
                  auth=basic_auth())
 
 
+def get_pr_review_comments(owner_and_repo, pr_id, review_id):
+    return requests.get(
+        'https://api.github.com/repos/%s/pulls/%d/reviews/%d/comments' %
+        (owner_and_repo, pr_id, review_id),
+        headers={'Content-Type': 'application/json',
+                 # This API is currently in preview so we need to specify this,
+                 # but it will continue to work after the preview period ends.
+                 'Accept': 'application/vnd.github.black-cat-preview+json'},
+        auth=basic_auth()).json()
+
+
 def request_get_all(url):
     """Github uses Link header for pagination, this loops through all pages."""
     data = []
@@ -242,9 +253,11 @@ class GHHookEventParser(events.EventTarget):
 
     def convert_pull_request_review(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name
+        pr_id = raw.pull_request.number
+        comments = get_pr_review_comments(repo, pr_id, raw.review.id)
         return events.GHPullRequestReview(
-            repo, raw.sender.login, raw.action, raw.pull_request.number,
-            raw.pull_request.title, raw.review.state, raw.review.html_url)
+            repo, raw.sender.login, raw.action, pr_id, raw.pull_request.title,
+            raw.review.state, raw.review.html_url, comments)
 
     def convert_pull_request_comment_event(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name

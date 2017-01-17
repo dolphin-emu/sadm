@@ -27,14 +27,14 @@ def shorten_url(url):
                                data=json.dumps(data)).json()
     except Exception:
         logging.exception('URL shortening failed because of a network error')
-        return '<goo.gl network error>'
+        return url
 
     try:
         return result['id']
     except KeyError:
         logging.exception('URL shortening failed because of response: %s',
                           result)
-        return '<goo.gl invalid response>'
+        return url
 
 
 class DaemonThread(threading.Thread):

@@ -23,7 +23,7 @@ def make_netstring(s):
 
 
 def make_build_request(repo, pr_id, job_id, baserev, headrev, patch, who,
-                       comment):
+                       comment, clean=False):
     """Creates a build request binary blob in the format expected by the
     buildbot."""
 
@@ -38,6 +38,7 @@ def make_build_request(repo, pr_id, job_id, baserev, headrev, patch, who,
         'comment': comment,
         'properties': {
             'branchname': 'pr-%d' % pr_id,
+            'clean': clean,
             'headrev': headrev,
             'shortrev': headrev[:6],
             'pr_id': pr_id,
@@ -63,12 +64,12 @@ class PullRequestBuilder:
     def __init__(self):
         self.queue = queue.Queue()
 
-    def push(self, in_behalf_of, trusted, repo, pr_id):
-        self.queue.put((in_behalf_of, trusted, repo, pr_id))
+    def push(self, in_behalf_of, trusted, repo, pr_id, clean=False):
+        self.queue.put((in_behalf_of, trusted, repo, pr_id, clean))
 
     def run(self):
         while True:
-            in_behalf_of, trusted, repo, pr_id = self.queue.get()
+            in_behalf_of, trusted, repo, pr_id, clean = self.queue.get()
 
             # To check if a PR is mergeable, we need to request it directly.
             pr = requests.get('https://api.github.com/repos/%s/pulls/%d' %
@@ -113,7 +114,7 @@ class PullRequestBuilder:
             req = make_build_request(
                 repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), base_sha,
                 head_sha, patch, 'Central (on behalf of: %s)' % in_behalf_of,
-                'Auto build for PR #%d (%s).' % (pr_id, head_sha))
+                'Auto build for PR #%d (%s).' % (pr_id, head_sha), clean)
             send_build_request(req)
 
 
@@ -154,7 +155,9 @@ class ManualPullRequestListener(events.EventTarget):
             return
         if evt.action != 'created':
             return
-        self.builder.push(evt.author, evt.safe_author, evt.repo, evt.id)
+        clean = cfg.github.rebuild_clean_command.lower() in evt.body.lower()
+
+        self.builder.push(evt.author, evt.safe_author, evt.repo, evt.id, clean)
 
 
 class IRCRebuildListener(events.EventTarget):
@@ -171,7 +174,7 @@ class IRCRebuildListener(events.EventTarget):
         trusted = 'o' in evt.modes
         if not evt.direct or not trusted:
             return
-        matches = re.search(r'\brebuild (pr ?)?(?P<pr_id>\d+)\b', evt.what,
+        matches = re.search(r'\brebuild (pr ?)?(?P<pr_id>\d+)( ?(?P<clean>clean))?\b', evt.what,
                             re.I)
         if not matches:
             return
@@ -180,7 +183,8 @@ class IRCRebuildListener(events.EventTarget):
             pr_id = int(pr_id)
         except ValueError:
             return
-        self.builder.push(evt.who, trusted, cfg.irc.rebuild_repo, pr_id)
+        clean = matches.group('clean') is not None
+        self.builder.push(evt.who, trusted, cfg.irc.rebuild_repo, pr_id, clean)
 
 
 class BuildStatusCollector:

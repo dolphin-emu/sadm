@@ -33,6 +33,7 @@ github:
         client_id: CLIENT_ID
         client_secret: CLIENT_SECRET
     rebuild_command: "@dolphin-emu-bot rebuild"
+    rebuild_clean_command: "@dolphin-emu-bot rebuild clean"
     allow_self_merge_command: "@dolphin-emu-bot allowmerge"
     disallow_self_merge_command: "@dolphin-emu-bot disallowmerge"
 

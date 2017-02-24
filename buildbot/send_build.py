@@ -6,7 +6,7 @@ import os
 import requests
 
 CALLBACK_URL = 'https://dolphin-emu.org/download/new/'
-DOWNLOADS_CREATE_KEY = 'password'
+DOWNLOADS_CREATE_KEY = open('/etc/dolphin-keys/downloads-create').read().strip()
 
 def get_env_var(name):
     if name not in os.environ:

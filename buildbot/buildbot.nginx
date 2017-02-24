@@ -5,8 +5,18 @@ server {
     access_log logs/buildbot.access.log main;
 
     location / {
-        proxy_pass http://localhost:8010;
+        proxy_pass http://localhost:8010/;
+    }
+    location /sse/ {
+        proxy_pass http://localhost:8010/sse/;
         proxy_buffering off;
+    }
+    location /ws {
+        proxy_pass http://localhost:8010/ws;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 7200s;
     }
 }
 

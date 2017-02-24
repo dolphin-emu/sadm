@@ -8,6 +8,6 @@ server {
 
     location / {
         root /data/nas/dl;
-        autoindex on;
+        autoindex off;
     }
 }

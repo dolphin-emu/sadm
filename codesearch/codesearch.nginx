@@ -1,8 +1,9 @@
 server {
     listen 443 ssl;
+    listen [::]:443 ssl;
     server_name code.dolphin-emu.org cs.dolp.in;
 
-    access_log logs/codesearch.access.log main;
+    access_log /etc/nginx/logs/codesearch.access.log main;
 
     location / {
         proxy_pass http://localhost:8034;
@@ -10,14 +11,14 @@ server {
 }
 
 server {
-    listen 80;
+    listen [::]:80;
     server_name code.dolphin-emu.org;
 
     return 301 https://$host$request_uri;
 }
 
 server {
-    listen 80;
+    listen [::]:80;
     server_name cs.dolp.in;
 
     return 301 https://code.dolphin-emu.org$request_uri;

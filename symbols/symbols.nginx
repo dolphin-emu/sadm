@@ -4,7 +4,7 @@ server {
 
     server_name symbols.dolphin-emu.org symbols.dolphin-emu.net;
 
-    access_log logs/symbols.access.log main;
+    access_log /etc/nginx/logs/symbols.access.log main;
 
     location / {
         root /data/nas/symbols;

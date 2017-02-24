@@ -1,8 +1,9 @@
 server {
     listen 443 ssl;
+    listen [::]:443 ssl;
     server_name bugs.dolphin-emu.org b.dolp.in;
 
-    access_log logs/bugs.access.log main;
+    access_log /etc/nginx/logs/bugs.access.log main;
 
     # To allow for large attachments.
     client_max_body_size 128M;
@@ -17,6 +18,7 @@ server {
 
 server {
     listen 80;
+    listen [::]:80;
     server_name bugs.dolphin-emu.org;
 
     return 301 https://$host$request_uri;
@@ -24,6 +26,7 @@ server {
 
 server {
     listen 80;
+    listen [::]:80;
     server_name b.dolp.in;
 
     return 301 https://bugs.dolphin-emu.org$request_uri;

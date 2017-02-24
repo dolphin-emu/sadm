@@ -1,8 +1,9 @@
 server {
     listen 443 ssl;
+    listen [::]:443 ssl;
     server_name changes.dolphin-emu.org changes.dolphin-emu.net;
 
-    access_log logs/changes.access.log main;
+    access_log /etc/nginx/logs/changes.access.log main;
 
     location / {
         root /srv/http/changes;

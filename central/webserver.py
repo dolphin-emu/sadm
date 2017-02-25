@@ -210,7 +210,7 @@ def gh_merge_do(owner, repo, pr_id):
     bottle.redirect(pr['html_url'])
 
 
-@bottle.route('/buildbot/', method='POST')
+@bottle.route('/buildbot', method='POST')
 def buildbot_hook():
     packets = bottle.request.POST['packets']
     packets = json.loads(packets)

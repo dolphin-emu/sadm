@@ -212,12 +212,11 @@ def gh_merge_do(owner, repo, pr_id):
 
 @bottle.route('/buildbot', method='POST')
 def buildbot_hook():
-    packets = bottle.request.POST['packets']
-    packets = json.loads(packets)
-
-    for packet in packets:
-        evt = events.RawBBHook(packet['event'], packet)
-        events.dispatcher.dispatch('webserver', evt)
+    packet = bottle.request.json
+    if not packet:
+        raise bottle.HTTPError(400, 'Could not find any payload')
+    evt = events.RawBBHook(packet['state_string'], packet)
+    events.dispatcher.dispatch('webserver', evt)
 
     return 'OK'
 

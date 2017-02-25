@@ -67,6 +67,13 @@ class ObjectLike:
     def reset(self, dictlike):
         self.dictlike = dictlike
 
+    def items(self):
+        for k, v in self.dictlike.items():
+            if isinstance(v, dict):
+                yield (k, ObjectLike(v))
+            else:
+                yield (k, v)
+
     def __getattr__(self, name):
         val = self.dictlike.get(name)
         if isinstance(val, dict):

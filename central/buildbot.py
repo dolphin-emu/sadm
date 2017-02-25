@@ -193,8 +193,10 @@ class BuildStatusCollector:
     def run(self):
         while True:
             evt = self.queue.get()
-            builder = evt.payload.build.builderName
-            props = {a: b for (a, b, _) in evt.payload.build.properties}
+            builder = evt.builder.name
+            builder_id = evt.builder.builderid
+            props = utils.ObjectLike(
+                {k: v[0] for k, v in evt.properties.items()})
             has_all_required = True
             for required in ('headrev', 'repo', 'buildnumber', 'shortrev'):
                 if required not in props:
@@ -202,16 +204,16 @@ class BuildStatusCollector:
                     break
             if not has_all_required:
                 continue
-            headrev = props['headrev']
-            repo = props['repo']
-            buildnumber = props['buildnumber']
-            pr_id = props.get('pr_id')
-            shortrev = props['shortrev']
-            success = evt.payload.results in (0, 1)  # SUCCESS/WARNING
+            headrev = props.headrev
+            repo = props.repo
+            buildnumber = props.buildnumber
+            pr_id = props.pr_id
+            shortrev = props.shortrev
+            success = evt.results in (0, 1)  # SUCCESS/WARNING
 
             if builder in cfg.buildbot.pr_builders:
-                url = cfg.buildbot.url + '/builders/%s/builds/%s' % (
-                    builder, buildnumber)
+                url = cfg.buildbot.url + '#/builders/%d/builds/%s' % (
+                    builder_id, buildnumber)
 
                 if success:
                     description = 'Build succeeded on builder %s' % builder
@@ -237,7 +239,7 @@ class BBHookListener(events.EventTarget):
         return evt.type == events.RawBBHook.TYPE
 
     def push_event(self, evt):
-        if evt.bb_type == 'buildFinished':
+        if evt.bb_type == 'finished':
             self.collector.push(evt.raw)
 
 

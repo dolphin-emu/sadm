@@ -211,6 +211,9 @@ class EventTarget(events.EventTarget):
             evt.comments[0].created_at == evt.comments[0].updated_at:
             return
 
+        if evt.state == 'pending':
+            return
+
         if evt.action == 'submitted' and evt.state == 'approved':
             action = 'approved'
             if len(evt.comments) != 0:

@@ -1,0 +1,8 @@
+buildbot.sqlite
+buildbot.tac
+http.log
+master.cfg.sample
+pr-jobdir/
+state.sqlite
+twistd.log
+workers/

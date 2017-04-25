@@ -75,11 +75,18 @@ class ObjectLike:
                 yield (k, v)
 
     def __getattr__(self, name):
+        if name in ('dictlike',):
+            return super(ObjectLike, self).__getattr__(name)
         val = self.dictlike.get(name)
         if isinstance(val, dict):
             return ObjectLike(val)
         else:
             return val
+
+    def __setattr__(self, name, value):
+        if name in ('dictlike',):
+            return super(ObjectLike, self).__setattr__(name, value)
+        self.dictlike[name] = value
 
     def __contains__(self, name):
         return name in self.dictlike

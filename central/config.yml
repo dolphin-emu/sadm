@@ -45,10 +45,8 @@ buildbot:
         - pr-deb-dbg-x64
         - pr-osx-x64
         - pr-ubu-x64
-        - pr-ubu-noguix64
         - pr-win-x64
         - pr-win-dbg-x64
-        - pr-win-x86
         - lint
     fifoci_builders:
         - pr-fifoci-ogl-lin-mesa

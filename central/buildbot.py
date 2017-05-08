@@ -22,18 +22,18 @@ def make_netstring(s):
     return str(len(s)).encode('ascii') + b':' + s + b','
 
 
-def make_build_request(repo, pr_id, job_id, baserev, headrev, patch, who,
+def make_build_request(repo, pr_id, job_id, baserev, headrev, who,
                        comment):
     """Creates a build request binary blob in the format expected by the
     buildbot."""
 
     request_dict = {
-        'branch': '',
+        'branch': 'refs/pull/%d/head' % pr_id,
         'builderNames': cfg.buildbot.pr_builders,
         'jobid': job_id,
         'baserev': baserev,
-        'patch_level': 1,
-        'patch_body': patch,
+        'patch_level': 0,
+        'patch_body': None,
         'who': who,
         'comment': comment,
         'properties': {
@@ -108,11 +108,9 @@ class PullRequestBuilder:
                     cfg.buildbot.url + '/waterfall', 'Auto build in progress')
                 events.dispatcher.dispatch('prbuilder', status_evt)
 
-            patch = requests.get('https://github.com/%s/pull/%d.patch' %
-                                 (repo, pr_id)).text
             req = make_build_request(
                 repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), base_sha,
-                head_sha, patch, 'Central (on behalf of: %s)' % in_behalf_of,
+                head_sha, 'Central (on behalf of: %s)' % in_behalf_of,
                 'Auto build for PR #%d (%s).' % (pr_id, head_sha))
             send_build_request(req)
 

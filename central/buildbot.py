@@ -105,7 +105,7 @@ class PullRequestBuilder:
             for builder in cfg.buildbot.pr_builders:
                 status_evt = events.BuildStatus(
                     repo, head_sha, shortrev, builder, pr_id, False, True,
-                    cfg.buildbot.url + '/waterfall', 'Auto build in progress')
+                    cfg.buildbot.url + '/#/waterfall', 'Auto build in progress')
                 events.dispatcher.dispatch('prbuilder', status_evt)
 
             req = make_build_request(

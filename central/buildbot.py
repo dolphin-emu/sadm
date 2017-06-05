@@ -22,7 +22,7 @@ def make_netstring(s):
     return str(len(s)).encode('ascii') + b':' + s + b','
 
 
-def make_build_request(repo, pr_id, job_id, headrev, who, comment):
+def make_build_request(repo, pr_id, job_id, baserev, headrev, who, comment):
     """Creates a build request binary blob in the format expected by the
     buildbot."""
 
@@ -30,7 +30,7 @@ def make_build_request(repo, pr_id, job_id, headrev, who, comment):
         'branch': 'refs/pull/%d/head' % pr_id,
         'builderNames': cfg.buildbot.pr_builders,
         'jobid': job_id,
-        'baserev': '',
+        'baserev': baserev,
         'patch_level': 0,
         'patch_body': None,
         'who': who,
@@ -102,7 +102,7 @@ class PullRequestBuilder:
             events.dispatcher.dispatch('prbuilder', status_evt)
 
             req = make_build_request(
-                repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), head_sha,
+                repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), base_sha, head_sha,
                 'Central (on behalf of: %s)' % in_behalf_of,
                 'Auto build for PR #%d (%s).' % (pr_id, head_sha))
             send_build_request(req)

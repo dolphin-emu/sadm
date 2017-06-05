@@ -194,18 +194,21 @@ class BuildStatusCollector:
             builder_id = evt.builder.builderid
             props = utils.ObjectLike(
                 {k: v[0] for k, v in evt.properties.items()})
-            has_all_required = True
-            for required in ('headrev', 'repo', 'buildnumber', 'shortrev'):
-                if required not in props:
-                    has_all_required = False
-                    break
-            if not has_all_required:
+
+            if not 'repo' in props:
                 continue
-            headrev = props.headrev
+            if not 'buildnumber' in props:
+                continue
             repo = props.repo
             buildnumber = props.buildnumber
+
+            revision = (getattr(props, 'headrev', '') or
+                        getattr(props, 'got_revision', ''))
+            if not revision:
+                continue
+
             pr_id = props.pr_id
-            shortrev = props.shortrev
+            shortrev = getattr(props, 'shortrev', '') or revision[:6]
             success = evt.results in (0, 1)  # SUCCESS/WARNING
 
             if builder in cfg.buildbot.pr_builders:
@@ -217,12 +220,12 @@ class BuildStatusCollector:
                 else:
                     description = 'Build failed on builder %s' % builder
 
-                evt = events.BuildStatus(repo, headrev, shortrev, builder,
+                evt = events.BuildStatus(repo, revision, shortrev, builder,
                                          pr_id, success, False, url,
                                          description)
                 events.dispatcher.dispatch('buildbot', evt)
             elif pr_id and builder in cfg.buildbot.fifoci_builders and success:
-                evt = events.PullRequestFifoCIStatus(repo, headrev, builder,
+                evt = events.PullRequestFifoCIStatus(repo, revision, builder,
                                                      pr_id)
                 events.dispatcher.dispatch('buildbot', evt)
 

@@ -101,12 +101,6 @@ class PullRequestBuilder:
                 'Very basic checks passed, handed off to Buildbot.')
             events.dispatcher.dispatch('prbuilder', status_evt)
 
-            for builder in cfg.buildbot.pr_builders:
-                status_evt = events.BuildStatus(
-                    repo, head_sha, shortrev, builder, pr_id, False, True,
-                    cfg.buildbot.url + '/#/waterfall', 'Auto build in progress')
-                events.dispatcher.dispatch('prbuilder', status_evt)
-
             req = make_build_request(
                 repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), head_sha,
                 'Central (on behalf of: %s)' % in_behalf_of,
@@ -191,11 +185,10 @@ class BuildStatusCollector:
         while True:
             evt = self.queue.get()
             builder = evt.builder.name
-            builder_id = evt.builder.builderid
             props = utils.ObjectLike(
                 {k: v[0] for k, v in evt.properties.items()})
             has_all_required = True
-            for required in ('headrev', 'repo', 'buildnumber', 'shortrev'):
+            for required in ('headrev', 'repo', 'shortrev'):
                 if required not in props:
                     has_all_required = False
                     break
@@ -203,22 +196,21 @@ class BuildStatusCollector:
                 continue
             headrev = props.headrev
             repo = props.repo
-            buildnumber = props.buildnumber
             pr_id = props.pr_id
             shortrev = props.shortrev
+            pending = not evt.finished
             success = evt.results in (0, 1)  # SUCCESS/WARNING
 
             if builder in cfg.buildbot.pr_builders:
-                url = cfg.buildbot.url + '#/builders/%d/builds/%s' % (
-                    builder_id, buildnumber)
-
-                if success:
+                if pending:
+                    description = 'Auto build in progress on builder %s' % builder
+                elif success:
                     description = 'Build succeeded on builder %s' % builder
                 else:
                     description = 'Build failed on builder %s' % builder
 
                 evt = events.BuildStatus(repo, headrev, shortrev, builder,
-                                         pr_id, success, False, url,
+                                         pr_id, success, pending, evt.url,
                                          description)
                 events.dispatcher.dispatch('buildbot', evt)
             elif pr_id and builder in cfg.buildbot.fifoci_builders and success:
@@ -236,7 +228,7 @@ class BBHookListener(events.EventTarget):
         return evt.type == events.RawBBHook.TYPE
 
     def push_event(self, evt):
-        if evt.bb_type == 'finished':
+        if evt.bb_type == 'finished' or evt.bb_type == 'starting':
             self.collector.push(evt.raw)
 
 

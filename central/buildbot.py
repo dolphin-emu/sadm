@@ -199,7 +199,7 @@ class BuildStatusCollector:
             repo = props.repo
             pr_id = props.pr_id
             shortrev = props.shortrev
-            pending = not evt.finished
+            pending = not evt.complete
             success = evt.results in (0, 1)  # SUCCESS/WARNING
 
             if builder in cfg.buildbot.pr_builders:

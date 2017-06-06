@@ -30,6 +30,7 @@ def make_build_request(repo, pr_id, job_id, baserev, headrev, who, comment):
         'branch': 'refs/pull/%d/head' % pr_id,
         'builderNames': cfg.buildbot.pr_builders,
         'jobid': job_id,
+        'baserev': '',
         'patch_level': 0,
         'patch_body': None,
         'who': who,

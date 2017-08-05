@@ -28,6 +28,13 @@ class Spawner(object):
         self.ec2 = ec2
         self.buildbot_cfg = buildbot_cfg
         self.last_empty_time = 0
+        self.api_base = self.buildbot_cfg['url'] + 'api/v2'
+
+        builders_info = requests.get(self.api_base + '/builders').json()
+        self.builder_ids = {
+            builder['name']: builder['builderid']
+            for builder in builders_info['builders']
+        }
 
     def log(self, msg, *args):
         print(self.cfg['name'] + ': ' + (msg % args))
@@ -35,10 +42,11 @@ class Spawner(object):
     def get_queue_length(self):
         pending = 0
         for builder in self.cfg['builders']:
+            builderid = self.builder_ids[builder]
             try:
-                url = self.buildbot_cfg['url'] + '/json/builders/' + builder
+                url = self.api_base + '/builders/%d/buildrequests' % builderid
                 data = requests.get(url).json()
-                pending += data.get('pendingBuilds', 0)
+                pending += len(data.get('buildrequests', []))
             except Exception as e:
                 self.log('Error while fetching builder %s: %s', builder, e)
         return pending

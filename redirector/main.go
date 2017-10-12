@@ -81,7 +81,7 @@ func MakeStaticRedirector(pattern string, url string) Redirector {
 var readmeContents = GetReadme()
 
 func GetReadme() string {
-	s, err := ioutil.ReadFile("README")
+	s, err := ioutil.ReadFile("README.md")
 	if err != nil {
 		return "No README found. Cannot provide you with documentation ☹"
 	}

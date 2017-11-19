@@ -22,7 +22,7 @@ def make_netstring(s):
     return str(len(s)).encode('ascii') + b':' + s + b','
 
 
-def make_build_request(repo, pr_id, job_id, baserev, headrev, who, comment):
+def make_build_request(repo, pr_id, job_id, baserev, baseref, headrev, who, comment):
     """Creates a build request binary blob in the format expected by the
     buildbot."""
 
@@ -38,6 +38,7 @@ def make_build_request(repo, pr_id, job_id, baserev, headrev, who, comment):
         'properties': {
             'branchname': 'pr-%d' % pr_id,
             'baserev': baserev,
+            'baseref': baseref,
             'headrev': headrev,
             'shortrev': headrev[:6],
             'pr_id': pr_id,
@@ -77,6 +78,7 @@ class PullRequestBuilder:
                          pr['mergeable_state'])
 
             base_sha = pr['base']['sha']
+            base_ref = pr['base']['ref']
             head_sha = pr['head']['sha']
 
             shortrev = head_sha[:6]
@@ -103,8 +105,8 @@ class PullRequestBuilder:
             events.dispatcher.dispatch('prbuilder', status_evt)
 
             req = make_build_request(
-                repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), base_sha, head_sha,
-                'Central (on behalf of: %s)' % in_behalf_of,
+                repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), base_sha, base_ref,
+                head_sha, 'Central (on behalf of: %s)' % in_behalf_of,
                 'Auto build for PR #%d (%s).' % (pr_id, head_sha))
             send_build_request(req)
 

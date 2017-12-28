@@ -1,0 +1,9 @@
+buildbot
+buildbot-console-view
+buildbot-prometheus
+buildbot-waterfall-view
+buildbot-worker
+buildbot-www
+psycopg2
+requests
+txrequests

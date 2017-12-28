@@ -187,8 +187,8 @@ def PullRequestFifoCIStatus(repo: str, hash: str, service: str, pr: int):
 
 
 @event('raw_bb_hook')
-def RawBBHook(bb_type: str, raw: dict):
-    return {'bb_type': bb_type, 'raw': raw}
+def RawBBHook(raw: dict):
+    return {'raw': raw}
 
 
 @event('raw_redmine_hook')

@@ -215,7 +215,7 @@ def buildbot_hook():
     packet = bottle.request.json
     if not packet:
         raise bottle.HTTPError(400, 'Could not find any payload')
-    evt = events.RawBBHook(packet['state_string'], packet)
+    evt = events.RawBBHook(packet)
     events.dispatcher.dispatch('webserver', evt)
 
     return 'OK'

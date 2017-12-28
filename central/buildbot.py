@@ -229,8 +229,7 @@ class BBHookListener(events.EventTarget):
         return evt.type == events.RawBBHook.TYPE
 
     def push_event(self, evt):
-        if evt.bb_type == 'finished' or evt.bb_type == 'starting':
-            self.collector.push(evt.raw)
+        self.collector.push(evt.raw)
 
 
 def start():

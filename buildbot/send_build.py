@@ -11,7 +11,7 @@ DOWNLOADS_CREATE_KEY = open('/etc/dolphin-keys/downloads-create').read().strip()
 def get_env_var(name):
     if name not in os.environ:
         raise KeyError("%s is missing from the environment" % name)
-    return os.environ[name]
+    return os.environ[name].decode("utf-8")
 
 if __name__ == '__main__':
     branch = get_env_var('BRANCH')
@@ -23,14 +23,14 @@ if __name__ == '__main__':
     build_url = get_env_var('BUILD_URL')
     user_os_matcher = get_env_var('USER_OS_MATCHER')
 
-    msg = "%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s" % (
+    msg = u"%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s" % (
         len(branch), len(shortrev), len(hash), len(author), len(description),
         len(target_system), len(build_url), len(user_os_matcher),
 
         branch, shortrev, hash, author, description, target_system, build_url,
         user_os_matcher
     )
-    hm = hmac.new(DOWNLOADS_CREATE_KEY, msg, hashlib.sha1)
+    hm = hmac.new(DOWNLOADS_CREATE_KEY, msg.encode("utf-8"), hashlib.sha1)
 
     post_data = {
         'branch': branch,

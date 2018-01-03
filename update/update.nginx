@@ -1,0 +1,13 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name update.dolphin-emu.org update.dolphin-emu.net;
+
+    access_log /etc/nginx/logs/update.access.log main;
+
+    location / {
+        root /data/nas/update;
+        autoindex off;
+    }
+}

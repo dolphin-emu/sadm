@@ -4,6 +4,8 @@ buildbot-prometheus
 buildbot-waterfall-view
 buildbot-worker
 buildbot-www
+libarchive
 psycopg2
+pynacl
 requests
 txrequests

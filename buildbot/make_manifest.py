@@ -11,6 +11,18 @@ import os
 import os.path
 import sys
 
+
+def write_to_content_store(base, h, contents):
+    directory = os.path.join(base, h[0:2], h[2:4])
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+    path = os.path.join(directory, h[4:])
+    if os.path.exists(path):
+        return
+    with gzip.GzipFile(path, "wb") as fp:
+        fp.write(contents)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Generate an update manifest file.')
@@ -23,6 +35,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--output-manifest-store',
         help='If provided, write the manifest to the store at this path.')
+    parser.add_argument(
+        '--output-content-store',
+        help='If provided, write the content to the store at this path.')
     parser.add_argument(
         '--signing-key', required=True, help='Ed25519 signing key.')
     args = parser.parse_args()
@@ -40,8 +55,10 @@ if __name__ == '__main__':
             contents = ''
             for block in entry.get_blocks():
                 contents += block
-            entries.append((filename,
-                            hashlib.sha256(contents).hexdigest()[:32]))
+            h = hashlib.sha256(contents).hexdigest()[:32]
+            if args.output_content_store:
+                write_to_content_store(args.output_content_store, h, contents)
+            entries.append((filename, h))
 
     entries.sort()
     manifest = "".join("%s\t%s\n" % e for e in entries)

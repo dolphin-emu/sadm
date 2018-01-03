@@ -21,8 +21,8 @@ if __name__ == '__main__':
         required=True,
         help='SHA1 Git hash of the version being stored.')
     parser.add_argument(
-        '--output-hashstore',
-        help='If provided, write to the hashstore instead of stdout.')
+        '--output-manifest-store',
+        help='If provided, write the manifest to the store at this path.')
     parser.add_argument(
         '--signing-key', required=True, help='Ed25519 signing key.')
     args = parser.parse_args()
@@ -50,16 +50,22 @@ if __name__ == '__main__':
         open(args.signing_key).read(), encoder=nacl.encoding.RawEncoder)
     sig = base64.b64encode(signing_key.sign(manifest).signature)
 
-    if args.output_hashstore:
-        directory = os.path.join(args.output_hashstore, args.version_hash[0:2],
+    if args.output_manifest_store:
+        directory = os.path.join(args.output_manifest_store,
+                                 args.version_hash[0:2],
                                  args.version_hash[2:4])
         filename = args.version_hash[4:] + ".manifest"
         if not os.path.isdir(directory):
             os.makedirs(directory)
-        fp = gzip.GzipFile(
-            fileobj=open(os.path.join(directory, filename), "w"))
+        fp = gzip.GzipFile(os.path.join(directory, filename + ".tmp"), "wb")
     else:
         fp = sys.stdout
 
     fp.write(manifest)
     fp.write("\n" + sig + "\n")
+
+    if args.output_manifest_store:
+        fp.close()
+        os.rename(
+            os.path.join(directory, filename + ".tmp"),
+            os.path.join(directory, filename))

@@ -245,7 +245,7 @@ class EventTarget(events.EventTarget):
             return
         if evt.action == 'created':
             action = 'commented on'
-        else
+        else:
             action = '%s a comment on' % evt.action
         self.bot.say('[%s] %s %s #%s (%s): %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),

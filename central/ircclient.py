@@ -222,7 +222,7 @@ class EventTarget(events.EventTarget):
             action = 'reviewed and commented on'
         elif evt.action == 'submitted' and evt.state == 'changes_requested':
             action = 'requested changes to'
-        elif evt.state == 'dismissed':
+        elif evt.action == 'dismissed':
             action = 'dismissed their review on'
         else:
             action = '%s review on' % evt.action

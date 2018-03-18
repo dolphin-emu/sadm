@@ -225,7 +225,7 @@ class EventTarget(events.EventTarget):
         elif evt.action == 'dismissed':
             action = 'dismissed their review on'
         else:
-            action = '%s review on' % evt.action
+            action = '%s their review on' % evt.action
         self.bot.say('[%s] %s %s pull request #%s (%s): %s' %
                      (Tags.UnderlinePink(evt.repo),
                       self.format_nickname(evt.author), action,
@@ -243,9 +243,13 @@ class EventTarget(events.EventTarget):
     def handle_gh_issue_comment(self, evt):
         if evt.author == cfg.github.account.login:
             return
-        self.bot.say('[%s] %s %s comment on #%s (%s): %s' % (
+        if evt.action == 'created':
+            action = 'commented on'
+        else
+            action = '%s a comment on' % evt.action
+        self.bot.say('[%s] %s %s #%s (%s): %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
-            evt.action, evt.id, evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
+            action, evt.id, evt.title, Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
     def handle_gh_commit_comment(self, evt):
         self.bot.say('[%s] %s commented on commit %s: %s' % (

@@ -17,6 +17,10 @@ def shorten_url(url):
     from config import cfg  # Cannot be done at toplevel - circular import.
     if url == '':
         return '<no url>'
+    elif url.startswith("https://github.com/dolphin-emu/dolphin/pull/"):
+        return url.replace("https://github.com/dolphin-emu/dolphin/pull/", "https://dolp.in/pr")
+    elif url.startswith("https://github.com/dolphin-emu/dolphin/commit/"):
+        return url.replace("https://github.com/dolphin-emu/dolphin/commit/", "https://dolp.in/r")
     try:
         headers = {'Content-Type': 'application/json'}
         data = {'longUrl': url}

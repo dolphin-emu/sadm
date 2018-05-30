@@ -201,7 +201,7 @@ class EventTarget(events.EventTarget):
         elif action == 'review_requested':
             action = 'requested a review from %s for' % ', '.join([user.login for user in evt.requested_reviewers])
         elif action == 'review_request_removed':
-            action = 'dismissed a review request'
+            action = 'dismissed a review request on'
         elif action == 'closed' and evt.merged:
             action = 'merged'
         self.bot.say('[%s] %s %s pull request #%d: %s (%s...%s): %s' % (
@@ -220,7 +220,7 @@ class EventTarget(events.EventTarget):
             evt.comments[0].created_at == evt.comments[0].updated_at:
             return
 
-        if evt.state == 'pending':
+        if evt.state == 'pending' or evt.action == 'edited':
             return
 
         if evt.action == 'submitted' and evt.state == 'approved':

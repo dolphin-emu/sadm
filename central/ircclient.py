@@ -229,6 +229,12 @@ class EventTarget(events.EventTarget):
                 action += ' and commented on'
         elif evt.action == 'submitted' and evt.state == 'commented':
             action = 'reviewed and commented on'
+            # GitHub sends a review event when someone replies to a review comment.
+            # Omit 'reviewed and' in this case.
+            for comment in evt.comments:
+                if 'in_reply_to_id' in comment:
+                    action = 'commented on'
+                    break
         elif evt.action == 'submitted' and evt.state == 'changes_requested':
             action = 'requested changes to'
         elif evt.action == 'dismissed':

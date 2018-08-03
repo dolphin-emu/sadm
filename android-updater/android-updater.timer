@@ -1,0 +1,10 @@
+[Unit]
+Description=Run android-updater hourly
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=1h
+Unit=android-updater.service
+
+[Install]
+WantedBy=timers.target

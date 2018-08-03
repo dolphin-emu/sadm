@@ -1,0 +1,9 @@
+[Unit]
+Description=Updates Android Play Store listing for Dolphin
+
+[Service]
+Type=simple
+User=changes
+Group=changes
+EnvironmentFile=/etc/default/android-updater
+ExecStart=/usr/bin/env ${VENV}/bin/python ${SADM}/android-updater/updater.py --package_name ${PACKAGE_NAME} --update_track ${UPDATE_TRACK} --service_key_file ${SERVICE_KEY_FILE}

@@ -1,10 +1,10 @@
 #! /usr/bin/env python3
-# A simple stupid storage server which deserializes and writes reports to PGSQL.
+# A simple stupid storage server which deserializes and writes reports to ElasticSearch.
 
 import bottle
-import psycopg2
-import psycopg2.extras
+import elasticsearch
 import struct
+import time
 
 
 def deserialize_varint(report, i):
@@ -57,7 +57,7 @@ def deserialize(report):
     return data
 
 
-DB = psycopg2.connect("dbname=analytics")
+es = elasticsearch.Elasticsearch(['http://localhost:9200'])
 
 
 @bottle.post("/report")
@@ -65,10 +65,10 @@ def do_report():
     report = bottle.request.body.read()
     data = deserialize(report)
     print(data)
-    cur = DB.cursor()
-    cur.execute("INSERT INTO store(report) VALUES(%s)", [psycopg2.extras.Json(data)])
-    DB.commit()
-    cur.close()
+    if 'type' not in data:
+        return "KO"
+    data['ts'] = int(time.time() * 1000)
+    es.index(index='analytics', doc_type='event', body=data)
     return "OK"
 
 if __name__ == "__main__":

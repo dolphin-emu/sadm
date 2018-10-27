@@ -21,34 +21,46 @@ def deserialize_varint(report, i):
     return n, i
 
 
+def deserialize_with_tag(report, i, tag):
+    if tag == 0:  # STRING
+        length, i = deserialize_varint(report, i)
+        val = report[i:i+length].decode("utf-8")
+        i += length
+    elif tag == 1:  # BOOL
+        val = bool(report[i])
+        i += 1
+    elif tag == 2:  # UINT
+        val, i = deserialize_varint(report, i)
+    elif tag == 3:  # SINT
+        positive = bool(report[i])
+        i += 1
+        val, i = deserialize_varint(report, i)
+        if not positive:
+            val = -val
+    elif tag == 4:  # FLOAT
+        val = struct.unpack("<f", report[i:i+4])[0]
+        i += 4
+    elif tag & 0x80:  # ARRAY
+        length, i = deserialize_varint(report, i)
+        val = []
+        for j in range(length):
+            v, i = deserialize_with_tag(report, i, tag & ~0x80)
+            val.append(v)
+    else:
+        raise ValueError("Unknown tag %d" % tag)
+    return val, i
+
+
 def deserialize(report):
-    if report[0] != 0:
+    if report[0] not in (0, 1):
         raise ValueError("Unknown wire format version %d" % report[0])
     values = []
     i = 1
     while i < len(report):
         tag = report[i]
         i += 1
-        if tag == 0:  # STRING
-            length, i = deserialize_varint(report, i)
-            values.append(report[i:i+length].decode("utf-8"))
-            i += length
-        elif tag == 1:  # BOOL
-            values.append(bool(report[i]))
-            i += 1
-        elif tag == 2:  # UINT
-            v, i = deserialize_varint(report, i)
-            values.append(v)
-        elif tag == 3:  # SINT
-            positive = bool(report[i])
-            i += 1
-            v, i = deserialize_varint(report, i)
-            values.append(v if positive else -v)
-        elif tag == 4:  # FLOAT
-            values.append(struct.unpack("<f", report[i:i+4])[0])
-            i += 4
-        else:
-            raise ValueError("Unknown tag %d" % tag)
+        val, i = deserialize_with_tag(report, i, tag)
+        values.append(val)
     data = {}
     i = 0
     while i < len(values):

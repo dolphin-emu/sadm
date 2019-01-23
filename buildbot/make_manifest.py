@@ -33,6 +33,10 @@ if __name__ == '__main__':
         required=True,
         help='SHA1 Git hash of the version being stored.')
     parser.add_argument(
+        '--platform',
+        required=True,
+        help='Platform this manifest is generated for (either macos or win)')
+    parser.add_argument(
         '--output-manifest-store',
         help='If provided, write the manifest to the store at this path.')
     parser.add_argument(
@@ -69,6 +73,7 @@ if __name__ == '__main__':
 
     if args.output_manifest_store:
         directory = os.path.join(args.output_manifest_store,
+                                 args.platform,
                                  args.version_hash[0:2],
                                  args.version_hash[2:4])
         filename = args.version_hash[4:] + ".manifest"

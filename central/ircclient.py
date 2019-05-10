@@ -195,9 +195,18 @@ class EventTarget(events.EventTarget):
                          (len(distinct_commits) - 4))
 
     def handle_gh_pull_request(self, evt):
+        action = evt.action
+        if action == 'synchronize':
+            action = 'synchronized'
+        elif action == 'review_requested':
+            action = 'requested a review from %s for' % ', '.join([user.login for user in evt.requested_reviewers])
+        elif action == 'review_request_removed':
+            action = 'dismissed a review request on'
+        elif action == 'closed' and evt.merged:
+            action = 'merged'
         self.bot.say('[%s] %s %s pull request #%d: %s (%s...%s): %s' % (
             Tags.UnderlinePink(evt.repo), self.format_nickname(evt.author),
-            evt.action, evt.id, evt.title, Tags.Purple(evt.base_ref_name),
+            action, evt.id, evt.title, Tags.Purple(evt.base_ref_name),
             Tags.Purple(evt.head_ref_name),
             Tags.UnderlineBlue(utils.shorten_url(evt.url))))
 
@@ -211,7 +220,7 @@ class EventTarget(events.EventTarget):
             evt.comments[0].created_at == evt.comments[0].updated_at:
             return
 
-        if evt.state == 'pending':
+        if evt.state == 'pending' or evt.action == 'edited':
             return
 
         if evt.action == 'submitted' and evt.state == 'approved':
@@ -220,6 +229,12 @@ class EventTarget(events.EventTarget):
                 action += ' and commented on'
         elif evt.action == 'submitted' and evt.state == 'commented':
             action = 'reviewed and commented on'
+            # GitHub sends a review event when someone replies to a review comment.
+            # Omit 'reviewed and' in this case.
+            for comment in evt.comments:
+                if 'in_reply_to_id' in comment:
+                    action = 'commented on'
+                    break
         elif evt.action == 'submitted' and evt.state == 'changes_requested':
             action = 'requested changes to'
         elif evt.action == 'dismissed':

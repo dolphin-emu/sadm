@@ -250,7 +250,8 @@ class GHHookEventParser(events.EventTarget):
         return events.GHPullRequest(
             repo, author, raw.action, raw.pull_request.number,
             raw.pull_request.title, base_ref_name, head_ref_name, base_sha,
-            head_sha, raw.pull_request.html_url, is_safe_author(author))
+            head_sha, raw.pull_request.html_url, is_safe_author(author),
+            raw.pull_request.merged, raw.pull_request.requested_reviewers)
 
     def convert_pull_request_review(self, raw):
         repo = raw.repository.owner.login + '/' + raw.repository.name

@@ -109,7 +109,8 @@ def GHPush(repo: str, pusher: str, before_sha: str, after_sha: str, commits:
 @event('gh_pull_request')
 def GHPullRequest(repo: str, author: str, action: str, id: int, title: str,
                   base_ref_name: str, head_ref_name: str, base_sha: str,
-                  head_sha: str, url: str, safe_author: bool):
+                  head_sha: str, url: str, safe_author: bool, merged: bool,
+                  requested_reviewers: list):
     return {'repo': repo,
             'author': author,
             'action': action,
@@ -120,7 +121,9 @@ def GHPullRequest(repo: str, author: str, action: str, id: int, title: str,
             'head_ref_name': head_ref_name,
             'safe_author': safe_author,
             'base_sha': base_sha,
-            'head_sha': head_sha}
+            'head_sha': head_sha,
+            'merged': merged,
+            'requested_reviewers': requested_reviewers}
 
 
 @event('gh_pull_request_review')

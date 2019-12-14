@@ -102,6 +102,12 @@ class PullRequestBuilder:
                 'Very basic checks passed, handed off to Buildbot.')
             events.dispatcher.dispatch('prbuilder', status_evt)
 
+            for builder in cfg.buildbot.pr_builders:
+                status_evt = events.BuildStatus(repo, head_sha, shortrev, builder,
+                                                pr_id, False, True, cfg.buildbot.url,
+                                                'Auto build pending')
+                events.dispatcher.dispatch('prbuilder', status_evt)
+
             req = make_build_request(
                 repo, pr_id, '%d-%s' % (pr_id, head_sha[:6]), base_sha, head_sha,
                 'Central (on behalf of: %s)' % in_behalf_of,

@@ -6,22 +6,17 @@ import os
 import requests
 
 CALLBACK_URL = 'https://dolphin-emu.org/download/new/'
-DOWNLOADS_CREATE_KEY = open('/etc/dolphin-keys/downloads-create').read().strip()
-
-def get_env_var(name):
-    if name not in os.environ:
-        raise KeyError("%s is missing from the environment" % name)
-    return os.environ[name].decode("utf-8")
+DOWNLOADS_CREATE_KEY = open('/etc/dolphin-keys/downloads-create', 'rb').read().strip()
 
 if __name__ == '__main__':
-    branch = get_env_var('BRANCH')
-    shortrev = get_env_var('SHORTREV')
-    hash = get_env_var('HASH')
-    author = get_env_var('AUTHOR')
-    description = get_env_var('DESCRIPTION')
-    target_system = get_env_var('TARGET_SYSTEM')
-    build_url = get_env_var('BUILD_URL')
-    user_os_matcher = get_env_var('USER_OS_MATCHER')
+    branch = os.environ['BRANCH']
+    shortrev = os.environ['SHORTREV']
+    hash = os.environ['HASH']
+    author = os.environ['AUTHOR']
+    description = os.environ['DESCRIPTION']
+    target_system = os.environ['TARGET_SYSTEM']
+    build_url = os.environ['BUILD_URL']
+    user_os_matcher = os.environ['USER_OS_MATCHER']
 
     msg = u"%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s" % (
         len(branch), len(shortrev), len(hash), len(author), len(description),
@@ -45,4 +40,4 @@ if __name__ == '__main__':
     }
 
     r = requests.post(CALLBACK_URL, data=post_data)
-    print r.text
+    print(r.text)

@@ -56,7 +56,7 @@ if __name__ == '__main__':
             # Remove the initial directory name.
             filename = filename.split('/', 1)[1]
             assert "\t" not in filename, "Unsupported char in filename: \\t"
-            contents = ''
+            contents = b''
             for block in entry.get_blocks():
                 contents += block
             h = hashlib.sha256(contents).hexdigest()[:32]
@@ -66,9 +66,10 @@ if __name__ == '__main__':
 
     entries.sort()
     manifest = "".join("%s\t%s\n" % e for e in entries)
+    manifest = manifest.encode('utf-8')
 
     signing_key = nacl.signing.SigningKey(
-        open(args.signing_key).read(), encoder=nacl.encoding.RawEncoder)
+        open(args.signing_key, 'rb').read(), encoder=nacl.encoding.RawEncoder)
     sig = base64.b64encode(signing_key.sign(manifest).signature)
 
     if args.output_manifest_store:
@@ -84,7 +85,7 @@ if __name__ == '__main__':
         fp = sys.stdout
 
     fp.write(manifest)
-    fp.write("\n" + sig + "\n")
+    fp.write(b"\n" + sig + b"\n")
 
     if args.output_manifest_store:
         fp.close()

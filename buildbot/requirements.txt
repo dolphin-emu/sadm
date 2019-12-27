@@ -1,5 +1,6 @@
 buildbot
 buildbot-console-view
+buildbot-grid-view
 buildbot-prometheus
 buildbot-waterfall-view
 buildbot-worker

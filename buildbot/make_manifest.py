@@ -49,7 +49,7 @@ if __name__ == '__main__':
     entries = []
     with libarchive.public.file_reader(args.input) as archive:
         for entry in archive:
-            filename = str(entry)
+            filename = entry.pathname
             # Skip directories.
             if filename.endswith('/'):
                 continue

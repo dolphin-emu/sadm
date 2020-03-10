@@ -24,6 +24,7 @@ var redirectors = []Redirector{
 	MakeStaticRedirector(`/bbs(/.*)?`, `https://forums.dolphin-emu.org`),
 	MakeStaticRedirector(`/pr(/.*)?`, `https://github.com/dolphin-emu/dolphin/pulls`),
 	MakeStaticRedirector(`/i(/.*)?`, `https://bugs.dolphin-emu.org/projects/emulator/issues`),
+	MakeStaticRedirector(`/fi(/.*)?`, `https://fifoci.dolphin-emu.org/version`),
 
 	// Versions
 	MakeStaticRedirector(`/v(\d.*)/?`, `https://dolphin-emu.org/download/dev/master/`),

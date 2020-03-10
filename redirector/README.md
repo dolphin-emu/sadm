@@ -17,6 +17,8 @@ Currently supports:
   * http://dolp.in/i (list of bugs)
   * http://dolp.in/i$ISSUE_NUMBER (issue page)
   * http://dolp.in/i$ISSUE_NUMBER/$COMMENT_NUMBER (issue comment)
+* fifoci.dolphin-emu.org:
+  * http://dolp.in/fi$GIT_HASH (FifoCI Results)
 * dolphin-emu.org:
   * http://dolp.in/dl (download page)
   * http://dolp.in/faq (FAQ page)

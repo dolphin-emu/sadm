@@ -37,7 +37,7 @@ github:
     disallow_self_merge_command: "@dolphin-emu-bot disallowmerge"
 
 buildbot:
-    url: https://buildbot.dolphin-emu.org/
+    url: https://dolphin.ci/
     jobdir: /home/buildbot/pr-jobdir
     pr_builders:
         - pr-android
@@ -56,7 +56,7 @@ buildbot:
         - pr-fifoci-sw-lin-mesa
 
 fifoci:
-    url: https://fifoci.dolphin-emu.org/
+    url: https://fifoci.ci/
 
 shortener:
     api_key: API_KEY

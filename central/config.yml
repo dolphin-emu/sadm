@@ -1,5 +1,5 @@
 irc:
-    server: irc.freenode.net
+    server: irc.libera.chat
     port: 6667
     ssl: false
     nick: irrawaddy

@@ -14,8 +14,7 @@ import sys
 
 def write_to_content_store(base, h, contents):
     directory = os.path.join(base, h[0:2], h[2:4])
-    if not os.path.isdir(directory):
-        os.makedirs(directory)
+    os.makedirs(directory, exist_ok=True)
     path = os.path.join(directory, h[4:])
     if os.path.exists(path):
         return

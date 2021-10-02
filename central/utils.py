@@ -13,32 +13,14 @@ import time
 
 
 def shorten_url(url):
-    """Minify a URL using goo.gl."""
-    from config import cfg  # Cannot be done at toplevel - circular import.
+    """Minify a URL using dolp.in."""
     if url == '':
         return '<no url>'
     elif url.startswith("https://github.com/dolphin-emu/dolphin/pull/"):
         return url.replace("https://github.com/dolphin-emu/dolphin/pull/", "https://dolp.in/pr")
     elif url.startswith("https://github.com/dolphin-emu/dolphin/commit/"):
         return url.replace("https://github.com/dolphin-emu/dolphin/commit/", "https://dolp.in/r")
-    try:
-        headers = {'Content-Type': 'application/json'}
-        data = {'longUrl': url}
-        api_url = 'https://www.googleapis.com/urlshortener/v1/url'
-        api_url += '?key=' + cfg.shortener.api_key
-        result = requests.post(api_url,
-                               headers=headers,
-                               data=json.dumps(data)).json()
-    except Exception:
-        logging.exception('URL shortening failed because of a network error')
-        return url
-
-    try:
-        return result['id']
-    except KeyError:
-        logging.exception('URL shortening failed because of response: %s',
-                          result)
-        return url
+    return url
 
 
 class DaemonThread(threading.Thread):

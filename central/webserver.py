@@ -8,11 +8,11 @@ import utils
 
 import base64
 import bottle
-import cgi
 import collections
 import datetime
 import functools
 import hashlib
+import html
 import hmac
 import io
 import jinja2
@@ -109,7 +109,7 @@ def status():
     def display_recent_events(l):
         out.write('<pre>')
         for ts, e in reversed(l):
-            out.write(cgi.escape('%s\t%s\n' % (ts.isoformat(), e)))
+            out.write(html.escape('%s\t%s\n' % (ts.isoformat(), e), quote=False))
         out.write('</pre>')
 
     out.write('<h3>Recent events</h3>')

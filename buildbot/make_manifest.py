@@ -55,7 +55,7 @@ if __name__ == '__main__':
             # Remove the initial directory name.
             filename = filename.split('/', 1)[1]
             assert "\t" not in filename, "Unsupported char in filename: \\t"
-            contents = b''
+            contents = bytearray()
             for block in entry.get_blocks():
                 contents += block
             h = hashlib.sha256(contents).hexdigest()[:32]

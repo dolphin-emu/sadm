@@ -36,6 +36,7 @@ for r in $REV_TO_HANDLE; do
         if [ "$DONT_BUILD" = "" ]; then
             buildbot sendchange -m $BUILDBOT_ADDR -a $BUILDBOT_CREDS \
                 -W "$author" -s git -r $r \
+                -b $branch \
                 -p branchname:$branch -p shortrev:$v -p author:"$author" -p description:"${comment:0:500}"
                 -l "$URL$r" -c "${comment:0:500}" >/dev/null 2>&1
         fi

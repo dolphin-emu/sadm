@@ -3,10 +3,10 @@
 source $(dirname $0)/config.vars
 
 # Update the repository
-( cd $REPO && git pull >/dev/null 2>&1; )
+( cd $REPO && git fetch --all >/dev/null 2>&1; )
 
 # Check the last 100 revisions and get all the ones we haven't handled yet in the past
-LAST_REV=$(cd $REPO && git log --format=format:'%H' --all -n 100)
+LAST_REV=$(cd $REPO && git log --format=format:'%H' --all -n 1000)
 REV_TO_HANDLE=
 for r in $LAST_REV; do
     if ! fgrep -q $r $BASE/already-parsed 2>/dev/null; then
@@ -36,8 +36,8 @@ for r in $REV_TO_HANDLE; do
         if [ "$DONT_BUILD" = "" ]; then
             buildbot sendchange -m $BUILDBOT_ADDR -a $BUILDBOT_CREDS \
                 -W "$author" -s git -r $r \
-                -p branchname:$branch -p shortrev:$v -p author:"$author" -p description:"$comment" \
-                -l "$URL$r" -c "$comment" >/dev/null 2>&1
+                -p branchname:$branch -p shortrev:$v -p author:"$author" -p description:"${comment:0:500}"
+                -l "$URL$r" -c "${comment:0:500}" >/dev/null 2>&1
         fi
     fi
 done

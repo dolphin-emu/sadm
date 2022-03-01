@@ -131,22 +131,12 @@ def sync_github_group(group, group_name):
     team = group_name.split('/')[1]
     logging.info('Refreshing list of trusted users (from %s/%s)', org, team)
 
-    teams = request_get_all('https://api.github.com/orgs/%s/teams' % org)
-    team_id = None
-    for t in teams:
-        if t['slug'] == team:
-            team_id = t['id']
-            break
-
-    if team_id is not None:
-        team_info = request_get_all('https://api.github.com/teams/%s/members' %
-                                    team_id)
-        group.clear()
-        for member in team_info:
-            group.add(member['login'])
-        logging.info('New GH %s: %s', group_name, ','.join(group))
-    else:
-        logging.error('Could not find team %r in org %r', team, org)
+    team_info = request_get_all('https://api.github.com/orgs/%s/teams/%s/members' %
+                                (org, team))
+    group.clear()
+    for member in team_info:
+        group.add(member['login'])
+    logging.info('New GH %s: %s', group_name, ','.join(group))
 
 
 def sync_trusted_users():

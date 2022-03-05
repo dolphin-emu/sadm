@@ -30,7 +30,7 @@ class ClickHouseInterface:
         self.client = clickhouse_driver.Client(*args, **kwargs)
 
         self.columns = set()
-        for (name, _, _, _, _) in self.client.execute('DESCRIBE TABLE event'):
+        for (name, _, _, _, _, _, _) in self.client.execute('DESCRIBE TABLE event'):
             self.columns.add(name)
 
     def add_column(self, name: str, ftype: DataType):

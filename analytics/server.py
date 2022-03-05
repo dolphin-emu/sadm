@@ -6,7 +6,6 @@ import bottle
 import collections
 import clickhouse_driver
 import datetime
-import elasticsearch
 import enum
 import re
 import struct
@@ -138,14 +137,6 @@ def deserialize(report: bytes) -> Mapping[str, tuple[Any, DataType]]:
     return data
 
 
-es = elasticsearch.Elasticsearch(['http://localhost:9200'])
-
-def write_to_elasticsearch(data: Mapping[str, tuple[Any, DataType]]):
-    data = {k: v[0] for k, v in data.items()}
-    data['ts'] = int(time.time() * 1000)
-    es.index(index='analytics', doc_type='event', body=data)
-
-
 ch = ClickHouseInterface(host='localhost')
 
 def write_to_clickhouse(data: Mapping[str, Any]):
@@ -166,7 +157,6 @@ def do_report():
     if 'type' not in data:
         return "KO"
 
-    write_to_elasticsearch(data.copy())
     write_to_clickhouse(data)
 
     return "OK"

@@ -32,11 +32,15 @@ class Bot(IRC):
 
     def on_channel_message(self, who, channel, msg):
         direct = msg.startswith(self.cfg.nick)
+        modes = who.user.modes_in(channel)
 
         if direct:
-            self.message(channel, Tags.LtGreen(Tags.Bold('WARK WARK WARK')))
+            trusted = 'o' in modes
+            if trusted:
+                self.message(channel, Tags.BoldLtGreen('WARK WARK WARK'))
+            else:
+                self.message(channel, Tags.BoldRed('WARK WARK WARK'))
 
-        modes = who.user.modes_in(channel)
         evt = events.IRCMessage(str(who), channel, msg, modes, direct)
         events.dispatcher.dispatch('ircclient', evt)
 

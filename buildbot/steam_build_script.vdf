@@ -1,0 +1,34 @@
+"AppBuild"
+{
+    "AppID" "1941680"
+    "Desc" "DOLPHIN_BUILD_NUMBER"
+
+    "ContentRoot" "content"
+    "BuildOutput" "output"
+
+    "Depots"
+    {
+        "1941682" // Windows
+        {
+            "FileMapping"
+            {
+                "LocalPath" "win/Dolphin-x64/*"
+                "DepotPath" "."
+                "recursive" "1"
+            }
+
+            "FileExclusion" "win/Dolphin-x64/Updater.exe"
+        }
+        "1941683" // macOS
+        {
+            "FileMapping"
+            {
+                "LocalPath" "mac/*"
+                "DepotPath" "."
+                "recursive" "1"
+            }
+
+            "FileExclusion" "*.DS_Store"
+        }
+    }
+}

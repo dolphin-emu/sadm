@@ -4,6 +4,7 @@
   imports = [
     ./hypervisor.nix
     ./hardware.nix
+    ./postgres.nix
   ];
 
   services.openssh.enable = true;

@@ -4,6 +4,8 @@
   imports = [
     agenix.nixosModule
 
+    ../../roles
+
     ./hypervisor.nix
     ./hardware.nix
     ./nginx.nix
@@ -23,6 +25,10 @@
   networking.hostName = "altair";
   networking.domain = "dolphin-emu.org";
   networking.search = [ "dolphin-emu.org" ];
+
+  my.roles = {
+    redirector.enable = true;
+  };
 
   system.stateVersion = "22.05";
   system.configurationRevision = pkgs.lib.mkIf (self ? rev) self.rev;

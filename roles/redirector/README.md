@@ -1,0 +1,35 @@
+Dolphin redirector
+==================
+
+A simple web server running on dolp.in and redirecting short URLs to their
+longer equivalent.
+
+Currently supports:
+
+* GitHub:
+  * http://dolp.in/r$GIT_HASH (commit page)
+  * http://dolp.in/r$GIT_HASH/$COMMENT_ID (commit comment)
+  * http://dolp.in/pr$PR_NUMBER (pull request)
+  * http://dolp.in/pr (list of pull requests)
+  * http://dolp.in/gh (project page)
+  * http://dolp.in/git (Git repository — can be cloned!)
+* bugs.dolphin-emu.org:
+  * http://dolp.in/i (list of bugs)
+  * http://dolp.in/i$ISSUE_NUMBER (issue page)
+  * http://dolp.in/i$ISSUE_NUMBER/$COMMENT_NUMBER (issue comment)
+* dolphin-emu.org:
+  * http://dolp.in/dl (download page)
+  * http://dolp.in/faq (FAQ page)
+  * http://dolp.in/bbs (forums)
+* Google Code compatibility mappings (not documented here)
+  * http://dolp.in/p/dolphin-emu/...
+* Versions:
+  * http://dolp.in/v$VERSION (for example 4.0-1234, links to download page)
+  * http://dolp.in/$VERSION (same, but requires more strict version format)
+* Wiki:
+  * http://dolp.in/$GAMEID (for example GZLE01)
+
+Planned support (Coming Soon™):
+
+* http://dolp.in/rv$VERSION (GitHub link to commit matching the given version)
+* http://dolp.in/$IDENTIFIER (with an API to generate short links!)

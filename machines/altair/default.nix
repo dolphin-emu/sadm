@@ -1,7 +1,9 @@
-{ self, pkgs, nixpkgs, ... }:
+{ self, pkgs, agenix, nixpkgs, ... }:
 
 {
   imports = [
+    agenix.nixosModule
+
     ./hypervisor.nix
     ./hardware.nix
     ./postgres.nix

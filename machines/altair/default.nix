@@ -6,6 +6,7 @@
 
     ./hypervisor.nix
     ./hardware.nix
+    ./nginx.nix
     ./postgres.nix
   ];
 

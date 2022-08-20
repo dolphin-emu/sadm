@@ -17,3 +17,19 @@ $ colmena build
 ```shell
 $ colmena apply
 ```
+
+## TODO list of things to migrate
+
+- analytics
+- android-updater
+- buildbot
+- central
+- changes poller
+- downloads
+- etherpad
+- fifoci
+- grafana
+- prometheus
+- redmine
+- symbols
+- update

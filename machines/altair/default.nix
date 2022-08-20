@@ -1,11 +1,9 @@
-{ self, pkgs, agenix, nixpkgs, ... }:
+{ self, pkgs, nixpkgs, ... }:
 
 let
   my = import ../..;
 in {
   imports = [
-    agenix.nixosModule
-
     my.modules
 
     ./hypervisor.nix

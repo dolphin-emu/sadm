@@ -1,5 +1,6 @@
 {
   imports = [
+    ./netplay-index
     ./redirector
   ];
 }

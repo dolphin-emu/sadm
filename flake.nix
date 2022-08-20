@@ -4,10 +4,16 @@
   inputs.agenix.url = "github:ryantm/agenix";
   inputs.agenix.inputs.nixpkgs.follows = "nixpkgs";
 
-  outputs = { self, nixpkgs, agenix }@attrs: {
+  inputs.netplay-index.url = "github:dolphin-emu/netplay-index";
+  inputs.netplay-index.inputs.nixpkgs.follows = "nixpkgs";
+
+  outputs = { self, nixpkgs, agenix, netplay-index }@attrs: {
     colmena = {
       meta.nixpkgs = import nixpkgs {
         system = "x86_64-linux";
+        overlays = [
+          netplay-index.overlay
+        ];
       };
       meta.specialArgs = attrs;
 

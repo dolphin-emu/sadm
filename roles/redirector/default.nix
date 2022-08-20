@@ -26,11 +26,6 @@ in {
       };
     };
 
-    services.nginx.virtualHosts."dolp.in" = {
-      forceSSL = true;
-      enableACME = true;
-
-      locations."/".proxyPass = "http://localhost:${toString port}";
-    };
+    my.http.vhosts."dolp.in".proxyLocalPort = port;
   };
 }

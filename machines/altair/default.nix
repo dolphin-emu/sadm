@@ -1,14 +1,15 @@
 { self, pkgs, agenix, nixpkgs, ... }:
 
-{
+let
+  my = import ../..;
+in {
   imports = [
     agenix.nixosModule
 
-    ../../roles
+    my.modules
 
     ./hypervisor.nix
     ./hardware.nix
-    ./nginx.nix
     ./postgres.nix
   ];
 
@@ -27,8 +28,11 @@
   networking.search = [ "dolphin-emu.org" ];
 
   my.roles = {
+    netplay-index.enable = true;
     redirector.enable = true;
   };
+
+  my.http.vhosts."altair.dolphin-emu.org".redirect = "https://github.com/dolphin-emu/sadm";
 
   system.stateVersion = "22.05";
   system.configurationRevision = pkgs.lib.mkIf (self ? rev) self.rev;

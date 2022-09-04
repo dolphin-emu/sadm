@@ -21,6 +21,23 @@ let
     enableACME = true;
     locations."/".proxyPass = "http://localhost:${toString vh.proxyLocalPort}";
   });
+
+  mainVhosts =
+    redirectVhosts //
+    localProxyVhosts;
+
+  # Add redirects for all dolphin-emu.net equivalents -> dolphin-emu.org.
+  dolphinEmuOrgVhosts = lib.filterAttrs (n: v: lib.hasSuffix ".dolphin-emu.org" n);
+  dolphinEmuOrgToNet = n: (lib.removeSuffix ".dolphin-emu.org" n) + ".dolphin-emu.net";
+  dolphinEmuNetRedirects = vhosts: lib.mapAttrs' (n: v:
+    lib.nameValuePair (dolphinEmuOrgToNet n) {
+      forceSSL = true;
+      enableACME = true;
+      globalRedirect = n;
+    }
+  ) (dolphinEmuOrgVhosts vhosts);
+
+  allVhosts = mainVhosts // (dolphinEmuNetRedirects mainVhosts);
 in {
   options.my.http.vhosts = with lib; mkOption {
     type = types.attrs;
@@ -36,9 +53,7 @@ in {
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
 
-      virtualHosts =
-        redirectVhosts //
-        localProxyVhosts;
+      virtualHosts = allVhosts;
     };
 
     security.acme.acceptTerms = true;

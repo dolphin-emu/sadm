@@ -2,7 +2,7 @@
 # fashion: enforce standards on TLS usage, simplify the common case of "just
 # proxy pass to a service running on this port", etc.
 
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   cfg = config.my.http;
@@ -10,15 +10,16 @@ let
   selectVhostsByAttr = attr: lib.filterAttrs (n: v: v ? ${attr}) cfg.vhosts;
   mapVhostsByAttr = attr: fn: lib.mapAttrs fn (selectVhostsByAttr attr);
 
-  redirectVhosts = mapVhostsByAttr "redirect" (n: vh: {
+  commonVhostAttrs = {
     forceSSL = true;
     enableACME = true;
+  };
+
+  redirectVhosts = mapVhostsByAttr "redirect" (n: vh: commonVhostAttrs // {
     locations."/".return = "302 ${vh.redirect}";
   });
 
-  localProxyVhosts = mapVhostsByAttr "proxyLocalPort" (n: vh: {
-    forceSSL = true;
-    enableACME = true;
+  localProxyVhosts = mapVhostsByAttr "proxyLocalPort" (n: vh: commonVhostAttrs // {
     locations."/".proxyPass = "http://localhost:${toString vh.proxyLocalPort}";
   });
 
@@ -37,7 +38,21 @@ let
     }
   ) (dolphinEmuOrgVhosts vhosts);
 
-  allVhosts = mainVhosts // (dolphinEmuNetRedirects mainVhosts);
+  # Special vhosts that aren't collected from other modules.
+  specialVhosts."localhost" = {
+    listen = [
+      { addr = "127.0.0.1"; port = 80; }
+      { addr = "[::1]"; port = 80; }
+    ];
+
+    locations."/vts" = {
+      extraConfig = ''
+        vhost_traffic_status_display;
+      '';
+    };
+  };
+
+  allVhosts = specialVhosts // mainVhosts // (dolphinEmuNetRedirects mainVhosts);
 in {
   options.my.http.vhosts = with lib; mkOption {
     type = types.attrs;
@@ -47,11 +62,15 @@ in {
   config = {
     services.nginx = {
       enable = true;
+      additionalModules = [ pkgs.nginxModules.vts ];
 
       recommendedGzipSettings = true;
       recommendedOptimisation = true;
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
+      commonHttpConfig = ''
+        vhost_traffic_status_zone;
+      '';
 
       virtualHosts = allVhosts;
     };

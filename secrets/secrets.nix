@@ -8,5 +8,7 @@ let
 in {
   "androidpublisher-service-key.age".publicKeys = authorizedKeys;
   "geoip-license-key.age".publicKeys = authorizedKeys;
+  "grafana-admin-password.age".publicKeys = authorizedKeys;
+  "grafana-secret-key.age".publicKeys = authorizedKeys;
   "nas-credentials.age".publicKeys = authorizedKeys;
 }

@@ -17,11 +17,31 @@ in {
       webExternalUrl = "https://prom.dolphin-emu.org/";
     };
 
+    age.secrets.grafana-admin-password = {
+      file = ../../secrets/grafana-admin-password.age;
+      owner = "grafana";
+    };
+
+    age.secrets.grafana-secret-key = {
+      file = ../../secrets/grafana-secret-key.age;
+      owner = "grafana";
+    };
+
     services.grafana = {
       enable = true;
       port = grafanaPort;
       domain = "mon.dolphin-emu.org";
       rootUrl = "https://mon.dolphin-emu.org/";
+
+      security = {
+        adminUser = "grafana";
+        adminPasswordFile = config.age.secrets.grafana-admin-password.path;
+        secretKeyFile = config.age.secrets.grafana-secret-key.path;
+      };
+
+      provision = {
+        enable = true;
+      };
     };
 
     my.http.vhosts."prom.dolphin-emu.org".proxyLocalPort = promPort;

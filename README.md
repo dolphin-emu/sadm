@@ -21,7 +21,6 @@ $ colmena apply
 ## TODO list of things to migrate
 
 - analytics
-- android-updater
 - buildbot
 - central
 - changes poller

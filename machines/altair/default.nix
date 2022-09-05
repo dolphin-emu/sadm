@@ -24,6 +24,7 @@ in {
   networking.search = [ "dolphin-emu.org" ];
 
   my.roles = {
+    android-updater.enable = true;
     netplay-index.enable = true;
     redirector.enable = true;
   };

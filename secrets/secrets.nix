@@ -6,5 +6,6 @@ let
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII3tjB4KYDok3KlWxdBp/yEmqhhmybd+w0VO4xUwLKKV"
   ];
 in {
+  "androidpublisher-service-key.age".publicKeys = authorizedKeys;
   "geoip-license-key.age".publicKeys = authorizedKeys;
 }

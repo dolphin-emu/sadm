@@ -59,11 +59,11 @@
         "poetry2nix": "poetry2nix"
       },
       "locked": {
-        "lastModified": 1660968413,
-        "narHash": "sha256-0XAcz5oXvuFglmJoVeQ8b/BdNz5049na2vNdCk+r6rw=",
+        "lastModified": 1662364889,
+        "narHash": "sha256-UofAxu8jz2psg+Wj3WAlTj8uifd+MqiMLBNblTDCw2Q=",
         "owner": "dolphin-emu",
         "repo": "netplay-index",
-        "rev": "141101311eae24ff6daa5d9aa02d3218413ef493",
+        "rev": "b684ccbca608228b83786556285f925e8899f7a4",
         "type": "github"
       },
       "original": {

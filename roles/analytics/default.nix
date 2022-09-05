@@ -22,6 +22,6 @@ in {
       };
     };
 
-    my.http.vhosts."analytics-new.dolphin-emu.org".proxyLocalPort = port;
+    my.http.vhosts."analytics.dolphin-emu.org".proxyLocalPort = port;
   };
 }

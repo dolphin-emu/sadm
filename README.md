@@ -20,7 +20,6 @@ $ colmena apply
 
 ## TODO list of things to migrate
 
-- analytics
 - buildbot
 - central
 - changes poller

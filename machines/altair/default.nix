@@ -24,6 +24,7 @@ in {
   networking.search = [ "dolphin-emu.org" ];
 
   my.roles = {
+    analytics.enable = true;
     android-updater.enable = true;
     nas-client.enable = true;
     netplay-index.enable = true;

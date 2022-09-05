@@ -25,6 +25,7 @@ in {
 
   my.roles = {
     android-updater.enable = true;
+    nas-client.enable = true;
     netplay-index.enable = true;
     redirector.enable = true;
   };

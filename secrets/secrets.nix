@@ -8,4 +8,5 @@ let
 in {
   "androidpublisher-service-key.age".publicKeys = authorizedKeys;
   "geoip-license-key.age".publicKeys = authorizedKeys;
+  "nas-credentials.age".publicKeys = authorizedKeys;
 }

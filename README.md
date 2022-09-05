@@ -26,8 +26,6 @@ $ colmena apply
 - downloads
 - etherpad
 - fifoci
-- grafana
-- prometheus
 - redmine
 - symbols
 - update

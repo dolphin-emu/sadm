@@ -26,6 +26,7 @@ in {
   my.roles = {
     analytics.enable = true;
     android-updater.enable = true;
+    monitoring.enable = true;
     nas-client.enable = true;
     netplay-index.enable = true;
     redirector.enable = true;

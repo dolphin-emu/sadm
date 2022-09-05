@@ -29,11 +29,11 @@
         "poetry2nix": "poetry2nix"
       },
       "locked": {
-        "lastModified": 1662368037,
-        "narHash": "sha256-qRnjMmTeUeeo8O6nEHANQjDsvxqIWXUUn1cNU6D8ILk=",
+        "lastModified": 1662369357,
+        "narHash": "sha256-Xe8A/+pdjLYdJXXDzA+gvj8kZuw4gm0MyZh26Iky9o0=",
         "owner": "dolphin-emu",
         "repo": "analytics-ingest",
-        "rev": "58b0f427e7b880fd03758540c55264cca0d5f0bf",
+        "rev": "95653406823758ccf752a864078d1acd987f1a49",
         "type": "github"
       },
       "original": {

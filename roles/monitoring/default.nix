@@ -35,6 +35,8 @@ in {
       domain = "mon.dolphin-emu.org";
       rootUrl = "https://mon.dolphin-emu.org/";
 
+      auth.anonymous.enable = true;
+
       security = {
         adminUser = "grafana";
         adminPasswordFile = config.age.secrets.grafana-admin-password.path;

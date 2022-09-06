@@ -17,6 +17,32 @@ in {
       listenAddress = "127.0.0.1";
       port = promPort;
       webExternalUrl = "https://prom.dolphin-emu.org/";
+
+      scrapeConfigs = [
+        {
+          job_name = "node";
+          scrape_interval = "1m";
+          scheme = "http";
+          metrics_path = "/metrics";
+          static_configs = [{ targets = [ "localhost:9101" ]; }];
+        }
+
+        {
+          job_name = "nginx";
+          scrape_interval = "1m";
+          scheme = "http";
+          metrics_path = "/vts/format/prometheus";
+          static_configs = [{ targets = [ "localhost" ]; }];
+        }
+
+        {
+          job_name = "netplay-index";
+          scrape_interval = "1m";
+          scheme = "https";
+          metrics_path = "/metrics";
+          static_configs = [{ targets = [ "lobby.dolphin-emu.org" ]; }];
+        }
+      ];
     };
 
     age.secrets.grafana-admin-password = {
@@ -44,10 +70,6 @@ in {
       };
 
       declarativePlugins = [ grafana-clickhouse-datasource ];
-
-      provision = {
-        enable = true;
-      };
     };
 
     # NixOS overly sandboxes Grafana, which breaks compatibility with certain

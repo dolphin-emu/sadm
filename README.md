@@ -26,4 +26,4 @@ $ colmena apply
 - etherpad
 - fifoci
 - redmine
-- symbols
+- traversal

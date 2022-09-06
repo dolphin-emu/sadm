@@ -23,9 +23,15 @@ let
     locations."/".proxyPass = "http://localhost:${toString vh.proxyLocalPort}";
   });
 
+  localDirVhosts = mapVhostsByAttr "root" (n: vh: commonVhostAttrs // {
+    locations."/".root = vh.root;
+    locations."/".extraConfig = "autoindex off;";
+  });
+
   mainVhosts =
     redirectVhosts //
-    localProxyVhosts;
+    localProxyVhosts //
+    localDirVhosts;
 
   # Add redirects for all dolphin-emu.net equivalents -> dolphin-emu.org.
   dolphinEmuOrgVhosts = lib.filterAttrs (n: v: lib.hasSuffix ".dolphin-emu.org" n);

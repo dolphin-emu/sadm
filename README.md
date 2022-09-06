@@ -23,9 +23,7 @@ $ colmena apply
 - buildbot
 - central
 - changes poller
-- downloads
 - etherpad
 - fifoci
 - redmine
 - symbols
-- update

@@ -7,6 +7,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     my.http.vhosts."dl.dolphin-emu.org".root = "/data/nas/dl";
+    my.http.vhosts."symbols.dolphin-emu.org".root = "/data/nas/symbols";
     my.http.vhosts."update.dolphin-emu.org".root = "/data/nas/update";
   };
 }

@@ -3,6 +3,8 @@
 let
   cfg = config.my.roles.monitoring;
 
+  grafana-clickhouse-datasource = pkgs.callPackage ./grafana-clickhouse-datasource { };
+
   promPort = 8036;
   grafanaPort = 8037;
 in {
@@ -39,10 +41,17 @@ in {
         secretKeyFile = config.age.secrets.grafana-secret-key.path;
       };
 
+      declarativePlugins = [ grafana-clickhouse-datasource ];
+
       provision = {
         enable = true;
       };
     };
+
+    # NixOS overly sandboxes Grafana, which breaks compatibility with certain
+    # plugins that use native code. Fixed in NixOS > 22.05.
+    systemd.services.grafana.serviceConfig.SystemCallFilter =
+      lib.mkForce [ "@system-service" "~@privileged" ];
 
     my.http.vhosts."prom.dolphin-emu.org".proxyLocalPort = promPort;
     my.http.vhosts."mon.dolphin-emu.org".proxyLocalPort = grafanaPort;

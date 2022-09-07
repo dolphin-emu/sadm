@@ -5,10 +5,19 @@ let
     # delroth
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII3tjB4KYDok3KlWxdBp/yEmqhhmybd+w0VO4xUwLKKV"
   ];
-in {
-  "androidpublisher-service-key.age".publicKeys = authorizedKeys;
-  "geoip-license-key.age".publicKeys = authorizedKeys;
-  "grafana-admin-password.age".publicKeys = authorizedKeys;
-  "grafana-secret-key.age".publicKeys = authorizedKeys;
-  "nas-credentials.age".publicKeys = authorizedKeys;
-}
+
+  allFiles = [
+    "androidpublisher-service-key.age"
+    "backup-passphrase.age"
+    "backup-ssh-key.age"
+    "backup-ssh-known-hosts.age"
+    "geoip-license-key.age"
+    "grafana-admin-password.age"
+    "grafana-secret-key.age"
+    "nas-credentials.age"
+  ];
+in
+  builtins.listToAttrs (builtins.map
+    (fn: { name = fn; value.publicKeys = authorizedKeys; })
+    allFiles
+  )

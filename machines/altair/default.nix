@@ -27,6 +27,7 @@ in {
     analytics.enable = true;
     android-updater.enable = true;
     artifacts-mirror.enable = true;
+    bug-tracker.enable = true;
     monitoring.enable = true;
     nas-client.enable = true;
     netplay-index.enable = true;

@@ -10,7 +10,7 @@
     doInit = true;
 
     paths = [ "/data" "/var" ];
-    exclude = [ ".zfs" ];
+    exclude = [ "/data/nas" ];
 
     compression = "auto,zstd";
     encryption = {

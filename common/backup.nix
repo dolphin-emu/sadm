@@ -30,4 +30,7 @@
       monthly = 6;
     };
   };
+
+  # Ignore warnings, e.g. "file has changed during backup".
+  systemd.services.borgbackup-job-default.serviceConfig.SuccessExitStatus = "1";
 }

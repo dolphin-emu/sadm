@@ -31,6 +31,8 @@ in {
 
       database.type = "postgresql";
 
+      settings.production.email_delivery.delivery_method = "sendmail";
+
       plugins = {
         redmine_webhook = pkgs.fetchFromGitHub {
           owner = "suer";
@@ -47,6 +49,17 @@ in {
         };
       };
     };
+
+    # Redmine strongly insists that sendmail should be at /usr/sbin/sendmail
+    # and nowhere else.
+    systemd.services.redmine.serviceConfig.BindPaths = let
+      fakeSbin = pkgs.runCommand "fake-sbin" {} ''
+        mkdir $out
+        ln -s /run/wrappers/bin/sendmail $out/sendmail
+      '';
+    in [
+      "${fakeSbin}:/usr/sbin"
+    ];
 
     my.http.vhosts."bugs-new.dolphin-emu.org".proxyLocalPort = port;
   };

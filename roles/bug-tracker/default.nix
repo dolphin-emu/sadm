@@ -38,6 +38,13 @@ in {
           rev = "5bc9a84a3bf3a5c51a1ddff498aa79c8ac64a1aa";
           hash = "sha256-fLd18gSmBtrcV9Mg8OU1auifSHYQwu4V8zH3sANBM5w=";
         };
+
+        redmine_issue_templates = pkgs.fetchFromGitHub {
+          owner = "agileware-jp";
+          repo = "redmine_issue_templates";
+          rev = "80c9ebfb4ab882a3c2c1072a364a8cfa29ec80d4";
+          hash = "sha256-VHXed2P+Etq81UiQBzXA1FAXucYi1sm+xm2LIV+rshY=";
+        };
       };
     };
 

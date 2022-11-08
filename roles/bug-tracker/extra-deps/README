@@ -1,0 +1,7 @@
+This directory declares gem dependencies of Redmine plugins in use.
+
+Only update "Gemfile" manually (by merging the contents of the Gemfiles of the
+plugins being installed). Then run update.sh in the right "nix develop"
+environment to regenerate Gemfile.lock and gemset.nix:
+
+$ nix develop .#redmine-extra-deps-update -c ./update.sh

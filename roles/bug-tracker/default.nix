@@ -61,6 +61,6 @@ in {
       "${fakeSbin}:/usr/sbin"
     ];
 
-    my.http.vhosts."bugs-new.dolphin-emu.org".proxyLocalPort = port;
+    my.http.vhosts."bugs.dolphin-emu.org".proxyLocalPort = port;
   };
 }

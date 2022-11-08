@@ -14,6 +14,7 @@ let
     "geoip-license-key.age"
     "grafana-admin-password.age"
     "grafana-secret-key.age"
+    "infra-smtp-relay.age"
     "nas-credentials.age"
   ];
 in

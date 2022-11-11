@@ -25,5 +25,4 @@ $ colmena apply
 - changes poller
 - etherpad
 - fifoci
-- redmine
 - traversal

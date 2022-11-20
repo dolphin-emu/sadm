@@ -22,7 +22,7 @@ in {
       smtp.authenticate = true;
 
       extraConfig = {
-        SINGLE_USER_DOMAIN = "true";
+        SINGLE_USER_MODE = "true";
         WEB_DOMAIN = "social.dolphin-emu.org";
       };
     };

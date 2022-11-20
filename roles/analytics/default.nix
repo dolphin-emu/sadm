@@ -19,6 +19,12 @@ in {
         Type = "simple";
         DynamicUser = true;
         ExecStart = "${pkgs.analytics-ingest}/bin/analytics-ingest --port=${toString port}";
+
+        # clickhouse does not properly use sd-notify to report successful
+        # startup. In case we fail due to not being able to connect at startup,
+        # retry a few times.
+        Restart = "on-failure";
+        RestartSec = 3;
       };
     };
 

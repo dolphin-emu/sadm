@@ -28,6 +28,7 @@ in {
     android-updater.enable = true;
     artifacts-mirror.enable = true;
     bug-tracker.enable = true;
+    mastodon.enable = true;
     monitoring.enable = true;
     nas-client.enable = true;
     netplay-index.enable = true;

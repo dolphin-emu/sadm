@@ -15,6 +15,7 @@ let
     "grafana-admin-password.age"
     "grafana-secret-key.age"
     "infra-smtp-relay.age"
+    "mastodon-smtp-password.age"
     "nas-credentials.age"
   ];
 in

@@ -28,10 +28,13 @@ let
     locations."/".extraConfig = "autoindex off;";
   });
 
+  customCfgVhosts = mapVhostsByAttr "cfg" (n: vh: commonVhostAttrs // vh.cfg);
+
   mainVhosts =
     redirectVhosts //
     localProxyVhosts //
-    localDirVhosts;
+    localDirVhosts //
+    customCfgVhosts;
 
   # Add redirects for all dolphin-emu.net equivalents -> dolphin-emu.org.
   dolphinEmuOrgVhosts = lib.filterAttrs (n: v: lib.hasSuffix ".dolphin-emu.org" n);

@@ -4,6 +4,7 @@
     ./android-updater
     ./artifacts-mirror
     ./bug-tracker
+    ./foreign-builders
     ./mastodon
     ./monitoring
     ./nas-client

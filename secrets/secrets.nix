@@ -11,6 +11,7 @@ let
     "backup-passphrase.age"
     "backup-ssh-key.age"
     "backup-ssh-known-hosts.age"
+    "container-builder-env.age"
     "geoip-license-key.age"
     "grafana-admin-password.age"
     "grafana-secret-key.age"

@@ -17,6 +17,8 @@ let
     "infra-smtp-relay.age"
     "mastodon-smtp-password.age"
     "nas-credentials.age"
+    "oci-registry-htpasswd.age"
+    "oci-registry-password.age"
   ];
 in
   builtins.listToAttrs (builtins.map

@@ -32,6 +32,7 @@ in {
     monitoring.enable = true;
     nas-client.enable = true;
     netplay-index.enable = true;
+    oci-registry.enable = true;
     redirector.enable = true;
   };
 

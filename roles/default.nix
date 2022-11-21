@@ -8,6 +8,7 @@
     ./monitoring
     ./nas-client
     ./netplay-index
+    ./oci-registry
     ./redirector
   ];
 }

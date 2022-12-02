@@ -57,16 +57,19 @@ in {
 
     services.grafana = {
       enable = true;
-      port = grafanaPort;
-      domain = "mon.dolphin-emu.org";
-      rootUrl = "https://mon.dolphin-emu.org/";
 
-      auth.anonymous.enable = true;
-
-      security = {
-        adminUser = "grafana";
-        adminPasswordFile = config.age.secrets.grafana-admin-password.path;
-        secretKeyFile = config.age.secrets.grafana-secret-key.path;
+      settings = {
+        "auth.anonymous".enabled = true;
+        security = {
+          admin_user = "grafana";
+          admin_password = "$__file{${config.age.secrets.grafana-admin-password.path}}";
+          secret_key = "$__file{${config.age.secrets.grafana-secret-key.path}}";
+        };
+        server = {
+          http_port = grafanaPort;
+          domain = "mon.dolphin-emu.org";
+          root_url = "https://mon.dolphin-emu.org/";
+        };
       };
 
       declarativePlugins = [ grafana-clickhouse-datasource ];

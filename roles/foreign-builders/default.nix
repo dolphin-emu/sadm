@@ -4,6 +4,7 @@ let
   cfg = config.my.roles.foreign-builders;
 
   containerBuilders = [
+    "debian"
     "steamrt"
     "ubuntu-lts"
   ];

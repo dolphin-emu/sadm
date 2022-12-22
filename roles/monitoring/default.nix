@@ -42,6 +42,14 @@ in {
           metrics_path = "/metrics";
           static_configs = [{ targets = [ "lobby.dolphin-emu.org" ]; }];
         }
+
+        {
+          job_name = "analytics-ingest";
+          scrape_interval = "1m";
+          scheme = "http";
+          metrics_path = "/metrics";
+          static_configs = [{ targets = [ "localhost:8035" ]; }];
+        }
       ];
     };
 

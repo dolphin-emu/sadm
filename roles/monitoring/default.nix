@@ -24,6 +24,11 @@ let
     in
       [{ targets = [ target ]; }];
   }) config.my.monitoring.targets;
+
+  ruleFiles = lib.mapAttrsToList (job: rules:
+    pkgs.writeText "prom-${job}.rules" rules
+  ) config.my.monitoring.rules;
+
 in {
   options.my.roles.monitoring.enable = lib.mkEnableOption "Monitoring infrastructure";
 
@@ -36,6 +41,7 @@ in {
       webExternalUrl = "https://prom.dolphin-emu.org/";
 
       inherit scrapeConfigs;
+      inherit ruleFiles;
     };
 
     age.secrets.grafana-admin-password = {

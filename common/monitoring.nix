@@ -34,6 +34,12 @@
       default = {};
       description = lib.mdDoc "Monitoring targets to scrape for this service.";
     };
+
+    my.monitoring.rules = mkOption {
+      type = types.attrsOf types.lines;
+      default = {};
+      description = lib.mdDoc "Monitoring rules for this service.";
+    };
   };
 
   config = {
@@ -45,5 +51,22 @@
     };
 
     my.monitoring.targets.node.targetLocalPort = 9101;
+
+    my.monitoring.rules.node = ''
+      groups:
+      - name: alerts
+        rules:
+        - alert: JobDown
+          expr: up == 0
+          for: 5m
+          annotations:
+            summary: "Scraping target {{ $labels.down }} unreachable"
+
+        - alert: UnitFailed
+          expr: node_systemd_unit_state{state="failed"} == 1
+          for: 5m
+          annotations:
+            summary: "systemd unit {{ $labels.name }} failed"
+    '';
   };
 }

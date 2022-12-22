@@ -30,5 +30,16 @@ in {
 
     my.http.vhosts."analytics.dolphin-emu.org".proxyLocalPort = port;
     my.monitoring.targets.analytics-ingest.targetLocalPort = port;
+
+    my.monitoring.rules.analytics-ingest = ''
+      groups:
+      - name: alerts
+        rules:
+        - alert: AbnormalIngestRate
+          expr: rate(successful_ingests_total{job="analytics-ingest"}[5m]) < 1
+          for: 5m
+          annotations:
+            summary: "Analytics ingest rate is abnormaly low (< 1 QPS over 5min)"
+    '';
   };
 }

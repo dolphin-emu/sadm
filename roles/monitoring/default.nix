@@ -36,6 +36,8 @@ in {
     services.prometheus = {
       enable = true;
 
+      enableReload = true;
+
       listenAddress = "127.0.0.1";
       port = promPort;
       webExternalUrl = "https://prom.dolphin-emu.org/";

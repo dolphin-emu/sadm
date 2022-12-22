@@ -31,11 +31,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1662369357,
-        "narHash": "sha256-Xe8A/+pdjLYdJXXDzA+gvj8kZuw4gm0MyZh26Iky9o0=",
+        "lastModified": 1671741697,
+        "narHash": "sha256-os6Ktdn+zw1wJPLN6dgUDBMo3u+4lisyloKSe8iDgjg=",
         "owner": "dolphin-emu",
         "repo": "analytics-ingest",
-        "rev": "95653406823758ccf752a864078d1acd987f1a49",
+        "rev": "b7ba45a81694d99f2acf5bfbe93ea3e8bf1a1722",
         "type": "github"
       },
       "original": {
@@ -46,11 +46,11 @@
     },
     "flake-utils": {
       "locked": {
-        "lastModified": 1659877975,
-        "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
+        "lastModified": 1667395993,
+        "narHash": "sha256-nuEHfE/LcWyuSWnS8t12N1wc105Qtau+/OdUAjtQ0rA=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "c0e246b9b83f637f4681389ecabcb2681b4f3af0",
+        "rev": "5aed5285a952e0b949eb3ba02c12fa4fcfef535f",
         "type": "github"
       },
       "original": {

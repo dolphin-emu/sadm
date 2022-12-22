@@ -67,6 +67,12 @@
           for: 5m
           annotations:
             summary: "systemd unit {{ $labels.name }} failed"
+
+        - alert: LowDiskSpace
+          expr: node_filesystem_free_bytes / node_filesystem_size_bytes < 0.15
+          for: 30m
+          annotations:
+            summary: "Less than 15% disk space available on {{ $labels.mountpoint }}"
     '';
   };
 }

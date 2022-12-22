@@ -53,4 +53,4 @@ RUN buildbot-worker create-worker \
 RUN echo 'Pierre Bourdon <delroth@dolphin-emu.org>' > /buildbot/info/admin
 RUN echo 'Jammy (22.04 LTS) build container' > /buildbot/info/host
 
-ENTRYPOINT cd /buildbot && buildbot-worker start --nodaemon
+ENTRYPOINT cd /buildbot && exec buildbot-worker start --nodaemon

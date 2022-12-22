@@ -29,5 +29,6 @@ in {
     };
 
     my.http.vhosts."analytics.dolphin-emu.org".proxyLocalPort = port;
+    my.monitoring.targets.analytics-ingest.targetLocalPort = port;
   };
 }

@@ -36,5 +36,6 @@ in {
     };
 
     my.http.vhosts."lobby.dolphin-emu.org".proxyLocalPort = port;
+    my.monitoring.targets.netplay-index.targetLocalPort = port;
   };
 }

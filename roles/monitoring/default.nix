@@ -7,6 +7,23 @@ let
 
   promPort = 8036;
   grafanaPort = 8037;
+
+  scrapeConfigs = lib.mapAttrsToList (job: opts: {
+    job_name = job;
+    scrape_interval = opts.scrapeInterval;
+    scheme = opts.scheme;
+    metrics_path = opts.metricsPath;
+    static_configs = let
+      target =
+        if opts.target != null then
+          opts.target
+        else if opts.targetLocalPort != null then
+          "localhost:${toString opts.targetLocalPort}"
+        else
+          throw "No target specification for monitoring service ${job}";
+    in
+      [{ targets = [ target ]; }];
+  }) config.my.monitoring.targets;
 in {
   options.my.roles.monitoring.enable = lib.mkEnableOption "Monitoring infrastructure";
 
@@ -18,39 +35,7 @@ in {
       port = promPort;
       webExternalUrl = "https://prom.dolphin-emu.org/";
 
-      scrapeConfigs = [
-        {
-          job_name = "node";
-          scrape_interval = "1m";
-          scheme = "http";
-          metrics_path = "/metrics";
-          static_configs = [{ targets = [ "localhost:9101" ]; }];
-        }
-
-        {
-          job_name = "nginx";
-          scrape_interval = "1m";
-          scheme = "http";
-          metrics_path = "/vts/format/prometheus";
-          static_configs = [{ targets = [ "localhost" ]; }];
-        }
-
-        {
-          job_name = "netplay-index";
-          scrape_interval = "1m";
-          scheme = "https";
-          metrics_path = "/metrics";
-          static_configs = [{ targets = [ "lobby.dolphin-emu.org" ]; }];
-        }
-
-        {
-          job_name = "analytics-ingest";
-          scrape_interval = "1m";
-          scheme = "http";
-          metrics_path = "/metrics";
-          static_configs = [{ targets = [ "localhost:8035" ]; }];
-        }
-      ];
+      inherit scrapeConfigs;
     };
 
     age.secrets.grafana-admin-password = {

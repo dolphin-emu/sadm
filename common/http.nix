@@ -89,5 +89,10 @@ in {
     security.acme.defaults.email = "root@dolphin-emu.org";
 
     networking.firewall.allowedTCPPorts = [ 80 443 ];
+
+    my.monitoring.targets.nginx = {
+      targetLocalPort = 80;
+      metricsPath = "/vts/format/prometheus";
+    };
   };
 }

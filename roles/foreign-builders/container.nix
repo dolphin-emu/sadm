@@ -15,7 +15,7 @@ in {
     age.secrets.container-builder-env.file = ../../secrets/container-builder-env.age;
     age.secrets.oci-registry-password.file = ../../secrets/oci-registry-password.age;
 
-    virtualisation.oci-containers.backend = "podman";
+    virtualisation.oci-containers.backend = "docker";
 
     virtualisation.oci-containers.containers."${builderName}-builder" = {
       login = {

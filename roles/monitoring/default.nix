@@ -75,11 +75,6 @@ in {
       declarativePlugins = [ grafana-clickhouse-datasource ];
     };
 
-    # NixOS overly sandboxes Grafana, which breaks compatibility with certain
-    # plugins that use native code. Fixed in NixOS > 22.05.
-    systemd.services.grafana.serviceConfig.SystemCallFilter =
-      lib.mkForce [ "@system-service" "~@privileged" ];
-
     my.http.vhosts."prom.dolphin-emu.org".proxyLocalPort = promPort;
     my.http.vhosts."mon.dolphin-emu.org".proxyLocalPort = grafanaPort;
   };

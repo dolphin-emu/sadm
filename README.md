@@ -21,6 +21,7 @@ $ colmena apply
 ## TODO list of things to migrate
 
 - buildbot
+ - ubuntu/android buildworker
 - central
 - changes poller
 - etherpad

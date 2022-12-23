@@ -11,5 +11,6 @@
     ./netplay-index
     ./oci-registry
     ./redirector
+    ./traversal-server
   ];
 }

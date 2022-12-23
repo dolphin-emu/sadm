@@ -35,6 +35,7 @@ in {
     netplay-index.enable = true;
     oci-registry.enable = true;
     redirector.enable = true;
+    traversal-server.enable = true;
   };
 
   my.http.vhosts."altair.dolphin-emu.org".redirect = "https://github.com/dolphin-emu/sadm";

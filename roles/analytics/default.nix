@@ -9,6 +9,10 @@ in {
   config = lib.mkIf cfg.enable {
     services.clickhouse.enable = true;
 
+    # Restart in case of crashes, hangs, etc.
+    systemd.services.clickhouse.serviceConfig.Restart = "on-failure";
+    systemd.services.clickhouse.serviceConfig.RestartSec = 3;
+
     systemd.services.analytics-ingest = {
       description = "Analytics ingest server";
       after = [ "network.target" ];

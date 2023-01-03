@@ -4,6 +4,7 @@
     ./android-updater
     ./artifacts-mirror
     ./bug-tracker
+    ./central
     ./foreign-builders
     ./mastodon
     ./monitoring

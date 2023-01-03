@@ -22,7 +22,6 @@ $ colmena apply
 
 - buildbot
  - ubuntu/android buildworker
-- central
 - changes poller
 - etherpad
 - fifoci

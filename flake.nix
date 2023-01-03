@@ -13,16 +13,21 @@
   inputs.analytics-ingest.inputs.nixpkgs.follows = "nixpkgs";
   inputs.analytics-ingest.inputs.poetry2nix.follows = "poetry2nix";
 
+  inputs.central.url = "github:dolphin-emu/central";
+  inputs.central.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.central.inputs.poetry2nix.follows = "poetry2nix";
+
   inputs.netplay-index.url = "github:dolphin-emu/netplay-index";
   inputs.netplay-index.inputs.nixpkgs.follows = "nixpkgs";
   inputs.netplay-index.inputs.poetry2nix.follows = "poetry2nix";
 
-  outputs = { self, nixpkgs, flake-utils, analytics-ingest, netplay-index, ... }@attrs: {
+  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, netplay-index, ... }@attrs: {
     colmena = {
       meta.nixpkgs = import nixpkgs {
         system = "x86_64-linux";
         overlays = [
           analytics-ingest.overlay
+          central.overlay
           netplay-index.overlay
         ];
       };

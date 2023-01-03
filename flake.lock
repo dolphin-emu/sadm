@@ -31,11 +31,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1671741697,
-        "narHash": "sha256-os6Ktdn+zw1wJPLN6dgUDBMo3u+4lisyloKSe8iDgjg=",
+        "lastModified": 1672654922,
+        "narHash": "sha256-9O51z0zPr/mpS0wC+HLH56t6XKcmdpCPDqOnIe00PXo=",
         "owner": "dolphin-emu",
         "repo": "analytics-ingest",
-        "rev": "b7ba45a81694d99f2acf5bfbe93ea3e8bf1a1722",
+        "rev": "7bd9ce1c735bc88f25acd8854d4a1057909fd256",
         "type": "github"
       },
       "original": {
@@ -115,11 +115,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1669981832,
-        "narHash": "sha256-zA4mpqgKBUPEfNCghhCPa1nUyi9RuiwM8lp5vQ5ae6I=",
+        "lastModified": 1672654953,
+        "narHash": "sha256-Baerk/P6Z9hC9F66mu5fNhDulSWPXtXhXySNOsGWDeo=",
         "owner": "dolphin-emu",
         "repo": "netplay-index",
-        "rev": "e156921d7b919514028fb35e8775502708c17a7f",
+        "rev": "eab9e7b7340ed0e1271ade58cb21d8fd7a26c96a",
         "type": "github"
       },
       "original": {
@@ -130,11 +130,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1671525405,
-        "narHash": "sha256-MEgNxm/oRt5w4ycMENewfZQKOak0ixmjVPfXM96N1FA=",
+        "lastModified": 1672616430,
+        "narHash": "sha256-e18rRwDUaW/Uw1tBmtsVueJ2SVI5DLhrEGwhkIo+c50=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "cbe419ed4c8f98bd82d169c321d339ea30904f1f",
+        "rev": "0bf3109eeb61780965c27f4a0a4affdcd0cd4d3d",
         "type": "github"
       },
       "original": {

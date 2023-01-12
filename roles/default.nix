@@ -5,6 +5,7 @@
     ./artifacts-mirror
     ./bug-tracker
     ./central
+    ./etherpad
     ./foreign-builders
     ./mastodon
     ./monitoring

@@ -48,8 +48,8 @@ RUN buildbot-worker create-worker \
   WORKER_NAME \
   WORKER_PASSWORD && \
   sed -i "s/'BUILDBOT_HOST'/os.environ['BUILDBOT_HOST']/" /buildbot/buildbot.tac && \
-  sed -i "s/'WORKER_NAME'/os.environ['WORKER_NAME']/" /buildbot/buildbot.tac && \
-  sed -i "s/'WORKER_PASSWORD'/os.environ['WORKER_PASSWORD']/" /buildbot/buildbot.tac
+  sed -i "s/'WORKER_NAME'/os.environ.pop('WORKER_NAME')/" /buildbot/buildbot.tac && \
+  sed -i "s/'WORKER_PASSWORD'/os.environ.pop('WORKER_PASSWORD')/" /buildbot/buildbot.tac
 RUN echo 'Pierre Bourdon <delroth@dolphin-emu.org>' > /buildbot/info/admin
 RUN echo 'Jammy (22.04 LTS) build container' > /buildbot/info/host
 

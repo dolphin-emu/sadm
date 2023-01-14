@@ -27,7 +27,7 @@ in {
     systemd.services.analytics-ingest = {
       description = "Analytics ingest server";
       after = [ "network.target" ];
-      bindsTo = [ "clickhouse.service" ];
+      wants = [ "clickhouse.service" ];
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {

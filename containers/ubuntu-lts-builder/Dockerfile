@@ -14,7 +14,7 @@ RUN apt install -y \
   libpulse-dev
 
 # Android build dependencies
-RUN apt install -y openjdk-11-jre-headless
+RUN apt install -y openjdk-11-jdk-headless
 
 # Buildbot worker dependencies
 RUN apt install -y ninja-build buildbot-worker clang-format-12

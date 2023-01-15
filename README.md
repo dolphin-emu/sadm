@@ -20,7 +20,8 @@ $ colmena apply
 
 ## TODO list of things to migrate
 
+Old service configuration can be found in the historical `pre-nix` Git branch.
+
 - buildbot
- - ubuntu/android buildworker
 - changes poller
 - fifoci

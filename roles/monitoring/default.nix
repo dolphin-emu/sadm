@@ -7,6 +7,7 @@ let
 
   promPort = 8036;
   grafanaPort = 8037;
+  alertmanagerPort = 8040;
 
   scrapeConfigs = lib.mapAttrsToList (job: opts: {
     job_name = job;
@@ -44,6 +45,39 @@ in {
 
       inherit scrapeConfigs;
       inherit ruleFiles;
+
+      alertmanager = {
+        enable = true;
+
+        listenAddress = "127.0.0.1";
+        port = alertmanagerPort;
+        webExternalUrl = "https://alerts.dolphin-emu.org";
+
+        # Disable clustering binding to some random RFC1918 internal IP, we
+        # don't use clustering anyway.
+        extraFlags = [ "--cluster.listen-address=" ];
+
+        configuration = {
+          global = {
+            smtp_smarthost = "127.0.0.1:25";
+            smtp_from = "alerts@dolphin-emu.org";
+            smtp_require_tls = false;
+          };
+
+          route = {
+            receiver = "email";
+          };
+
+          receivers = [
+            {
+              name = "email";
+              email_configs = [
+                { to = "delroth+dolphin-alerts@gmail.com"; }
+              ];
+            }
+          ];
+        };
+      };
     };
 
     age.secrets.grafana-admin-password = {
@@ -78,5 +112,6 @@ in {
 
     my.http.vhosts."prom.dolphin-emu.org".proxyLocalPort = promPort;
     my.http.vhosts."mon.dolphin-emu.org".proxyLocalPort = grafanaPort;
+    my.http.vhosts."alerts.dolphin-emu.org".proxyLocalPort = alertmanagerPort;
   };
 }

@@ -101,6 +101,7 @@ in {
           secret_key = "$__file{${config.age.secrets.grafana-secret-key.path}}";
         };
         server = {
+          http_addr = "127.0.0.1";
           http_port = grafanaPort;
           domain = "mon.dolphin-emu.org";
           root_url = "https://mon.dolphin-emu.org/";

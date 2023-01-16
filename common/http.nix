@@ -74,6 +74,8 @@ in {
       enable = true;
       additionalModules = [ pkgs.nginxModules.vts ];
 
+      enableReload = true;
+
       recommendedGzipSettings = true;
       recommendedOptimisation = true;
       recommendedProxySettings = true;

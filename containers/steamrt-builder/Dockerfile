@@ -3,7 +3,7 @@ FROM registry.gitlab.steamos.cloud/steamrt/sniper/sdk:latest
 RUN apt update
 
 # Buildbot worker and build tools dependencies
-RUN apt install -y ninja-build buildbot-worker git cmake
+RUN apt install -y ninja-build buildbot-worker git cmake p7zip-full
 
 RUN apt clean
 

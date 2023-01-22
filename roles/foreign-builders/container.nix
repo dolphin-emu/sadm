@@ -33,6 +33,8 @@ in {
       environmentFiles = [
         config.age.secrets.container-builder-env.path
       ];
+
+      extraOptions = [ "--device=/dev/kvm" ];
     };
   };
 }

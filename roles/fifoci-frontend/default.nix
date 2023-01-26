@@ -15,6 +15,8 @@ let
   staticDir = "${stateDir}/static";
 
   fifociEnv = {
+    DJANGO_SETTINGS_MODULE = "fifoci.frontend.settings.production";
+
     MEDIA_ROOT = mediaDir;
     STATIC_ROOT = staticDir;
 

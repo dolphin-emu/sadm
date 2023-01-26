@@ -64,8 +64,8 @@ in {
       };
 
       preStart = ''
-        ${pkg}/bin/fifoci-frontend-manage collectstatic
-        ${pkg}/bin/fifoci-frontend-manage migrate
+        ${pkg}/bin/fifoci-frontend-manage collectstatic --noinput
+        ${pkg}/bin/fifoci-frontend-manage migrate --noinput
       '';
     };
 

@@ -17,17 +17,22 @@
   inputs.central.inputs.nixpkgs.follows = "nixpkgs";
   inputs.central.inputs.poetry2nix.follows = "poetry2nix";
 
+  inputs.fifoci.url = "github:dolphin-emu/fifoci";
+  inputs.fifoci.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.fifoci.inputs.poetry2nix.follows = "poetry2nix";
+
   inputs.netplay-index.url = "github:dolphin-emu/netplay-index";
   inputs.netplay-index.inputs.nixpkgs.follows = "nixpkgs";
   inputs.netplay-index.inputs.poetry2nix.follows = "poetry2nix";
 
-  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, netplay-index, ... }@attrs: {
+  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, fifoci, netplay-index, ... }@attrs: {
     colmena = {
       meta.nixpkgs = import nixpkgs {
         system = "x86_64-linux";
         overlays = [
           analytics-ingest.overlay
           central.overlay
+          fifoci.overlay
           netplay-index.overlay
         ];
       };

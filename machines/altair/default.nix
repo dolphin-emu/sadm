@@ -29,6 +29,7 @@ in {
     artifacts-mirror.enable = true;
     bug-tracker.enable = true;
     central.enable = true;
+    fifoci-frontend.enable = true;
     foreign-builders.enable = true;
     mastodon.enable = true;
     monitoring.enable = true;

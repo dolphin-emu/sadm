@@ -15,6 +15,7 @@ let
     "etherpad-apikey.age"
     "etherpad-sessionkey.age"
     "etherpad-passwords.age"
+    "fifoci-frontend-secret-key.age"
     "geoip-license-key.age"
     "gh-bot-token.age"
     "gh-hook-hmac.age"

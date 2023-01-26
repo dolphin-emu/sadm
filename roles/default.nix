@@ -6,6 +6,7 @@
     ./bug-tracker
     ./central
     ./etherpad
+    ./fifoci-frontend
     ./foreign-builders
     ./mastodon
     ./monitoring

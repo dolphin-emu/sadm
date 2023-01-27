@@ -34,7 +34,7 @@ in {
   options.my.roles.monitoring.enable = lib.mkEnableOption "Monitoring infrastructure";
 
   config = lib.mkIf cfg.enable {
-    services.prometheus = {
+    services.prometheus = rec {
       enable = true;
 
       enableReload = true;
@@ -78,6 +78,12 @@ in {
           ];
         };
       };
+
+      alertmanagers = [{
+        static_configs = [{
+          targets = [ "${alertmanager.listenAddress}:${toString alertmanager.port}" ];
+        }];
+      }];
     };
 
     age.secrets.grafana-admin-password = {

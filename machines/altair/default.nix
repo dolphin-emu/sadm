@@ -30,6 +30,7 @@ in {
     bug-tracker.enable = true;
     central.enable = true;
     fifoci-frontend.enable = true;
+    fifoci-worker.enable = true;
     foreign-builders.enable = true;
     mastodon.enable = true;
     monitoring.enable = true;

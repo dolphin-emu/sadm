@@ -7,6 +7,7 @@
     ./central
     ./etherpad
     ./fifoci-frontend
+    ./fifoci-worker
     ./foreign-builders
     ./mastodon
     ./monitoring

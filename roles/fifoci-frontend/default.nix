@@ -8,7 +8,7 @@ let
   user = "fifoci-frontend";
   group = "fifoci-frontend";
 
-  domain = "new.fifo.ci";
+  domain = "fifo.ci";
 
   stateDir = "/var/lib/fifoci-frontend";
   mediaDir = "${stateDir}/media";

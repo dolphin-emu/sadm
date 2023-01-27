@@ -28,4 +28,3 @@ Old service configuration can be found in the historical `pre-nix` Git branch.
 
 - buildbot
 - changes poller
-- fifoci worker

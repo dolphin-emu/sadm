@@ -25,12 +25,17 @@ let
     POSTGRES_DB = "fifoci";
     POSTGRES_USER = "fifoci-frontend";
 
+    IMPORT_API_KEY_FILE = config.age.secrets.fifoci-frontend-api-key.path;
     SECRET_KEY_FILE = config.age.secrets.fifoci-frontend-secret-key.path;
   };
 in {
   options.my.roles.fifoci-frontend.enable = lib.mkEnableOption "FifoCI frontend";
 
   config = lib.mkIf cfg.enable {
+    age.secrets.fifoci-frontend-api-key = {
+      file = ../../secrets/fifoci-frontend-api-key.age;
+      owner = user;
+    };
     age.secrets.fifoci-frontend-secret-key = {
       file = ../../secrets/fifoci-frontend-secret-key.age;
       owner = user;

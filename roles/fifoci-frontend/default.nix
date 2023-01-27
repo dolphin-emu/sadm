@@ -94,6 +94,7 @@ in {
 
     users.groups."${group}".members = [ config.services.nginx.user ];
 
+    my.http.vhosts."fifoci.dolphin-emu.org".redirect = "https://fifo.ci";
     my.http.vhosts."${domain}".cfg = {
       locations."/".proxyPass = "http://localhost:${toString port}";
 

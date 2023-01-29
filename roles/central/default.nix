@@ -20,6 +20,11 @@ let
       rebuild_repo = "dolphin-emu/dolphin";
     };
 
+    git = {
+      repos_path = "/tmp/.central-repos";
+      git_path = "${pkgs.git}/bin/git";
+    };
+
     github = {
       account = {
         login = "dolphin-emu-bot";

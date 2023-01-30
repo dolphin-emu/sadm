@@ -2,7 +2,7 @@
 
 {
   imports = [
-    agenix.nixosModule
+    agenix.nixosModules.default
 
     ./backup.nix
     ./http.nix

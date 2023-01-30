@@ -94,6 +94,14 @@ let
     };
 
     fifoci.url = "https://fifo.ci";
+
+    wiki = {
+      host = "wiki.dolphin-emu.org";
+      path = "/";
+      username = "BuildBot";
+      password = "!FileInclude ${config.age.secrets.wiki-bot-password.path}";
+      latest_dev_page = "Template:CurrentGitRevision";
+    };
   };
 
   # Convert "!FileInclude foo" to !FileInclude "foo". nixpkgs's YAML utils do
@@ -120,6 +128,10 @@ in {
     };
     age.secrets.gh-oauth-client-secret = {
       file = ../../secrets/gh-oauth-client-secret.age;
+      owner = "central";
+    };
+    age.secrets.wiki-bot-password = {
+      file = ../../secrets/wiki-bot-password.age;
       owner = "central";
     };
 

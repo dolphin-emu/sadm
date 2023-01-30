@@ -29,6 +29,7 @@ let
     "nas-credentials.age"
     "oci-registry-htpasswd.age"
     "oci-registry-password.age"
+    "wiki-bot-password.age"
   ];
 in
   builtins.listToAttrs (builtins.map

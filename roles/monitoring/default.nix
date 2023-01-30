@@ -59,7 +59,7 @@ in {
 
         configuration = {
           global = {
-            smtp_smarthost = "127.0.0.1:25";
+            smtp_smarthost = "smtp-dolphin-emu.alwaysdata.net:25";
             smtp_from = "alerts@dolphin-emu.org";
             smtp_require_tls = false;
           };

@@ -25,29 +25,50 @@ let
     '';
     postFixup = "wrapPythonPrograms";
   };
+
+  updaterService = { dolphinTrack, playstoreTrack }: {
+    description = "Android Play Store updater (${dolphinTrack} -> ${playstoreTrack})";
+    serviceConfig = {
+      Type = "oneshot";
+      DynamicUser = true;
+      LoadCredential = "service-key-file:${config.age.secrets.androidpublisher-service-key.path}";
+      ExecStart = ''
+        ${pkg}/bin/android-updater \
+          --package_name org.dolphinemu.dolphinemu \
+          --playstore_track ${playstoreTrack} \
+          --dolphin_track ${dolphinTrack} \
+          --service_key_file ''${CREDENTIALS_DIRECTORY}/service-key-file
+      '';
+    };
+  };
 in {
   options.my.roles.android-updater.enable = lib.mkEnableOption "Android Play Store updater";
 
   config = lib.mkIf cfg.enable {
     age.secrets.androidpublisher-service-key.file = ../../secrets/androidpublisher-service-key.age;
 
-    systemd.services.android-updater = {
-      description = "Android Play Store updater";
-      serviceConfig = {
-        Type = "oneshot";
-        DynamicUser = true;
-        LoadCredential = "service-key-file:${config.age.secrets.androidpublisher-service-key.path}";
-        ExecStart = ''
-          ${pkg}/bin/android-updater \
-            --package_name org.dolphinemu.dolphinemu \
-            --update_track beta \
-            --service_key_file ''${CREDENTIALS_DIRECTORY}/service-key-file
-        '';
+    systemd.services.android-updater-release = updaterService {
+      dolphinTrack = "beta";
+      playstoreTrack = "production";
+    };
+
+    systemd.services.android-updater-dev = updaterService {
+      dolphinTrack = "dev";
+      playstoreTrack = "dev";
+    };
+
+    systemd.timers.android-updater-release = {
+      description = "Android Play Store updater (release)";
+      wantedBy = [ "timers.target" ];
+      requires = [ "network-online.target" ];
+      timerConfig = {
+        OnCalendar = "hourly";
+        Persistent = true;
       };
     };
 
-    systemd.timers.android-updater = {
-      description = "Android Play Store updater";
+    systemd.timers.android-updater-dev = {
+      description = "Android Play Store updater (dev)";
       wantedBy = [ "timers.target" ];
       requires = [ "network-online.target" ];
       timerConfig = {

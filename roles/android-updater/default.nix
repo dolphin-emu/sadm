@@ -62,7 +62,7 @@ in {
       wantedBy = [ "timers.target" ];
       requires = [ "network-online.target" ];
       timerConfig = {
-        OnCalendar = "hourly";
+        OnCalendar = "*-*-* *:00:00";
         Persistent = true;
       };
     };
@@ -72,7 +72,7 @@ in {
       wantedBy = [ "timers.target" ];
       requires = [ "network-online.target" ];
       timerConfig = {
-        OnCalendar = "hourly";
+        OnCalendar = "*-*-* *:30:00";
         Persistent = true;
       };
     };

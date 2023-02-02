@@ -20,7 +20,7 @@ let
   });
 
   localProxyVhosts = mapVhostsByAttr "proxyLocalPort" (n: vh: commonVhostAttrs // {
-    locations."/".proxyPass = "http://localhost:${toString vh.proxyLocalPort}";
+    locations."/".proxyPass = "http://127.0.0.1:${toString vh.proxyLocalPort}";
     locations."/".extraConfig = "client_max_body_size 0;";
   });
 

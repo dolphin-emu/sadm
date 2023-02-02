@@ -3,6 +3,8 @@
 let
   cfg = config.my.roles.analytics;
   port = 8035;
+
+  pkg = pkgs.analytics-ingest;
 in {
   options.my.roles.analytics.enable = lib.mkEnableOption "analytics ingest server";
 
@@ -24,16 +26,22 @@ in {
     systemd.services.clickhouse.serviceConfig.Restart = "always";
     systemd.services.clickhouse.serviceConfig.RestartSec = 3;
 
+    systemd.sockets.analytics-ingest = {
+      wantedBy = [ "sockets.target" ];
+      listenStreams = [ "${toString port}" ];
+    };
+
     systemd.services.analytics-ingest = {
       description = "Analytics ingest server";
       after = [ "network.target" ];
+      requires = [ "analytics-ingest.socket" ];
       wants = [ "clickhouse.service" ];
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
-        Type = "simple";
+        Type = "notify";
         DynamicUser = true;
-        ExecStart = "${pkgs.analytics-ingest}/bin/analytics-ingest --port=${toString port}";
+        ExecStart = "${pkg.dependencyEnv}/bin/gunicorn analytics_ingest.__main__:app";
 
         # clickhouse does not properly use sd-notify to report successful
         # startup. In case we fail due to not being able to connect at startup,

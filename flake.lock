@@ -102,11 +102,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1674807138,
-        "narHash": "sha256-QTMOb0JqbcnpjWRZ8z/nu4URmkuRq6b1/9iA3qZyMkQ=",
+        "lastModified": 1675516739,
+        "narHash": "sha256-PB6zqTdSy0GkngVB1bd5Qnob7oMEP/C00FicX56NagM=",
         "owner": "dolphin-emu",
         "repo": "fifoci",
-        "rev": "41adebe4514151eb5581a09602cab7f58e1542e5",
+        "rev": "edda90af0618260c226cafc261c3055951d457a2",
         "type": "github"
       },
       "original": {
@@ -231,11 +231,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1675237434,
-        "narHash": "sha256-YoFR0vyEa1HXufLNIFgOGhIFMRnY6aZ0IepZF5cYemo=",
+        "lastModified": 1675410244,
+        "narHash": "sha256-ODj6egMoH/HgAF/0wIy0EfRBeUx5FMuLl6uAdUW3kCI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "285b3ff0660640575186a4086e1f8dc0df2874b5",
+        "rev": "f7543a7539a007e9562e4d8d24e17a4bcf369b68",
         "type": "github"
       },
       "original": {

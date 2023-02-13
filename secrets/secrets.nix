@@ -7,6 +7,7 @@ let
   ];
 
   allFiles = [
+    "alerts-smtp-password.age"
     "androidpublisher-service-key.age"
     "backup-passphrase.age"
     "backup-ssh-key.age"

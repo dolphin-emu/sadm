@@ -34,6 +34,18 @@ in {
   options.my.roles.monitoring.enable = lib.mkEnableOption "Monitoring infrastructure";
 
   config = lib.mkIf cfg.enable {
+    age.secrets.alerts-smtp-password.file = ../../secrets/alerts-smtp-password.age;
+
+    age.secrets.grafana-admin-password = {
+      file = ../../secrets/grafana-admin-password.age;
+      owner = "grafana";
+    };
+
+    age.secrets.grafana-secret-key = {
+      file = ../../secrets/grafana-secret-key.age;
+      owner = "grafana";
+    };
+
     services.prometheus = rec {
       enable = true;
 
@@ -53,6 +65,8 @@ in {
         port = alertmanagerPort;
         webExternalUrl = "https://alerts.dolphin-emu.org";
 
+        environmentFile = config.age.secrets.alerts-smtp-password.path;
+
         # Disable clustering binding to some random RFC1918 internal IP, we
         # don't use clustering anyway.
         extraFlags = [ "--cluster.listen-address=" ];
@@ -61,7 +75,9 @@ in {
           global = {
             smtp_smarthost = "smtp-dolphin-emu.alwaysdata.net:25";
             smtp_from = "alerts@dolphin-emu.org";
-            smtp_require_tls = false;
+            smtp_require_tls = true;
+            smtp_auth_username = "alerts@dolphin-emu.org";
+            smtp_auth_password = "$SMTP_PASSWORD";
           };
 
           route = {
@@ -84,16 +100,6 @@ in {
           targets = [ "${alertmanager.listenAddress}:${toString alertmanager.port}" ];
         }];
       }];
-    };
-
-    age.secrets.grafana-admin-password = {
-      file = ../../secrets/grafana-admin-password.age;
-      owner = "grafana";
-    };
-
-    age.secrets.grafana-secret-key = {
-      file = ../../secrets/grafana-secret-key.age;
-      owner = "grafana";
     };
 
     services.grafana = {

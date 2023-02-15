@@ -34,7 +34,7 @@ RUN mkdir -p /Android/cmdline-tools && cd /Android/cmdline-tools && \
   mv cmdline-tools latest && \
   rm android-cli.zip
 RUN yes | /Android/cmdline-tools/latest/bin/sdkmanager --licenses
-RUN /Android/cmdline-tools/latest/bin/sdkmanager --install 'cmake;3.18.1'
+RUN /Android/cmdline-tools/latest/bin/sdkmanager --install 'cmake;3.22.1'
 RUN /Android/cmdline-tools/latest/bin/sdkmanager --install 'ndk;25.1.8937393'
 
 ENV ANDROID_HOME=/Android

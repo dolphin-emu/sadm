@@ -21,7 +21,7 @@ RUN apt install -y ninja-build buildbot-worker clang-format-12 clang-format-13
 
 # Android Studio setup (for Java linting)
 RUN cd / && \
-  wget https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2021.2.1.15/android-studio-2021.2.1.15-linux.tar.gz -O android-studio.tar.gz && \
+  wget https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2022.1.1.1/android-studio-2022.1.1.1-linux.tar.gz -O android-studio.tar.gz && \
   tar xf android-studio.tar.gz && \
   rm android-studio.tar.gz
 

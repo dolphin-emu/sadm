@@ -2,7 +2,7 @@
 {
     "AppID" "1941680"
     "Desc" "DOLPHIN_BUILD_NUMBER"
-    "SetLive" "dev-sniper"
+    "SetLive" "development"
 
     "ContentRoot" "content"
     "BuildOutput" "output"

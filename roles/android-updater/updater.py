@@ -171,7 +171,7 @@ if __name__ == "__main__":
             break
     else:
         print("No Android artifact found. Exiting.")
-        sys.exit(1)
+        sys.exit(0)
 
     # Try fetching an AAB first for the artifact, if not found fallback to APK.
     aab = _fetch_aab_artifact(artifact["url"])

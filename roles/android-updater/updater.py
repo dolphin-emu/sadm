@@ -16,6 +16,7 @@ _PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher"
 _UPDATE_URL_FMT = "https://dolphin-emu.org/update/latest/%s/"
 _ARTIFACT_ANDROID_SYSTEM = "Android"
 _APK_MIME = "application/vnd.android.package-archive"
+_AAB_MIME = "application/octet-stream"
 
 
 def _get_playstore_service(key_file):
@@ -31,6 +32,21 @@ def _get_dolphin_update_info(track):
     return requests.get(_UPDATE_URL_FMT % track).json()
 
 
+def _fetch_aab_artifact(apk_url):
+    # AABs are not currently registered as artifacts on the website, since it does not support
+    # the concept of "hidden" artifacts - all artifacts are user visible. Hack around to find
+    # the URL for an AAB from the APK url. This needs duplication of the sharded URL hasher.
+    filename = apk_url.split("/")[-1].replace(".apk", ".aab")
+    url_base = apk_url.rsplit("/", 3)[0]
+    sha = hashlib.sha256(filename.encode("utf-8")).hexdigest()
+    aab_url = "/".join((url_base, sha[0:2], sha[2:4], filename))
+
+    resp = requests.get(aab_url)
+    if resp.status_code != 200:
+        return None
+    return resp.content
+
+
 def _get_playstore_version(play, package_name, playstore_track):
     edit_id = play.edits().insert(body={}, packageName=package_name).execute()["id"]
     tracks = (
@@ -40,6 +56,35 @@ def _get_playstore_version(play, package_name, playstore_track):
         if track["track"] != playstore_track:
             continue
         return track["releases"][0].get("name")
+
+
+def _find_or_upload_aab(play, package_name, aab):
+    edit_id = play.edits().insert(body={}, packageName=package_name).execute()["id"]
+    play_aabs = (
+        play.edits()
+        .bundles()
+        .list(editId=edit_id, packageName=args.package_name)
+        .execute()["bundles"]
+    )
+
+    aab_sha256 = hashlib.sha256(aab).hexdigest()
+    for known_aab in play_aabs:
+        if known_aab["sha256"] == aab_sha256:
+            return known_aab["versionCode"]
+
+    aab = io.BytesIO(aab)
+    upload_response = (
+        play.edits()
+        .bundles()
+        .upload(
+            editId=edit_id,
+            packageName=package_name,
+            media_body=googhttp.MediaIoBaseUpload(aab, mimetype=_AAB_MIME),
+        )
+        .execute()
+    )
+    play.edits().commit(editId=edit_id, packageName=package_name).execute()
+    return upload_response["versionCode"]
 
 
 def _find_or_upload_apk(play, package_name, apk):
@@ -128,8 +173,14 @@ if __name__ == "__main__":
         print("No Android artifact found. Exiting.")
         sys.exit(1)
 
-    apk = requests.get(artifact["url"]).content
-    version_code = _find_or_upload_apk(play, args.package_name, apk)
+    # Try fetching an AAB first for the artifact, if not found fallback to APK.
+    aab = _fetch_aab_artifact(artifact["url"])
+    if aab is not None:
+        version_code = _find_or_upload_aab(play, args.package_name, aab)
+    else:
+        apk = requests.get(artifact["url"]).content
+        version_code = _find_or_upload_apk(play, args.package_name, apk)
+
     _update_playstore_track(
         play, args.package_name, args.playstore_track, version_code, latest_dolphin_info
     )

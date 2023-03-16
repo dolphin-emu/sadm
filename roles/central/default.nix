@@ -144,7 +144,7 @@ in {
         Type = "simple";
         User = "central";
         Group = "central";
-        ExecStart = "${pkgs.central}/bin/central --config=${cfgFile}";
+        ExecStart = "${pkgs.central}/bin/central --config=${cfgFile} --no_local_logging";
       };
     };
 

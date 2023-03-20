@@ -26,9 +26,10 @@ let
     };
 
     github = {
-      account = {
-        login = "dolphin-emu-bot";
-        token = "!FileInclude ${config.age.secrets.gh-bot-token.path}";
+      app = {
+        id = 49947;
+        username = "dolphin-ci[bot]";
+        priv_key_path = config.age.secrets.gh-app-priv-key.path;
       };
 
       maintain = [ "dolphin-emu/dolphin" ];
@@ -54,10 +55,6 @@ let
       };
 
       hook_hmac_secret = "!FileInclude ${config.age.secrets.gh-hook-hmac.path}";
-      oauth = {
-        client_id = "!FileInclude ${config.age.secrets.gh-oauth-client-id.path}";
-        client_secret = "!FileInclude ${config.age.secrets.gh-oauth-client-secret.path}";
-      };
 
       rebuild_command = "@dolphin-emu-bot rebuild";
       allow_self_merge_command = "@dolphin-emu-bot allowmerge";
@@ -114,20 +111,12 @@ in {
   options.my.roles.central.enable = lib.mkEnableOption "Dolphin Central server";
 
   config = lib.mkIf cfg.enable {
-    age.secrets.gh-bot-token = {
-      file = ../../secrets/gh-bot-token.age;
+    age.secrets.gh-app-priv-key = {
+      file = ../../secrets/gh-app-priv-key.age;
       owner = "central";
     };
     age.secrets.gh-hook-hmac = {
       file = ../../secrets/gh-hook-hmac.age;
-      owner = "central";
-    };
-    age.secrets.gh-oauth-client-id = {
-      file = ../../secrets/gh-oauth-client-id.age;
-      owner = "central";
-    };
-    age.secrets.gh-oauth-client-secret = {
-      file = ../../secrets/gh-oauth-client-secret.age;
       owner = "central";
     };
     age.secrets.wiki-bot-password = {

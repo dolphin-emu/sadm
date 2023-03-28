@@ -57,8 +57,6 @@ let
       hook_hmac_secret = "!FileInclude ${config.age.secrets.gh-hook-hmac.path}";
 
       rebuild_command = "@dolphin-emu-bot rebuild";
-      allow_self_merge_command = "@dolphin-emu-bot allowmerge";
-      disallow_self_merge_command = "@dolphin-emu-bot disallowmerge";
     };
 
     buildbot = {

@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 # Repacks .dmg volumes as .7z archives
 
 function cleanup

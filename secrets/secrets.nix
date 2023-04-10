@@ -8,6 +8,8 @@ let
 
   allFiles = [
     "alerts-smtp-password.age"
+    "android-keystore.age"
+    "android-keystore-pass.age"
     "androidpublisher-service-key.age"
     "backup-passphrase.age"
     "backup-ssh-key.age"
@@ -31,6 +33,7 @@ let
     "nas-credentials.age"
     "oci-registry-htpasswd.age"
     "oci-registry-password.age"
+    "update-signing-key.age"
     "wiki-bot-password.age"
   ];
 in

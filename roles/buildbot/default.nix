@@ -56,7 +56,9 @@ let
       p.txrequests
     ]))
 
+    apksigner
     dmg2img
+    openjdk
     p7zip
     steamcmd
   ];
@@ -69,10 +71,13 @@ in {
   options.my.roles.buildbot.enable = lib.mkEnableOption "buildbot master";
 
   config = lib.mkIf cfg.enable {
+    age.secrets.android-keystore = buildbotSecret ../../secrets/android-keystore.age;
+    age.secrets.android-keystore-pass = buildbotSecret ../../secrets/android-keystore-pass.age;
     age.secrets.buildbot-fifoci-frontend-api-key = buildbotSecret ../../secrets/fifoci-frontend-api-key.age;
     age.secrets.buildbot-gh-client-id = buildbotSecret ../../secrets/buildbot-gh-client-id.age;
     age.secrets.buildbot-gh-client-secret = buildbotSecret ../../secrets/buildbot-gh-client-secret.age;
     age.secrets.buildbot-workers-passwords = buildbotSecret ../../secrets/buildbot-workers-passwords.age;
+    age.secrets.update-signing-key = buildbotSecret ../../secrets/update-signing-key.age;
 
     systemd.services.buildbot-master = {
       description = "Buildbot Master";
@@ -85,9 +90,12 @@ in {
         PB_PORT = toString pbPort;
         PROM_PORT = toString promPort;
 
+        ANDROID_KEYSTORE_PATH = config.age.secrets.android-keystore.path;
+        ANDROID_KEYSTORE_PASS_PATH = config.age.secrets.android-keystore-pass.path;
         FIFOCI_FRONTEND_API_KEY_PATH = config.age.secrets.buildbot-fifoci-frontend-api-key.path;
         GH_CLIENT_ID_PATH = config.age.secrets.buildbot-gh-client-id.path;
         GH_CLIENT_SECRET_PATH = config.age.secrets.buildbot-gh-client-secret.path;
+        UPDATE_SIGNING_KEY_PATH = config.age.secrets.update-signing-key.path;
         WORKERS_PASSWORDS_PATH = config.age.secrets.buildbot-workers-passwords.path;
       };
 

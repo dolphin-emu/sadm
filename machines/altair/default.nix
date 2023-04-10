@@ -28,6 +28,7 @@ in {
     android-updater.enable = true;
     artifacts-mirror.enable = true;
     bug-tracker.enable = true;
+    buildbot.enable = true;
     central.enable = true;
     fifoci-frontend.enable = true;
     fifoci-worker.enable = true;

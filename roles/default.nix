@@ -4,6 +4,7 @@
     ./android-updater
     ./artifacts-mirror
     ./bug-tracker
+    ./buildbot
     ./central
     ./etherpad
     ./fifoci-frontend

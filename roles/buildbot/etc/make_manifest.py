@@ -4,7 +4,7 @@ import argparse
 import base64
 import gzip
 import hashlib
-import libarchive.public
+import libarchive
 import nacl.encoding
 import nacl.signing
 import os
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     entries = []
-    with libarchive.public.file_reader(args.input) as archive:
+    with libarchive.file_reader(args.input) as archive:
         for entry in archive:
             filename = entry.pathname
             # Skip directories.
@@ -81,7 +81,7 @@ if __name__ == '__main__':
             os.makedirs(directory)
         fp = gzip.GzipFile(os.path.join(directory, filename + ".tmp"), "wb")
     else:
-        fp = sys.stdout
+        fp = sys.stdout.buffer
 
     fp.write(manifest)
     fp.write(b"\n" + sig + b"\n")

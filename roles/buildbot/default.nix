@@ -128,6 +128,8 @@ in {
       '';
     };
 
+    networking.firewall.allowedTCPPorts = [ pbPort ];
+
     services.postgresql = {
       ensureDatabases = [ "buildbot" ];
       ensureUsers = [

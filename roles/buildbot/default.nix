@@ -73,6 +73,7 @@ in {
   config = lib.mkIf cfg.enable {
     age.secrets.android-keystore = buildbotSecret ../../secrets/android-keystore.age;
     age.secrets.android-keystore-pass = buildbotSecret ../../secrets/android-keystore-pass.age;
+    age.secrets.buildbot-downloads-create-key = buildbotSecret ../../secrets/buildbot-downloads-create-key.age;
     age.secrets.buildbot-fifoci-frontend-api-key = buildbotSecret ../../secrets/fifoci-frontend-api-key.age;
     age.secrets.buildbot-gh-client-id = buildbotSecret ../../secrets/buildbot-gh-client-id.age;
     age.secrets.buildbot-gh-client-secret = buildbotSecret ../../secrets/buildbot-gh-client-secret.age;
@@ -92,6 +93,7 @@ in {
 
         ANDROID_KEYSTORE_PATH = config.age.secrets.android-keystore.path;
         ANDROID_KEYSTORE_PASS_PATH = config.age.secrets.android-keystore-pass.path;
+        DOWNLOADS_CREATE_KEY_PATH = config.age.secrets.buildbot-downloads-create-key.path;
         FIFOCI_FRONTEND_API_KEY_PATH = config.age.secrets.buildbot-fifoci-frontend-api-key.path;
         GH_CLIENT_ID_PATH = config.age.secrets.buildbot-gh-client-id.path;
         GH_CLIENT_SECRET_PATH = config.age.secrets.buildbot-gh-client-secret.path;

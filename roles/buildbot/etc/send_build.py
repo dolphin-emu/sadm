@@ -6,7 +6,7 @@ import os
 import requests
 
 CALLBACK_URL = 'https://dolphin-emu.org/download/new/'
-DOWNLOADS_CREATE_KEY = open('/etc/dolphin-keys/downloads-create', 'rb').read().strip()
+DOWNLOADS_CREATE_KEY = open(os.environ['DOWNLOADS_CREATE_KEY_PATH'], 'rb').read().strip()
 
 if __name__ == '__main__':
     branch = os.environ['BRANCH']

@@ -17,8 +17,8 @@ in {
       where = "/data/nas";
       options = lib.strings.concatStringsSep "," [
         "rw"
-        "uid=0"
-        "gid=0"
+        "uid=buildbot"
+        "gid=nginx"
         "soft"
         "cache=none"
         "vers=default"

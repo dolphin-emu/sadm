@@ -2,8 +2,10 @@
 
 set -e
 
-BUILD_ACCOUNT_USERNAME=$(cat /home/buildbot/.steam-username)
-BUILD_ACCOUNT_PASSWORD=$(cat /home/buildbot/.steam-password)
+BASEDIR=$(dirname $(realpath "$0"))
+
+BUILD_ACCOUNT_USERNAME=$(cat "$STEAM_ACCOUNT_USERNAME_PATH")
+BUILD_ACCOUNT_PASSWORD=$(cat "$STEAM_ACCOUNT_PASSWORD_PATH")
 
 mkdir $1/content
 
@@ -28,6 +30,6 @@ rm -r $1/content/mac/Dolphin
 
 # Upload
 
-sed "s/DOLPHIN_BUILD_NUMBER/$2/" /home/buildbot/bin/steampipe_app_build.vdf > $1/steampipe_app_build.vdf
+sed "s/DOLPHIN_BUILD_NUMBER/$2/" $BASEDIR/../lib/steampipe_app_build.vdf > $1/steampipe_app_build.vdf
 
 steamcmd +login "$BUILD_ACCOUNT_USERNAME" "$BUILD_ACCOUNT_PASSWORD" +run_app_build $1/steampipe_app_build.vdf +quit

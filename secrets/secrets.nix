@@ -17,6 +17,8 @@ let
     "buildbot-downloads-create-key.age"
     "buildbot-gh-client-id.age"
     "buildbot-gh-client-secret.age"
+    "buildbot-steam-username.age"
+    "buildbot-steam-password.age"
     "buildbot-workers-passwords.age"
     "container-builder-env.age"
     "etherpad-apikey.age"

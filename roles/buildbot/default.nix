@@ -77,6 +77,8 @@ in {
     age.secrets.buildbot-fifoci-frontend-api-key = buildbotSecret ../../secrets/fifoci-frontend-api-key.age;
     age.secrets.buildbot-gh-client-id = buildbotSecret ../../secrets/buildbot-gh-client-id.age;
     age.secrets.buildbot-gh-client-secret = buildbotSecret ../../secrets/buildbot-gh-client-secret.age;
+    age.secrets.buildbot-steam-username = buildbotSecret ../../secrets/buildbot-steam-username.age;
+    age.secrets.buildbot-steam-password = buildbotSecret ../../secrets/buildbot-steam-password.age;
     age.secrets.buildbot-workers-passwords = buildbotSecret ../../secrets/buildbot-workers-passwords.age;
     age.secrets.update-signing-key = buildbotSecret ../../secrets/update-signing-key.age;
 
@@ -97,6 +99,8 @@ in {
         FIFOCI_FRONTEND_API_KEY_PATH = config.age.secrets.buildbot-fifoci-frontend-api-key.path;
         GH_CLIENT_ID_PATH = config.age.secrets.buildbot-gh-client-id.path;
         GH_CLIENT_SECRET_PATH = config.age.secrets.buildbot-gh-client-secret.path;
+        STEAM_ACCOUNT_USERNAME_PATH = config.age.secrets.buildbot-steam-username.path;
+        STEAM_ACCOUNT_PASSWORD_PATH = config.age.secrets.buildbot-steam-password.path;
         UPDATE_SIGNING_KEY_PATH = config.age.secrets.update-signing-key.path;
         WORKERS_PASSWORDS_PATH = config.age.secrets.buildbot-workers-passwords.path;
       };

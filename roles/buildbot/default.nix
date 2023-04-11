@@ -60,6 +60,7 @@ let
     apksigner
     dmg2img
     openjdk
+    openssh
     p7zip
     steamcmd
   ];

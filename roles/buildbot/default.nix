@@ -7,6 +7,7 @@ let
   pbPort = 9989;
   promPort = 8011;
 
+  artifactsBaseDir = "/data/nas";
   stateDir = "/var/lib/buildbot";
 
   buildbotScripts = pkgs.runCommand "buildbot-scripts" {} ''
@@ -92,6 +93,8 @@ in {
         HTTP_PORT = toString httpPort;
         PB_PORT = toString pbPort;
         PROM_PORT = toString promPort;
+
+        ARTIFACTS_BASE_DIR = artifactsBaseDir;
 
         ANDROID_KEYSTORE_PATH = config.age.secrets.android-keystore.path;
         ANDROID_KEYSTORE_PASS_PATH = config.age.secrets.android-keystore-pass.path;

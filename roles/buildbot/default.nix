@@ -10,18 +10,35 @@ let
   artifactsBaseDir = "/data/nas";
   stateDir = "/var/lib/buildbot";
 
-  buildbotScripts = pkgs.runCommand "buildbot-scripts" {} ''
-    mkdir $out $out/bin $out/lib
+  buildbotScripts = with pkgs; stdenv.mkDerivation {
+    name = "buildbot-scripts";
+    src = ./etc;
 
-    install -m755 ${./etc}/make_manifest.py $out/bin
-    install -m755 ${./etc}/repack_dmg.sh $out/bin
-    install -m755 ${./etc}/send_build.py $out/bin
-    install -m755 ${./etc}/upload_to_steampipe.sh $out/bin
+    nativeBuildInputs = [ python3Packages.wrapPython ];
+    propagatedBuildInputs = [ bash python3Packages.python ];
+    pythonPath = with python3Packages; [
+      libarchive-c
+      pynacl
+      requests
+    ];
 
-    install -m644 ${./etc}/buildbot.tac $out/lib
-    install -m644 ${./etc}/master.cfg $out/lib
-    install -m644 ${./etc}/steampipe_app_build.vdf $out/lib
-  '';
+    unpackPhase = "true";
+    installPhase = ''
+      mkdir $out $out/bin $out/lib
+
+      install -m755 $src/make_manifest.py $out/bin
+      install -m755 $src/repack_dmg.sh $out/bin
+      install -m755 $src/send_build.py $out/bin
+      install -m755 $src/upload_to_steampipe.sh $out/bin
+
+      install -m644 $src/buildbot.tac $out/lib
+      install -m644 $src/master.cfg $out/lib
+      install -m644 $src/steampipe_app_build.vdf $out/lib
+
+      patchShebangs $out/bin
+    '';
+    postFixup = "wrapPythonPrograms";
+  };
 
   buildbotEnvPackages = with pkgs; [
     buildbotScripts
@@ -50,10 +67,7 @@ let
         doCheck = false;
       })
 
-      p.libarchive-c
       p.psycopg2
-      p.pynacl
-      p.requests
       p.txrequests
     ]))
 

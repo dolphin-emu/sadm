@@ -155,7 +155,7 @@ in {
     users.groups.buildbot = {};
 
     my.http.vhosts."buildbot.dolphin-emu.org".redirect = "https://dolphin.ci";
-    my.http.vhosts."new.dolphin.ci".cfg = {
+    my.http.vhosts."dolphin.ci".cfg = {
       locations."/".proxyPass = "http://127.0.0.1:${toString httpPort}/";
       locations."/sse/" = {
         proxyPass = "http://127.0.0.1:${toString httpPort}/sse/";

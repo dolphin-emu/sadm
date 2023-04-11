@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import argparse
 import hashlib
 import hmac
 import os
@@ -9,14 +10,34 @@ CALLBACK_URL = 'https://dolphin-emu.org/download/new/'
 DOWNLOADS_CREATE_KEY = open(os.environ['DOWNLOADS_CREATE_KEY_PATH'], 'rb').read().strip()
 
 if __name__ == '__main__':
-    branch = os.environ['BRANCH']
-    shortrev = os.environ['SHORTREV']
-    hash = os.environ['HASH']
-    author = os.environ['AUTHOR']
-    description = os.environ['DESCRIPTION']
-    target_system = os.environ['TARGET_SYSTEM']
-    build_url = os.environ['BUILD_URL']
-    user_os_matcher = os.environ['USER_OS_MATCHER']
+    parser = argparse.ArgumentParser(
+        description='Signals to the website that a new build is available.')
+    parser.add_argument(
+        '--branch', required=True, help='Git branch for this build')
+    parser.add_argument(
+        '--shortrev', required=True, help='Short rev name for this build')
+    parser.add_argument(
+        '--hash', required=True, help='Full Git commit hash for this build')
+    parser.add_argument(
+        '--author', required=True, help='Name of the author for this build')
+    parser.add_argument(
+        '--description', required=True, help='Git commit message for this build')
+    parser.add_argument(
+        '--target_system', required=True, help='Target system string')
+    parser.add_argument(
+        '--build_url', required=True, help='URL at which the build can be found')
+    parser.add_argument(
+        '--user_os_matcher', required=True, help='String to match in User Agent')
+    args = parser.parse_args()
+
+    branch = args.branch
+    shortrev = args.shortrev
+    hash = args.hash
+    author = args.author
+    description = args.description
+    target_system = args.target_system
+    build_url = args.build_url
+    user_os_matcher = args.user_os_matcher
 
     msg = u"%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s" % (
         len(branch), len(shortrev), len(hash), len(author), len(description),

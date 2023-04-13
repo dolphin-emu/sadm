@@ -38,6 +38,10 @@ in {
       wants = [ "clickhouse.service" ];
       wantedBy = [ "multi-user.target" ];
 
+      environment = {
+        DASHBOARD_URL = "https://mon.dolphin-emu.org/d/000000003/analytics";
+      };
+
       serviceConfig = {
         Type = "notify";
         DynamicUser = true;

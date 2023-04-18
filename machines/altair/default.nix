@@ -14,8 +14,6 @@ in {
   services.openssh.enable = true;
   services.openssh.permitRootLogin = "prohibit-password";
   users.users.root.openssh.authorizedKeys.keys = [
-    # delroth
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII3tjB4KYDok3KlWxdBp/yEmqhhmybd+w0VO4xUwLKKV"
     # degasus
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBfpcFMGpTNUUdmeMgNurPgj+mi2VBjFOcCQ3FcpDaO0"
     # MayImilae

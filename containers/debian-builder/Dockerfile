@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bullseye-backports
 
 RUN apt update
 
@@ -9,9 +9,8 @@ RUN apt install -y wget unzip
 RUN apt install -y \
   build-essential git cmake ffmpeg libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libevdev-dev libudev-dev libxrandr-dev \
-  libxi-dev libpangocairo-1.0-0 qtbase5-dev qtchooser qt5-qmake \
-  qtbase5-dev-tools qtbase5-private-dev libbluetooth-dev libasound2-dev \
-  libpulse-dev
+  libxi-dev libpangocairo-1.0-0 qt6-base-dev qt6-base-private-dev \
+  libbluetooth-dev libasound2-dev libpulse-dev
 
 # Buildbot worker dependencies
 RUN apt install -y ninja-build buildbot-worker

@@ -88,7 +88,7 @@ in {
             {
               name = "email";
               email_configs = [
-                { to = "delroth+dolphin-alerts@gmail.com"; }
+                { to = "admin@oatmealdome.me"; }
               ];
             }
           ];

@@ -10,7 +10,7 @@ RUN apt install -y \
   build-essential git cmake ffmpeg libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libevdev-dev libudev-dev libxrandr-dev \
   libxi-dev libpangocairo-1.0-0 qt6-base-dev qt6-base-private-dev \
-  libbluetooth-dev libasound2-dev libpulse-dev
+  libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev
 
 # Android build dependencies
 RUN apt install -y openjdk-11-jdk-headless

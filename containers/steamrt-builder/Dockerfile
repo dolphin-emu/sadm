@@ -18,6 +18,6 @@ RUN buildbot-worker create-worker \
   sed -i "s/'WORKER_NAME'/os.environ.pop('WORKER_NAME')/" /buildbot/buildbot.tac && \
   sed -i "s/'WORKER_PASSWORD'/os.environ.pop('WORKER_PASSWORD')/" /buildbot/buildbot.tac
 RUN echo 'Pierre Bourdon <delroth@dolphin-emu.org>' > /buildbot/info/admin
-RUN echo 'SteamRT "spider" build container' > /buildbot/info/host
+RUN echo 'SteamRT "sniper" build container' > /buildbot/info/host
 
 ENTRYPOINT cd /buildbot && exec buildbot-worker start --nodaemon

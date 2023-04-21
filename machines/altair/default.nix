@@ -39,6 +39,7 @@ in {
     bug-tracker.enable = true;
     buildbot.enable = true;
     central.enable = true;
+    coordinator-worker.enable = true;
     fifoci-frontend.enable = true;
     fifoci-worker.enable = true;
     foreign-builders.enable = true;

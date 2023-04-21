@@ -80,8 +80,6 @@ let
 
       fifoci_builders = [
         "pr-fifoci-ogl-lin-mesa"
-        "pr-fifoci-ogl-lin-radeon"
-        "pr-fifoci-uberogl-lin-radeon"
         "pr-fifoci-sw-lin-mesa"
         "pr-fifoci-mvk-osx-m1"
         "pr-fifoci-mtl-osx-m1"

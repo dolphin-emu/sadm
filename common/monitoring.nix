@@ -131,6 +131,16 @@
                 valid_status_codes: []
                 method: GET
                 follow_redirects: true
+            http_403:
+              prober: http
+              timeout: 5s
+              http:
+                valid_http_versions:
+                  - "HTTP/1.1"
+                  - "HTTP/2.0"
+                valid_status_codes: [ 403 ]
+                method: GET
+                follow_redirects: true
         '';
     };
 
@@ -163,5 +173,21 @@
       relabelConfigs = relabelConfigs;
     };
 
+    my.monitoring.targets.http-403 = {
+      metricsPath = "/probe";
+      params = {
+        module = [ "http_403" ];
+      };
+      targets = [
+        # alwaysdata services
+        "https://dl-mirror.dolphin-emu.org"
+
+        # altair services
+        "https://dl.dolphin-emu.org"
+        "https://symbols.dolphin-emu.org"
+        "https://update.dolphin-emu.org"
+      ];
+      relabelConfigs = relabelConfigs;
+    };
   };
 }

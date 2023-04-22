@@ -29,6 +29,11 @@
             type = types.str;
             default = "/metrics";
           };
+
+          params = mkOption {
+            type = types.attrsOf (types.listOf types.str);
+            default = {};
+          };
         };
       });
       default = {};

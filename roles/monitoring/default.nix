@@ -14,6 +14,7 @@ let
     scrape_interval = opts.scrapeInterval;
     scheme = opts.scheme;
     metrics_path = opts.metricsPath;
+    params = opts.params;
     static_configs = let
       target_list =
         if opts.targets != null then

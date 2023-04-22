@@ -67,7 +67,22 @@
     };
   };
 
-  config = {
+  config = let
+    relabelConfigs = [
+      {
+        sourceLabels = [ "__address__" ];
+        targetLabel = "__param_target";
+      }
+      {
+        sourceLabels = [ "__param_target" ];
+        targetLabel = "instance";
+      }
+      {
+        targetLabel = "__address__";
+        replacement = "localhost:9102";
+      }
+    ];
+  in {
     services.prometheus.exporters.node = {
       enable = true;
       enabledCollectors = [ "interrupts" "systemd" "tcpstat" ];
@@ -106,7 +121,47 @@
       configFile = pkgs.writeText "config.yaml"
         ''
           modules:
+            http_2xx:
+              prober: http
+              timeout: 5s
+              http:
+                valid_http_versions:
+                  - "HTTP/1.1"
+                  - "HTTP/2.0"
+                valid_status_codes: []
+                method: GET
+                follow_redirects: true
         '';
     };
+
+    my.monitoring.targets.http-2xx = {
+      metricsPath = "/probe";
+      params = {
+        module = [ "http_2xx" ];
+      };
+      targets = [
+        # alwaysdata services
+        "https://dolphin-emu.org"
+        "https://wiki.dolphin-emu.org"
+        "https://forums.dolphin-emu.org"
+        "https://fakenus.dolphin-emu.org"
+        "https://ip.dolphin-emu.org"
+        "https://ovhproxy.dolphin-emu.org"
+        "https://discord.dolphin-emu.org" # 302 found
+
+        # altair services
+        "https://analytics.dolphin-emu.org" # 301 moved permanently
+        "https://bugs.dolphin-emu.org"
+        "https://dolphin.ci"
+        "https://central.dolphin-emu.org"
+        "https://etherpad.dolphin-emu.org"
+        "https://fifo.ci"
+        "https://social.dolphin-emu.org"
+        "https://oci-registry.dolphin-emu.org"
+        "https://dolp.in"
+      ];
+      relabelConfigs = relabelConfigs;
+    };
+
   };
 }

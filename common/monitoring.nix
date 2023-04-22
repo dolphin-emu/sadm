@@ -34,6 +34,26 @@
             type = types.attrsOf (types.listOf types.str);
             default = {};
           };
+
+          relabelConfigs = mkOption {
+            type = types.listOf(types.submodule {
+              options = {
+                sourceLabels = mkOption {
+                  type = types.nullOr (types.listOf types.str);
+                  default = null;
+                };
+                targetLabel = mkOption {
+                  type = types.nullOr (types.str);
+                  default = null;
+                };
+                replacement = mkOption {
+                  type = types.nullOr (types.str);
+                  default = null;
+                };
+              };
+            });
+            default = [];
+          };
         };
       });
       default = {};

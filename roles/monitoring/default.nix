@@ -25,6 +25,11 @@ let
           throw "No target specification for monitoring service ${job}";
     in
       [{ targets = target_list; }];
+    relabel_configs = map (config: {
+      source_labels = config.sourceLabels;
+      target_label = config.targetLabel;
+      replacement = config.replacement;
+    }) opts.relabelConfigs;
   }) config.my.monitoring.targets;
 
   ruleFiles = lib.mapAttrsToList (job: rules:

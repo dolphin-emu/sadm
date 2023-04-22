@@ -99,5 +99,14 @@
           annotations:
             summary: "Less than 15% disk space available on {{ $labels.mountpoint }}"
     '';
+
+    services.prometheus.exporters.blackbox = {
+      enable = true;
+      port = 9102;
+      configFile = pkgs.writeText "config.yaml"
+        ''
+          modules:
+        '';
+    };
   };
 }

@@ -15,15 +15,15 @@ let
     scheme = opts.scheme;
     metrics_path = opts.metricsPath;
     static_configs = let
-      target =
-        if opts.target != null then
-          opts.target
+      target_list =
+        if opts.targets != null then
+          opts.targets
         else if opts.targetLocalPort != null then
-          "localhost:${toString opts.targetLocalPort}"
+          [ "localhost:${toString opts.targetLocalPort}" ]
         else
           throw "No target specification for monitoring service ${job}";
     in
-      [{ targets = [ target ]; }];
+      [{ targets = target_list; }];
   }) config.my.monitoring.targets;
 
   ruleFiles = lib.mapAttrsToList (job: rules:

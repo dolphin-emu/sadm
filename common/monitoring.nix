@@ -6,8 +6,8 @@
       type = types.attrsOf (types.submodule {
         options = {
           # Mutually exclusive target specifications.
-          target = mkOption {
-            type = types.nullOr types.str;
+          targets = mkOption {
+            type = types.nullOr (types.listOf types.str); 
             default = null;
           };
           targetLocalPort = mkOption {

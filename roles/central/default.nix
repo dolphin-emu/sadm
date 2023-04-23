@@ -62,6 +62,9 @@ let
     buildbot = {
       url = "https://dolphin.ci/";
 
+      change_hook_username = "!FileInclude ${config.age.secrets.central-change-hook-username.path}";
+      change_hook_password = "!FileInclude ${config.age.secrets.central-change-hook-password.path}";
+
       pr_builders = [
         "pr-android"
         "pr-deb-x64"
@@ -107,6 +110,14 @@ in {
   options.my.roles.central.enable = lib.mkEnableOption "Dolphin Central server";
 
   config = lib.mkIf cfg.enable {
+    age.secrets.central-change-hook-username = {
+      file = ../../secrets/central-change-hook-username.age;
+      owner = "central";
+    };
+    age.secrets.central-change-hook-password = {
+      file = ../../secrets/central-change-hook-password.age;
+      owner = "central";
+    };
     age.secrets.gh-app-priv-key = {
       file = ../../secrets/gh-app-priv-key.age;
       owner = "central";

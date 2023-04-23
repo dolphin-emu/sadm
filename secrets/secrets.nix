@@ -27,6 +27,8 @@ let
     "buildbot-steam-username.age"
     "buildbot-steam-password.age"
     "buildbot-workers-passwords.age"
+    "central-change-hook-username.age"
+    "central-change-hook-password.age"
     "container-builder-env.age"
     "etherpad-apikey.age"
     "etherpad-sessionkey.age"

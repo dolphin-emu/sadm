@@ -20,6 +20,7 @@ let
     "backup-passphrase.age"
     "backup-ssh-key.age"
     "backup-ssh-known-hosts.age"
+    "buildbot-change-hook-credentials.age"
     "buildbot-downloads-create-key.age"
     "buildbot-gh-client-id.age"
     "buildbot-gh-client-secret.age"

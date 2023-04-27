@@ -76,6 +76,10 @@ in {
 
       enableReload = true;
 
+      eventsConfig = ''
+        worker_connections 1024;
+      '';
+
       recommendedGzipSettings = true;
       recommendedOptimisation = true;
       recommendedProxySettings = true;

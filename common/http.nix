@@ -80,6 +80,10 @@ in {
         worker_connections 1024;
       '';
 
+      appendConfig = ''
+        worker_processes auto;
+      '';
+
       recommendedGzipSettings = true;
       recommendedOptimisation = true;
       recommendedProxySettings = true;

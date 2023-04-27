@@ -36,6 +36,20 @@ let
     pkgs.writeText "prom-${job}.rules" rules
   ) config.my.monitoring.rules;
 
+  relabelConfigs = [
+    {
+      sourceLabels = [ "__address__" ];
+      targetLabel = "__param_target";
+    }
+    {
+      sourceLabels = [ "__param_target" ];
+      targetLabel = "instance";
+    }
+    {
+      targetLabel = "__address__";
+      replacement = "localhost:9102";
+    }
+  ];
 in {
   options.my.roles.monitoring.enable = lib.mkEnableOption "Monitoring infrastructure";
 
@@ -132,5 +146,51 @@ in {
     my.http.vhosts."prom.dolphin-emu.org".proxyLocalPort = promPort;
     my.http.vhosts."mon.dolphin-emu.org".proxyLocalPort = grafanaPort;
     my.http.vhosts."alerts.dolphin-emu.org".proxyLocalPort = alertmanagerPort;
+
+    my.monitoring.targets.http-2xx = {
+      metricsPath = "/probe";
+      params = {
+        module = [ "http_2xx" ];
+      };
+      targets = [
+        # alwaysdata services
+        "https://dolphin-emu.org"
+        "https://wiki.dolphin-emu.org"
+        "https://forums.dolphin-emu.org"
+        "https://fakenus.dolphin-emu.org"
+        "https://ip.dolphin-emu.org"
+        "https://ovhproxy.dolphin-emu.org"
+        "https://discord.dolphin-emu.org" # 302 found
+
+        # altair services
+        "https://analytics.dolphin-emu.org" # 301 moved permanently
+        "https://bugs.dolphin-emu.org"
+        "https://dolphin.ci"
+        "https://central.dolphin-emu.org"
+        "https://etherpad.dolphin-emu.org"
+        "https://fifo.ci"
+        "https://social.dolphin-emu.org"
+        "https://oci-registry.dolphin-emu.org"
+        "https://dolp.in"
+      ];
+      relabelConfigs = relabelConfigs;
+    };
+
+    my.monitoring.targets.http-403 = {
+      metricsPath = "/probe";
+      params = {
+        module = [ "http_403" ];
+      };
+      targets = [
+        # alwaysdata services
+        "https://dl-mirror.dolphin-emu.org"
+
+        # altair services
+        "https://dl.dolphin-emu.org"
+        "https://symbols.dolphin-emu.org"
+        "https://update.dolphin-emu.org"
+      ];
+      relabelConfigs = relabelConfigs;
+    };
   };
 }

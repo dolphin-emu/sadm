@@ -10,7 +10,7 @@ RUN apt install -y \
   build-essential git cmake ffmpeg libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libevdev-dev libudev-dev libxrandr-dev \
   libxi-dev libpangocairo-1.0-0 qt6-base-dev qt6-base-private-dev \
-  libbluetooth-dev libasound2-dev libpulse-dev
+  qt6-svg-dev libbluetooth-dev libasound2-dev libpulse-dev
 
 # Buildbot worker dependencies
 RUN apt install -y ninja-build buildbot-worker

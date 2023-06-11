@@ -13,7 +13,7 @@ RUN apt install -y \
   libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev
 
 # Android build dependencies
-RUN apt install -y openjdk-11-jdk-headless
+RUN apt install -y openjdk-11-jdk-headless openjdk-17-jdk-headless
 
 # Buildbot worker dependencies
 RUN apt install -y ninja-build buildbot-worker clang-format-12 clang-format-13

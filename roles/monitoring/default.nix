@@ -138,6 +138,9 @@ in {
           domain = "mon.dolphin-emu.org";
           root_url = "https://mon.dolphin-emu.org/";
         };
+        database = {
+          wal = true;
+        };
       };
 
       declarativePlugins = [ grafana-clickhouse-datasource ];

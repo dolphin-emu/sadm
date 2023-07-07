@@ -6,7 +6,6 @@
     ./bug-tracker
     ./buildbot
     ./central
-    ./coordinator-worker
     ./etherpad
     ./fifoci-frontend
     ./fifoci-worker

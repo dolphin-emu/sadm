@@ -29,11 +29,9 @@ let
       install -m755 $src/make_manifest.py $out/bin
       install -m755 $src/repack_dmg.sh $out/bin
       install -m755 $src/send_build.py $out/bin
-      install -m755 $src/upload_to_steampipe.sh $out/bin
 
       install -m644 $src/buildbot.tac $out/lib
       install -m644 $src/master.cfg $out/lib
-      install -m644 $src/steampipe_app_build.vdf $out/lib
 
       patchShebangs $out/bin
     '';

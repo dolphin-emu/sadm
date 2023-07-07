@@ -9,6 +9,6 @@
   nix.settings.auto-optimise-store = true;
 
   # To support large builds without running out of space.
-  boot.tmpOnTmpfs = false;
-  boot.cleanTmpDir = true;
+  boot.tmp.useTmpfs = false;
+  boot.tmp.cleanOnBoot = true;
 }

@@ -10,17 +10,6 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.clickhouse.enable = true;
-    services.clickhouse.package = pkgs.clickhouse.overrideAttrs (final: prev: rec {
-      version = "22.8.11.15";
-
-      src = pkgs.fetchFromGitHub {
-        owner = "clickhouse";
-        repo = "clickhouse";
-        rev = "v${version}-lts";
-        fetchSubmodules = true;
-        hash = "sha256-ZFS7RgeTV/eMSiI0o9WO1fHjRkPDNZs0Gm3w+blGsz0=";
-      };
-    });
 
     # Restart in case of crashes, hangs, etc.
     systemd.services.clickhouse.serviceConfig.Restart = "always";

@@ -53,7 +53,7 @@ let
 
     nativeBuildInputs = [ pkgs.python3 ];  # For GYP
 
-    npmDepsHash = "sha256-fxUH3COLcCL1jlc0ms9zwWoxKuZ1oDKDaD76qHHeWMI=";
+    npmDepsHash = "sha256-m/k9FHgExAhCsqE5iLMgHJdMVdAjpKO8C5yFDbf1dCs=";
 
     npmFlags = [ "--legacy-peer-deps" ];
 

@@ -60,6 +60,8 @@ let
     sourceRoot = "source/src";
 
     dontNpmBuild = true;
+
+    forceGitDeps = true;
   };
 
   plugins.ep_http_hook = pkgs.buildNpmPackage rec {
@@ -78,6 +80,8 @@ let
     npmFlags = [ "--legacy-peer-deps" ];
 
     dontNpmBuild = true;
+
+    forceGitDeps = true;
   };
 in {
   age.secrets.etherpad-apikey = {

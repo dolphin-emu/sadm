@@ -108,7 +108,7 @@ in {
             {
               name = "email";
               email_configs = [
-                { to = "admin@oatmealdome.me"; }
+                { to = "contact@dolphin-emu.org"; }
               ];
             }
           ];

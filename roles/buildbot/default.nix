@@ -46,7 +46,6 @@ let
     openjdk
     openssh
     p7zip
-    steamcmd
   ];
 
   buildbotSecret = file: {

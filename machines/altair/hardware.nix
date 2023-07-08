@@ -4,7 +4,6 @@
 
   boot.loader.grub = {
     enable = true;
-    version = 2;
     efiSupport = false;
     devices = [ "/dev/nvme0n1" "/dev/nvme1n1" ];
   };

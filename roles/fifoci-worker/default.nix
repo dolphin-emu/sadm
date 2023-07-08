@@ -61,7 +61,7 @@ let
 
   workerPackage = pkgs.runCommand "fifoci-buildbot-worker" {} ''
     mkdir $out
-    ${pkgs.python3Packages.buildbot-worker}/bin/buildbot-worker \
+    ${pkgs.buildbot-worker}/bin/buildbot-worker \
         create-worker \
         --relocatable \
         --force \
@@ -78,7 +78,7 @@ let
   '';
 
   fifociPython = pkgs.python3.withPackages (p: [
-    p.buildbot-worker
+    pkgs.buildbot-worker
   ]);
 
   fifociEnvPackages = with pkgs; [

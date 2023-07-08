@@ -40,35 +40,7 @@ let
 
   buildbotEnvPackages = with pkgs; [
     buildbotScripts
-
-    (pkgs.python3.withPackages (p: [
-      p.buildbot
-      p.buildbot-plugins.console-view
-      p.buildbot-plugins.grid-view
-      p.buildbot-plugins.waterfall-view
-      p.buildbot-plugins.www
-      p.buildbot-worker
-
-      (p.buildPythonPackage rec {
-        pname = "buildbot-prometheus";
-        version = "0c81a89bbe34628362652fbea416610e215b5d1e";
-
-        src = pkgs.fetchFromGitHub {
-          owner = "claws";
-          repo = "buildbot-prometheus";
-          rev = version;
-          hash = "sha256-bz2Nv2RZ44i1VoPvQ/XjGMfTT6TmW6jhEVwItPk23SM=";
-        };
-
-        propagatedBuildInputs = [ p.buildbot p.prometheus-client p.twisted ];
-
-        doCheck = false;
-      })
-
-      p.psycopg2
-      p.txrequests
-    ]))
-
+  
     apksigner
     dmg2img
     openjdk
@@ -97,12 +69,40 @@ in {
     age.secrets.buildbot-workers-passwords = buildbotSecret ../../secrets/buildbot-workers-passwords.age;
     age.secrets.update-signing-key = buildbotSecret ../../secrets/update-signing-key.age;
 
-    systemd.services.buildbot-master = {
-      description = "Buildbot Master";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-      path = buildbotEnvPackages;
+    services.buildbot-master = {
+      enable = true;
+      masterCfg = "${buildbotScripts}/lib/master.cfg";
+      home = stateDir;
+      buildbotDir = stateDir;
+      packages = buildbotEnvPackages;
+      pythonPackages = p: [
+        pkgs.buildbot-worker
 
+        (p.buildPythonPackage rec {
+          pname = "buildbot-prometheus";
+          version = "0c81a89bbe34628362652fbea416610e215b5d1e";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "claws";
+            repo = "buildbot-prometheus";
+            rev = version;
+            hash = "sha256-bz2Nv2RZ44i1VoPvQ/XjGMfTT6TmW6jhEVwItPk23SM=";
+          };
+
+          propagatedBuildInputs = [ pkgs.buildbot p.prometheus-client p.twisted ];
+
+          doCheck = false;
+        })
+
+        p.libarchive-c
+        p.psycopg2
+        p.pynacl
+        p.requests
+        p.txrequests
+      ];
+    };
+
+    systemd.services.buildbot-master = {
       environment = {
         HTTP_PORT = toString httpPort;
         PB_PORT = toString pbPort;
@@ -133,16 +133,7 @@ in {
       };
 
       preStart = ''
-        ln -sf ${buildbotScripts}/lib/buildbot.tac .
-        ln -sf ${buildbotScripts}/lib/master.cfg .
-
-        buildbot upgrade-master
-
-        rm buildbot.tac master.cfg
-      '';
-
-      script = ''
-        exec twistd --nodaemon --pidfile= --logfile=- --python ${buildbotScripts}/lib/buildbot.tac
+        ${pkgs.buildbot}/bin/buildbot upgrade-master
       '';
     };
 
@@ -166,7 +157,7 @@ in {
 
     users.users.buildbot = {
       group = "buildbot";
-      home = stateDir;
+      isNormalUser = lib.mkForce false;
       isSystemUser = true;
     };
 

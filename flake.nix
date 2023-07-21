@@ -1,5 +1,7 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+  # Pin nixpkgs to the commit before Go was upgraded to 1.20.5 to workaround a Docker issue
+  # https://github.com/NixOS/nixpkgs/issues/244159
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/b6bbc53029a31f788ffed9ea2d459f0bb0f0fbfc";
 
   inputs.flake-utils.url = "github:numtide/flake-utils";
 

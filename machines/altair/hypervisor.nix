@@ -6,10 +6,6 @@
 {
   security.polkit.enable = true;
   virtualisation.libvirtd.enable = true;
-  # https://github.com/NixOS/nixpkgs/issues/73418
-  systemd.services.libvirtd-config.script = lib.mkAfter ''
-    rm /var/lib/libvirt/qemu/networks/autostart/default.xml
-  '';
 
   networking.bridges.br-guests.interfaces = [];
   networking.interfaces.br-guests = {

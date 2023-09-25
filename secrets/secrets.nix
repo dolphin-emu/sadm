@@ -30,6 +30,7 @@ let
     "central-change-hook-username.age"
     "central-change-hook-password.age"
     "container-builder-env.age"
+    "discord-bot-env.age"
     "etherpad-apikey.age"
     "etherpad-sessionkey.age"
     "etherpad-passwords.age"

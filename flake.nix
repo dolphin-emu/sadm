@@ -27,7 +27,18 @@
   inputs.netplay-index.inputs.nixpkgs.follows = "nixpkgs";
   inputs.netplay-index.inputs.poetry2nix.follows = "poetry2nix";
 
-  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, fifoci, netplay-index, ... }@attrs: {
+  inputs.cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+  inputs.cargo2nix.inputs.nixpkgs.follows = "nixpkgs";
+
+  inputs.rust-overlay.url = "github:oxalica/rust-overlay";
+  inputs.rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
+  inputs.discord-bot.url = "github:dolphin-emu/discord-bot";
+  inputs.discord-bot.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.discord-bot.inputs.cargo2nix.follows = "cargo2nix";
+  inputs.discord-bot.inputs.rust-overlay.follows = "rust-overlay";
+
+  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, fifoci, netplay-index, discord-bot, ... }@attrs: {
     colmena = {
       meta.nixpkgs = import nixpkgs {
         system = "x86_64-linux";
@@ -36,6 +47,7 @@
           central.overlay
           fifoci.overlay
           netplay-index.overlay
+          discord-bot.overlay
         ];
       };
       meta.specialArgs = attrs;

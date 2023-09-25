@@ -6,6 +6,7 @@
     ./bug-tracker
     ./buildbot
     ./central
+    ./discord-bot
     ./etherpad
     ./fifoci-frontend
     ./fifoci-worker

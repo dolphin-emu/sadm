@@ -3,6 +3,7 @@
 let
   cfg = config.my.roles.traversal-server;
   port = 6262;  # UDP
+  portAlt = 6226;  # UDP
 
   pkg = pkgs.dolphin-emu-beta.overrideAttrs (final: prev: {
     pname = "traversal-server";
@@ -50,6 +51,7 @@ in {
         WatchdogSec = 10;
       };
     };
-    networking.firewall.allowedUDPPorts = [ port ];
+
+    networking.firewall.allowedUDPPorts = [ port portAlt ];
   };
 }

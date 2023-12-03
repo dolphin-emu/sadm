@@ -50,5 +50,6 @@ in {
         WatchdogSec = 10;
       };
     };
+    networking.firewall.allowedUDPPorts = [ port ];
   };
 }

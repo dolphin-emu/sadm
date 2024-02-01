@@ -33,6 +33,8 @@ let
       mkdir -p $out/bin
       cp Binaries/traversal_server $out/bin/traversal-server
     '';
+
+    patches = (lib.drop 1 prev.patches or []);
   });
 in {
   options.my.roles.traversal-server.enable = lib.mkEnableOption "Netplay Traversal server";

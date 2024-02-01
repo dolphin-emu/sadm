@@ -18,7 +18,7 @@ let
       fetchSubmodules = true;
     };
 
-    cmakeFlags = (prev.makeFlags or []) ++ [ "-DENABLE_QT=OFF" ];
+    cmakeFlags = (prev.cmakeFlags or []) ++ [ "-DENABLE_QT=OFF" ];
 
     makeFlags = (prev.makeFlags or []) ++ [ "traversal_server" ];
 

@@ -25,6 +25,8 @@ in {
         SINGLE_USER_MODE = "true";
         WEB_DOMAIN = "social.dolphin-emu.org";
       };
+
+      streamingProcesses = 7;
     };
 
     my.http.vhosts."social.dolphin-emu.org".cfg = {

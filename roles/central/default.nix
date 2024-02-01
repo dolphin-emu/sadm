@@ -36,6 +36,7 @@ let
       notify = [
         "dolphin-emu/analytics-ingest"
         "dolphin-emu/central"
+        "dolphin-emu/discord-bot"
         "dolphin-emu/ext-macos-qt"
         "dolphin-emu/ext-steam-runtime-qt"
         "dolphin-emu/ext-win-ffmpeg"

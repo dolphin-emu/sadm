@@ -15,13 +15,13 @@ in {
       enable = true;
 
       package = pkgs.mastodon.overrideAttrs (oldAttrs: {
-        version = "4.2.5";
+        version = "4.2.6";
 
         src = pkgs.fetchFromGitHub {
           owner = "mastodon";
           repo = "mastodon";
-          rev = "v4.2.5";
-          sha256 = "sha256-dgC5V/CVE9F1ORTjPWUWc/JVcWCEj/pb4eWpDV0WliY=";
+          rev = "v4.2.6";
+          sha256 = "sha256-xUJiyQN3xsl/8+D/kaky+iYunY0ctlSbjkftN2+NQNw=";
         };
       });
 

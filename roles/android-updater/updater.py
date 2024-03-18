@@ -10,6 +10,7 @@ import sys
 
 from apiclient import discovery
 from apiclient import http as googhttp
+from googleapiclient.errors import HttpError
 from oauth2client import service_account
 
 _PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher"
@@ -17,6 +18,8 @@ _UPDATE_URL_FMT = "https://dolphin-emu.org/update/latest/%s/"
 _ARTIFACT_ANDROID_SYSTEM = "Android"
 _APK_MIME = "application/vnd.android.package-archive"
 _AAB_MIME = "application/octet-stream"
+
+_REVIEW_NOT_ALLOWED = "Changes cannot be sent for review automatically. Please set the query parameter changesNotSentForReview to true. Once committed, the changes in this edit can be sent for review from the Google Play Console UI."
 
 
 def _get_playstore_service(key_file):
@@ -58,6 +61,16 @@ def _get_playstore_version(play, package_name, playstore_track):
         return track["releases"][0].get("name")
 
 
+def _commit_edit(play, edit_id, package_name):
+    try:
+        play.edits().commit(editId=edit_id, packageName=package_name).execute()
+    except HttpError as err:
+        # If we have an unresolved policy violation in Google Play, we're allowed to use the API to
+        # upload builds but not to send them off for review
+        if err.resp.status == 400 and err._get_reason() == _REVIEW_NOT_ALLOWED:
+            play.edits().commit(editId=edit_id, packageName=package_name, changesNotSentForReview='true').execute()
+
+
 def _find_or_upload_aab(play, package_name, aab):
     edit_id = play.edits().insert(body={}, packageName=package_name).execute()["id"]
     play_aabs = (
@@ -83,7 +96,7 @@ def _find_or_upload_aab(play, package_name, aab):
         )
         .execute()
     )
-    play.edits().commit(editId=edit_id, packageName=package_name).execute()
+    _commit_edit(play, edit_id, package_name)
     return upload_response["versionCode"]
 
 
@@ -112,7 +125,7 @@ def _find_or_upload_apk(play, package_name, apk):
         )
         .execute()
     )
-    play.edits().commit(editId=edit_id, packageName=package_name).execute()
+    _commit_edit(play, edit_id, package_name)
     return upload_response["versionCode"]
 
 
@@ -137,7 +150,7 @@ def _update_playstore_track(play, package_name, playstore_track, version_code, i
         )
         .execute()
     )
-    play.edits().commit(editId=edit_id, packageName=package_name).execute()
+    _commit_edit(play, edit_id, package_name)
 
 
 if __name__ == "__main__":

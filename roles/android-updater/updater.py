@@ -69,6 +69,8 @@ def _commit_edit(play, edit_id, package_name):
         # upload builds but not to send them off for review
         if err.resp.status == 400 and err._get_reason() == _REVIEW_NOT_ALLOWED:
             play.edits().commit(editId=edit_id, packageName=package_name, changesNotSentForReview='true').execute()
+        else:
+            raise
 
 
 def _find_or_upload_aab(play, package_name, aab):

@@ -71,7 +71,7 @@ let
     sed -i "s/'WORKER_NAME'/os.environ.pop('WORKER_NAME')/" $out/buildbot.tac
     sed -i "s/'WORKER_PASSWORD'/os.environ.pop('WORKER_PASSWORD')/" $out/buildbot.tac
 
-    echo "Pierre Bourdon <delroth@dolphin-emu.org>" > $out/info/admin
+    echo "OatmealDome <oatmeal@dolphin-emu.org>" > $out/info/admin
     cat >$out/info/host <<EOF
     NixOS FifoCI worker on ${config.networking.hostName}
     EOF

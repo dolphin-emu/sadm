@@ -147,7 +147,17 @@ in {
     };
 
     my.http.vhosts."prom.dolphin-emu.org".proxyLocalPort = promPort;
-    my.http.vhosts."mon.dolphin-emu.org".proxyLocalPort = grafanaPort;
+    my.http.vhosts."mon.dolphin-emu.org".cfg = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${toString grafanaPort}";
+        extraConfig = "client_max_body_size 0;";
+      };
+
+      locations."/api/live/" = {
+        proxyPass = "http://127.0.0.1:${toString grafanaPort}";
+        proxyWebsockets = true;
+      };
+    };
     my.http.vhosts."alerts.dolphin-emu.org".proxyLocalPort = alertmanagerPort;
 
     my.monitoring.targets.http-2xx = {

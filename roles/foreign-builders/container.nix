@@ -34,7 +34,10 @@ in {
         config.age.secrets.container-builder-env.path
       ];
 
-      extraOptions = [ "--device=/dev/kvm" ];
+      extraOptions = [
+        "--device=/dev/kvm"
+        "--cpus=4"
+      ];
     };
   };
 }

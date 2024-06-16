@@ -74,14 +74,16 @@ in {
       '';
     };
 
+    # We can't use ensureDBOwnership because the database name doesn't match the database username.
+    systemd.services.postgresql.postStart = lib.mkAfter ''
+      $PSQL -tAc 'ALTER DATABASE "fifoci" OWNER TO "${user}";'
+    '';
+
     services.postgresql = {
       ensureDatabases = [ "fifoci" ];
       ensureUsers = [
         {
           name = user;
-          ensurePermissions = {
-            "DATABASE fifoci" = "ALL PRIVILEGES";
-          };
         }
       ];
     };

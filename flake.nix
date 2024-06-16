@@ -25,7 +25,7 @@
   inputs.netplay-index.inputs.nixpkgs.follows = "nixpkgs";
   inputs.netplay-index.inputs.poetry2nix.follows = "poetry2nix";
 
-  inputs.cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+  inputs.cargo2nix.url = "github:cargo2nix/cargo2nix/main";
   inputs.cargo2nix.inputs.nixpkgs.follows = "nixpkgs";
 
   inputs.rust-overlay.url = "github:oxalica/rust-overlay";

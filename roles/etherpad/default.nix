@@ -149,9 +149,7 @@ in {
     ensureUsers = [
       {
         name = "etherpad";
-        ensurePermissions = {
-          "DATABASE etherpad" = "ALL PRIVILEGES";
-        };
+        ensureDBOwnership = true;
       }
     ];
   };

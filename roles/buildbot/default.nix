@@ -143,9 +143,7 @@ in {
       ensureUsers = [
         {
           name = "buildbot";
-          ensurePermissions = {
-            "DATABASE buildbot" = "ALL PRIVILEGES";
-          };
+          ensureDBOwnership = true;
         }
       ];
     };

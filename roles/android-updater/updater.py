@@ -35,14 +35,18 @@ def _get_dolphin_update_info(track):
     return requests.get(_UPDATE_URL_FMT % track).json()
 
 
-def _fetch_aab_artifact(apk_url):
+def _fetch_aab_artifact(apk_url, dolphin_track):
     # AABs are not currently registered as artifacts on the website, since it does not support
-    # the concept of "hidden" artifacts - all artifacts are user visible. Hack around to find
-    # the URL for an AAB from the APK url. This needs duplication of the sharded URL hasher.
-    filename = apk_url.split("/")[-1].replace(".apk", ".aab")
-    url_base = apk_url.rsplit("/", 3)[0]
-    sha = hashlib.sha256(filename.encode("utf-8")).hexdigest()
-    aab_url = "/".join((url_base, sha[0:2], sha[2:4], filename))
+    # the concept of "hidden" artifacts - all artifacts are user visible. On dev builds, hack
+    # around to find the URL for an AAB from the APK url. This needs duplication of the sharded
+    # URL hasher. On release builds, just replace the file extension.
+    if dolphin_track == "beta":
+        aab_url = apk_url.replace(".apk", ".aab")
+    else:
+        filename = apk_url.split("/")[-1].replace(".apk", ".aab")
+        url_base = apk_url.rsplit("/", 3)[0]
+        sha = hashlib.sha256(filename.encode("utf-8")).hexdigest()
+        aab_url = "/".join((url_base, sha[0:2], sha[2:4], filename))
 
     resp = requests.get(aab_url)
     if resp.status_code != 200:
@@ -189,7 +193,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Try fetching an AAB first for the artifact, if not found fallback to APK.
-    aab = _fetch_aab_artifact(artifact["url"])
+    aab = _fetch_aab_artifact(artifact["url"], args.dolphin_track)
     if aab is not None:
         version_code = _find_or_upload_aab(play, args.package_name, aab)
     else:

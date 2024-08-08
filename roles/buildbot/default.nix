@@ -27,7 +27,6 @@ let
       mkdir $out $out/bin $out/lib
 
       install -m755 $src/make_manifest.py $out/bin
-      install -m755 $src/repack_dmg.sh $out/bin
       install -m755 $src/send_build.py $out/bin
 
       install -m644 $src/buildbot.tac $out/lib

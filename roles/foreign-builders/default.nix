@@ -16,6 +16,10 @@ let
       builderName = "ubuntu-lts";
       containerImage = "ubuntu-lts";
     }
+    {
+      builderName = "android";
+      containerImage = "ubuntu-lts";
+    }
   ];
 in {
   options.my.roles.foreign-builders.enable =

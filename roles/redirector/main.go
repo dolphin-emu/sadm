@@ -26,8 +26,12 @@ var redirectors = []Redirector{
 	MakeStaticRedirector(`/i(/.*)?`, `https://bugs.dolphin-emu.org/projects/emulator/issues`),
 
 	// Versions
-	MakeStaticRedirector(`/v(\d.*)/?`, `https://dolphin-emu.org/download/dev/master/`),
-	MakeStaticRedirector(`/(\d+[.]\d+-\d+)/?`, `https://dolphin-emu.org/download/dev/master/`),
+	MakeStaticRedirector(`/v([0-9.]+-[0-9]+)/?`, `https://dolphin-emu.org/download/dev/master/`),
+	MakeStaticRedirector(`/v(.*)/?`, `https://dolphin-emu.org/download/release/`),
+	MakeStaticRedirector(`/([0-9.]+-[0-9]+)/?`, `https://dolphin-emu.org/download/dev/master/`),
+	MakeStaticRedirector(`/([0-9]{4}[a-z]?)/?`, `https://dolphin-emu.org/download/release/`),
+	MakeStaticRedirector(`/([0-9].[0-9])/?`, `https://dolphin-emu.org/download/release/`),
+	MakeStaticRedirector(`/([0-9].[0-9].[0-9])/?`, `https://dolphin-emu.org/download/release/`),
 
 	// Commits.
 	MakeStaticRedirector(`/r([0-9a-f]{6,40})/?`, `https://github.com/dolphin-emu/dolphin/commit/`),

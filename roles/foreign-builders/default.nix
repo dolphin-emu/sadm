@@ -4,9 +4,18 @@ let
   cfg = config.my.roles.foreign-builders;
 
   containerBuilders = [
-    "debian"
-    "steamrt"
-    "ubuntu-lts"
+    {
+      builderName = "debian";
+      containerImage = "debian";
+    }
+    {
+      builderName = "steamrt";
+      containerImage = "steamrt";
+    }
+    {
+      builderName = "ubuntu-lts";
+      containerImage = "ubuntu-lts";
+    }
   ];
 in {
   options.my.roles.foreign-builders.enable =
@@ -14,7 +23,7 @@ in {
 
   imports = let
     containers = map
-      (builderName: import ./container.nix builderName)
+      (builder: import ./container.nix builder)
       containerBuilders;
   in (
     containers

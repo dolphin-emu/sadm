@@ -12,6 +12,9 @@ RUN apt install -y \
   libxi-dev libpangocairo-1.0-0 qt6-base-dev qt6-base-private-dev \
   libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev
 
+# AppImage packaging dependencies
+RUN apt install -y file desktop-file-utils
+
 # Android build dependencies
 RUN apt install -y openjdk-11-jdk-headless openjdk-17-jdk-headless
 

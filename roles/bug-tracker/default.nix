@@ -61,6 +61,13 @@ in {
       "${fakeSbin}:/usr/sbin"
     ];
 
+    # Limit the maximum memory usage.
+    systemd.services.redmine.serviceConfig.MemoryMax = "2G";
+
+    # Restart in case Redmine was killed due to reaching the memory limit.
+    systemd.services.redmine.serviceConfig.Restart = "always";
+    systemd.services.redmine.serviceConfig.RestartSec = 10;
+
     my.http.vhosts."bugs.dolphin-emu.org".proxyLocalPort = port;
   };
 }

@@ -1,0 +1,803 @@
+From 8914b081f4643686cbf3fd267c871411b9339c7e Mon Sep 17 00:00:00 2001
+From: Jules Blok <jules.blok@gmail.com>
+Date: Wed, 17 Jul 2024 22:57:15 +0200
+Subject: [PATCH 1/3] vulkan: Add support for VK_EXT_depth_clamp_control
+
+Reviewed-by: Samuel Pitoiset <samuel.pitoiset@gmail.com>
+---
+ src/vulkan/runtime/vk_graphics_state.c | 37 ++++++++++++++++++++++++++
+ src/vulkan/runtime/vk_graphics_state.h | 13 +++++++++
+ 2 files changed, 50 insertions(+)
+
+diff --git a/src/vulkan/runtime/vk_graphics_state.c b/src/vulkan/runtime/vk_graphics_state.c
+index cb848c736bf80..6d6c2d68faaea 100644
+--- a/src/vulkan/runtime/vk_graphics_state.c
++++ b/src/vulkan/runtime/vk_graphics_state.c
+@@ -64,6 +64,7 @@ get_dynamic_state_groups(BITSET_WORD *dynamic,
+       BITSET_SET(dynamic, MESA_VK_DYNAMIC_VP_SCISSOR_COUNT);
+       BITSET_SET(dynamic, MESA_VK_DYNAMIC_VP_SCISSORS);
+       BITSET_SET(dynamic, MESA_VK_DYNAMIC_VP_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE);
++      BITSET_SET(dynamic, MESA_VK_DYNAMIC_VP_DEPTH_CLAMP_RANGE);
+    }
+ 
+    if (groups & MESA_VK_GRAPHICS_STATE_DISCARD_RECTANGLES_BIT) {
+@@ -293,6 +294,7 @@ vk_get_dynamic_graphics_states(BITSET_WORD *dynamic,
+       CASE( LINE_STIPPLE_ENABLE_EXT,      RS_LINE_STIPPLE_ENABLE)
+       CASE( DEPTH_CLIP_NEGATIVE_ONE_TO_ONE_EXT, VP_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE)
+       CASE( ATTACHMENT_FEEDBACK_LOOP_ENABLE_EXT, ATTACHMENT_FEEDBACK_LOOP_ENABLE)
++      CASE( DEPTH_CLAMP_RANGE_EXT,        VP_DEPTH_CLAMP_RANGE)
+       default:
+          unreachable("Unsupported dynamic graphics state");
+       }
+@@ -497,6 +499,17 @@ vk_viewport_state_init(struct vk_viewport_state *vp,
+       if (vp_dcc_info != NULL)
+          vp->depth_clip_negative_one_to_one = vp_dcc_info->negativeOneToOne;
+    }
++
++   if (!IS_DYNAMIC(VP_DEPTH_CLAMP_RANGE)) {
++      const VkPipelineViewportDepthClampControlCreateInfoEXT *vp_dcc_info =
++         vk_find_struct_const(vp_info->pNext,
++                              PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT);
++      if (vp_dcc_info != NULL) {
++         vp->depth_clamp_mode = vp_dcc_info->depthClampMode;
++         if (vp->depth_clamp_mode == VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT)
++            vp->depth_clamp_range = *vp_dcc_info->pDepthClampRange;
++      }
++   }
+ }
+ 
+ static void
+@@ -513,6 +526,8 @@ vk_dynamic_graphics_state_init_vp(struct vk_dynamic_graphics_state *dst,
+       typed_memcpy(dst->vp.scissors, vp->scissors, vp->scissor_count);
+ 
+    dst->vp.depth_clip_negative_one_to_one = vp->depth_clip_negative_one_to_one;
++   dst->vp.depth_clamp_mode = vp->depth_clamp_mode;
++   dst->vp.depth_clamp_range = vp->depth_clamp_range;
+ }
+ 
+ static void
+@@ -2086,6 +2101,12 @@ vk_dynamic_graphics_state_copy(struct vk_dynamic_graphics_state *dst,
+    COPY_IF_SET(VP_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE,
+                vp.depth_clip_negative_one_to_one);
+ 
++   if (IS_SET_IN_SRC(VP_DEPTH_CLAMP_RANGE)) {
++      COPY_MEMBER(VP_DEPTH_CLAMP_RANGE, vp.depth_clamp_mode);
++      COPY_MEMBER(VP_DEPTH_CLAMP_RANGE, vp.depth_clamp_range.minDepthClamp);
++      COPY_MEMBER(VP_DEPTH_CLAMP_RANGE, vp.depth_clamp_range.maxDepthClamp);
++   }
++
+    COPY_IF_SET(DR_ENABLE, dr.enable);
+    COPY_IF_SET(DR_MODE, dr.mode);
+    if (IS_SET_IN_SRC(DR_RECTANGLES)) {
+@@ -3155,6 +3176,21 @@ vk_common_CmdSetRenderingInputAttachmentIndicesKHR(
+    SET_DYN_VALUE(dyn, INPUT_ATTACHMENT_MAP, ial.stencil_att, stencil_att);
+ }
+ 
++VKAPI_ATTR void VKAPI_CALL
++vk_common_CmdSetDepthClampRangeEXT(VkCommandBuffer commandBuffer,
++                                   VkDepthClampModeEXT depthClampMode,
++                                   const VkDepthClampRangeEXT* pDepthClampRange)
++{
++   VK_FROM_HANDLE(vk_command_buffer, cmd, commandBuffer);
++   struct vk_dynamic_graphics_state *dyn = &cmd->dynamic_graphics_state;
++
++   SET_DYN_BOOL(dyn, VP_DEPTH_CLAMP_RANGE, vp.depth_clamp_mode, depthClampMode);
++   if (depthClampMode == VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT) {
++      SET_DYN_VALUE(dyn, VP_DEPTH_CLAMP_RANGE, vp.depth_clamp_range.minDepthClamp, pDepthClampRange->minDepthClamp);
++      SET_DYN_VALUE(dyn, VP_DEPTH_CLAMP_RANGE, vp.depth_clamp_range.maxDepthClamp, pDepthClampRange->maxDepthClamp);
++   }
++}
++
+ /* These are stubs required by VK_EXT_shader_object */
+ 
+ VKAPI_ATTR void VKAPI_CALL
+@@ -3249,6 +3285,7 @@ vk_dynamic_graphic_state_to_str(enum mesa_vk_dynamic_graphics_state state)
+       NAME(VP_SCISSOR_COUNT);
+       NAME(VP_SCISSORS);
+       NAME(VP_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE);
++      NAME(VP_DEPTH_CLAMP_RANGE);
+       NAME(DR_RECTANGLES);
+       NAME(DR_MODE);
+       NAME(DR_ENABLE);
+diff --git a/src/vulkan/runtime/vk_graphics_state.h b/src/vulkan/runtime/vk_graphics_state.h
+index 008ef4e1461ed..3309cdfba02ee 100644
+--- a/src/vulkan/runtime/vk_graphics_state.h
++++ b/src/vulkan/runtime/vk_graphics_state.h
+@@ -58,6 +58,7 @@ enum mesa_vk_dynamic_graphics_state {
+    MESA_VK_DYNAMIC_VP_SCISSOR_COUNT,
+    MESA_VK_DYNAMIC_VP_SCISSORS,
+    MESA_VK_DYNAMIC_VP_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE,
++   MESA_VK_DYNAMIC_VP_DEPTH_CLAMP_RANGE,
+    MESA_VK_DYNAMIC_DR_RECTANGLES,
+    MESA_VK_DYNAMIC_DR_MODE,
+    MESA_VK_DYNAMIC_DR_ENABLE,
+@@ -197,6 +198,18 @@ struct vk_viewport_state {
+     */
+    bool depth_clip_negative_one_to_one;
+ 
++   /** VkPipelineViewportDepthClampControlCreateInfoEXT::depthClampMode
++    *
++    * MESA_VK_DYNAMIC_GRAPHICS_STATE_VP_DEPTH_CLAMP_RANGE
++    */
++   VkDepthClampModeEXT depth_clamp_mode;
++
++   /** VkPipelineViewportDepthClampControlCreateInfoEXT::pDepthClampRange
++    *
++    * MESA_VK_DYNAMIC_GRAPHICS_STATE_VP_DEPTH_CLAMP_RANGE
++    */
++   VkDepthClampRangeEXT depth_clamp_range;
++
+    /** VkPipelineViewportStateCreateInfo::viewportCount
+     *
+     * MESA_VK_DYNAMIC_GRAPHICS_STATE_VP_VIEWPORT_COUNT
+-- 
+GitLab
+
+
+From 184e191a9ae59cebfd9a7e3a38c966efa78b38a1 Mon Sep 17 00:00:00 2001
+From: Jules Blok <jules.blok@gmail.com>
+Date: Mon, 30 Sep 2024 01:12:08 +0200
+Subject: [PATCH 2/3] llvmpipe: Add support for VK_EXT_depth_clamp_control
+
+---
+ src/gallium/auxiliary/cso_cache/cso_context.c |  2 +
+ src/gallium/auxiliary/hud/hud_context.c       |  2 +
+ src/gallium/auxiliary/postprocess/pp_init.c   |  2 +
+ src/gallium/auxiliary/util/u_blitter.c        |  2 +
+ src/gallium/auxiliary/util/u_tests.c          |  2 +
+ src/gallium/auxiliary/vl/vl_bicubic_filter.c  |  2 +
+ src/gallium/auxiliary/vl/vl_compositor.c      |  2 +
+ src/gallium/auxiliary/vl/vl_deint_filter.c    |  2 +
+ src/gallium/auxiliary/vl/vl_idct.c            |  4 ++
+ src/gallium/auxiliary/vl/vl_matrix_filter.c   |  2 +
+ src/gallium/auxiliary/vl/vl_mc.c              |  2 +
+ src/gallium/auxiliary/vl/vl_median_filter.c   |  2 +
+ src/gallium/auxiliary/vl/vl_zscan.c           |  2 +
+ src/gallium/drivers/llvmpipe/lp_jit.c         |  8 +++
+ src/gallium/drivers/llvmpipe/lp_jit.h         |  4 ++
+ src/gallium/drivers/llvmpipe/lp_screen.c      |  2 +
+ src/gallium/drivers/llvmpipe/lp_setup.c       |  6 +++
+ src/gallium/drivers/llvmpipe/lp_state_fs.c    | 17 ++++--
+ src/gallium/drivers/llvmpipe/lp_state_fs.h    |  1 +
+ src/gallium/frontends/lavapipe/lvp_device.c   |  4 ++
+ src/gallium/frontends/lavapipe/lvp_execute.c  | 54 ++++++++++++++++++-
+ src/gallium/frontends/nine/nine_state.c       |  2 +
+ src/gallium/frontends/xa/xa_renderer.c        |  2 +
+ src/gallium/include/pipe/p_defines.h          |  2 +
+ src/gallium/include/pipe/p_state.h            |  9 ++++
+ src/gallium/tests/trivial/quad-tex.c          |  2 +
+ src/gallium/tests/trivial/tri.c               |  2 +
+ src/mesa/state_tracker/st_atom_rasterizer.c   |  1 +
+ src/mesa/state_tracker/st_atom_viewport.c     |  2 +
+ src/mesa/state_tracker/st_cb_drawtex.c        |  2 +
+ 30 files changed, 143 insertions(+), 5 deletions(-)
+
+diff --git a/src/gallium/auxiliary/cso_cache/cso_context.c b/src/gallium/auxiliary/cso_cache/cso_context.c
+index e71e400c4246c..41070cdb1ea91 100644
+--- a/src/gallium/auxiliary/cso_cache/cso_context.c
++++ b/src/gallium/auxiliary/cso_cache/cso_context.c
+@@ -846,6 +846,8 @@ cso_set_viewport_dims(struct cso_context *ctx,
+    vp.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    vp.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    vp.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   vp.min_depth_clamp = 0.0f;
++   vp.max_depth_clamp = 1.0f;
+    cso_set_viewport(ctx, &vp);
+ }
+ 
+diff --git a/src/gallium/auxiliary/hud/hud_context.c b/src/gallium/auxiliary/hud/hud_context.c
+index 19bef5ec7e946..46116df70ad91 100644
+--- a/src/gallium/auxiliary/hud/hud_context.c
++++ b/src/gallium/auxiliary/hud/hud_context.c
+@@ -565,6 +565,8 @@ hud_draw_results(struct hud_context *hud, struct pipe_resource *tex)
+    viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   viewport.min_depth_clamp = 0.0f;
++   viewport.max_depth_clamp = 1.0f;
+ 
+    cso_set_framebuffer(cso, &fb);
+    cso_set_sample_mask(cso, ~0);
+diff --git a/src/gallium/auxiliary/postprocess/pp_init.c b/src/gallium/auxiliary/postprocess/pp_init.c
+index 09ad74c145e8e..f74c5e3194f07 100644
+--- a/src/gallium/auxiliary/postprocess/pp_init.c
++++ b/src/gallium/auxiliary/postprocess/pp_init.c
+@@ -339,6 +339,8 @@ pp_init_fbos(struct pp_queue_t *ppq, unsigned int w,
+    p->viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    p->viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    p->viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   p->viewport.min_depth_clamp = 0.0f;
++   p->viewport.max_depth_clamp = 1.0f;
+ 
+    ppq->fbos_init = true;
+ 
+diff --git a/src/gallium/auxiliary/util/u_blitter.c b/src/gallium/auxiliary/util/u_blitter.c
+index 4db49c38fd4e6..6cc59c0c59717 100644
+--- a/src/gallium/auxiliary/util/u_blitter.c
++++ b/src/gallium/auxiliary/util/u_blitter.c
+@@ -869,6 +869,8 @@ static void blitter_set_rectangle(struct blitter_context_priv *ctx,
+    viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   viewport.min_depth_clamp = 0.0f;
++   viewport.max_depth_clamp = 1.0f;
+    ctx->base.pipe->set_viewport_states(ctx->base.pipe, 0, 1, &viewport);
+ }
+ 
+diff --git a/src/gallium/auxiliary/util/u_tests.c b/src/gallium/auxiliary/util/u_tests.c
+index 61a7836f9f0aa..771bd9baac437 100644
+--- a/src/gallium/auxiliary/util/u_tests.c
++++ b/src/gallium/auxiliary/util/u_tests.c
+@@ -130,6 +130,8 @@ util_set_max_viewport(struct cso_context *cso, struct pipe_resource *tex)
+    viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   viewport.min_depth_clamp = 0.0f;
++   viewport.max_depth_clamp = 1.0f;
+ 
+    cso_set_viewport(cso, &viewport);
+ }
+diff --git a/src/gallium/auxiliary/vl/vl_bicubic_filter.c b/src/gallium/auxiliary/vl/vl_bicubic_filter.c
+index 582aec7e90419..af0e100471a3f 100644
+--- a/src/gallium/auxiliary/vl/vl_bicubic_filter.c
++++ b/src/gallium/auxiliary/vl/vl_bicubic_filter.c
+@@ -426,6 +426,8 @@ vl_bicubic_filter_render(struct vl_bicubic_filter *filter,
+    viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   viewport.min_depth_clamp = 0.0f;
++   viewport.max_depth_clamp = 1.0f;
+ 
+    struct pipe_constant_buffer cb = {0};
+    float *ptr = NULL;
+diff --git a/src/gallium/auxiliary/vl/vl_compositor.c b/src/gallium/auxiliary/vl/vl_compositor.c
+index c0a9e625f6515..6773b40f8a874 100644
+--- a/src/gallium/auxiliary/vl/vl_compositor.c
++++ b/src/gallium/auxiliary/vl/vl_compositor.c
+@@ -471,6 +471,8 @@ vl_compositor_clear_layers(struct vl_compositor_state *s)
+       s->layers[i].viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+       s->layers[i].viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+       s->layers[i].viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++      s->layers[i].viewport.min_depth_clamp = 0.0f;
++      s->layers[i].viewport.max_depth_clamp = 1.0f;
+       s->layers[i].rotate = VL_COMPOSITOR_ROTATE_0;
+ 
+       for ( j = 0; j < 3; j++)
+diff --git a/src/gallium/auxiliary/vl/vl_deint_filter.c b/src/gallium/auxiliary/vl/vl_deint_filter.c
+index 04dd888d0a8a4..b4281d88572ae 100644
+--- a/src/gallium/auxiliary/vl/vl_deint_filter.c
++++ b/src/gallium/auxiliary/vl/vl_deint_filter.c
+@@ -492,6 +492,8 @@ vl_deint_filter_render(struct vl_deint_filter *filter,
+    viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   viewport.min_depth_clamp = 0.0f;
++   viewport.max_depth_clamp = 1.0f;
+ 
+    /* prepare framebuffer */
+    memset(&fb_state, 0, sizeof(fb_state));
+diff --git a/src/gallium/auxiliary/vl/vl_idct.c b/src/gallium/auxiliary/vl/vl_idct.c
+index 5de94e94b80a5..d07c1f1a9d583 100644
+--- a/src/gallium/auxiliary/vl/vl_idct.c
++++ b/src/gallium/auxiliary/vl/vl_idct.c
+@@ -612,6 +612,8 @@ init_source(struct vl_idct *idct, struct vl_idct_buffer *buffer)
+    buffer->viewport_mismatch.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    buffer->viewport_mismatch.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    buffer->viewport_mismatch.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   buffer->viewport_mismatch.min_depth_clamp = 0.0f;
++   buffer->viewport_mismatch.max_depth_clamp = 1.0f;
+ 
+    return true;
+ }
+@@ -659,6 +661,8 @@ init_intermediate(struct vl_idct *idct, struct vl_idct_buffer *buffer)
+    buffer->viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    buffer->viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    buffer->viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   buffer->viewport.min_depth_clamp = 0.0f;
++   buffer->viewport.max_depth_clamp = 1.0f;
+ 
+    return true;
+ 
+diff --git a/src/gallium/auxiliary/vl/vl_matrix_filter.c b/src/gallium/auxiliary/vl/vl_matrix_filter.c
+index 0c9bc757e00a0..5362b1a95f0b4 100644
+--- a/src/gallium/auxiliary/vl/vl_matrix_filter.c
++++ b/src/gallium/auxiliary/vl/vl_matrix_filter.c
+@@ -290,6 +290,8 @@ vl_matrix_filter_render(struct vl_matrix_filter *filter,
+    viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   viewport.min_depth_clamp = 0.0f;
++   viewport.max_depth_clamp = 1.0f;
+ 
+    memset(&fb_state, 0, sizeof(fb_state));
+    fb_state.width = dst->width;
+diff --git a/src/gallium/auxiliary/vl/vl_mc.c b/src/gallium/auxiliary/vl/vl_mc.c
+index 7e0f6dda92b26..e6cb8752884d0 100644
+--- a/src/gallium/auxiliary/vl/vl_mc.c
++++ b/src/gallium/auxiliary/vl/vl_mc.c
+@@ -566,6 +566,8 @@ vl_mc_init_buffer(struct vl_mc *renderer, struct vl_mc_buffer *buffer)
+    buffer->viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    buffer->viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    buffer->viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   buffer->viewport.min_depth_clamp = 0.0f;
++   buffer->viewport.max_depth_clamp = 1.0f;
+ 
+    buffer->fb_state.nr_cbufs = 1;
+    buffer->fb_state.zsbuf = NULL;
+diff --git a/src/gallium/auxiliary/vl/vl_median_filter.c b/src/gallium/auxiliary/vl/vl_median_filter.c
+index 978c58fe1ca49..4aa0c4703ad95 100644
+--- a/src/gallium/auxiliary/vl/vl_median_filter.c
++++ b/src/gallium/auxiliary/vl/vl_median_filter.c
+@@ -409,6 +409,8 @@ vl_median_filter_render(struct vl_median_filter *filter,
+    viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   viewport.min_depth_clamp = 0.0f;
++   viewport.max_depth_clamp = 1.0f;
+ 
+    memset(&fb_state, 0, sizeof(fb_state));
+    fb_state.width = dst->width;
+diff --git a/src/gallium/auxiliary/vl/vl_zscan.c b/src/gallium/auxiliary/vl/vl_zscan.c
+index 13b044d7c9fff..36d0d57d8c330 100644
+--- a/src/gallium/auxiliary/vl/vl_zscan.c
++++ b/src/gallium/auxiliary/vl/vl_zscan.c
+@@ -434,6 +434,8 @@ vl_zscan_init_buffer(struct vl_zscan *zscan, struct vl_zscan_buffer *buffer,
+    buffer->viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+    buffer->viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+    buffer->viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++   buffer->viewport.min_depth_clamp = 0.0f;
++   buffer->viewport.max_depth_clamp = 1.0f;
+ 
+    buffer->fb_state.width = dst->width;
+    buffer->fb_state.height = dst->height;
+diff --git a/src/gallium/drivers/llvmpipe/lp_jit.c b/src/gallium/drivers/llvmpipe/lp_jit.c
+index bc52a0d5b56ba..e88f1bc363926 100644
+--- a/src/gallium/drivers/llvmpipe/lp_jit.c
++++ b/src/gallium/drivers/llvmpipe/lp_jit.c
+@@ -56,6 +56,8 @@ lp_jit_create_types(struct lp_fragment_shader_variant *lp)
+    {
+       LLVMTypeRef elem_types[LP_JIT_VIEWPORT_NUM_FIELDS];
+ 
++      elem_types[LP_JIT_VIEWPORT_MIN_DEPTH_CLAMP] =
++      elem_types[LP_JIT_VIEWPORT_MAX_DEPTH_CLAMP] =
+       elem_types[LP_JIT_VIEWPORT_MIN_DEPTH] =
+       elem_types[LP_JIT_VIEWPORT_MAX_DEPTH] = LLVMFloatTypeInContext(lc);
+ 
+@@ -68,6 +70,12 @@ lp_jit_create_types(struct lp_fragment_shader_variant *lp)
+       LP_CHECK_MEMBER_OFFSET(struct lp_jit_viewport, max_depth,
+                              gallivm->target, viewport_type,
+                              LP_JIT_VIEWPORT_MAX_DEPTH);
++      LP_CHECK_MEMBER_OFFSET(struct lp_jit_viewport, min_depth_clamp,
++                             gallivm->target, viewport_type,
++                             LP_JIT_VIEWPORT_MIN_DEPTH_CLAMP);
++      LP_CHECK_MEMBER_OFFSET(struct lp_jit_viewport, max_depth_clamp,
++                             gallivm->target, viewport_type,
++                             LP_JIT_VIEWPORT_MAX_DEPTH_CLAMP);
+       LP_CHECK_STRUCT_SIZE(struct lp_jit_viewport,
+                            gallivm->target, viewport_type);
+    }
+diff --git a/src/gallium/drivers/llvmpipe/lp_jit.h b/src/gallium/drivers/llvmpipe/lp_jit.h
+index 006235e9f8f4d..a9d3f1b90616f 100644
+--- a/src/gallium/drivers/llvmpipe/lp_jit.h
++++ b/src/gallium/drivers/llvmpipe/lp_jit.h
+@@ -55,11 +55,15 @@ struct lp_jit_viewport
+ {
+    float min_depth;
+    float max_depth;
++   float min_depth_clamp;
++   float max_depth_clamp;
+ };
+ 
+ enum {
+    LP_JIT_VIEWPORT_MIN_DEPTH,
+    LP_JIT_VIEWPORT_MAX_DEPTH,
++   LP_JIT_VIEWPORT_MIN_DEPTH_CLAMP,
++   LP_JIT_VIEWPORT_MAX_DEPTH_CLAMP,
+    LP_JIT_VIEWPORT_NUM_FIELDS /* number of fields above */
+ };
+ 
+diff --git a/src/gallium/drivers/llvmpipe/lp_screen.c b/src/gallium/drivers/llvmpipe/lp_screen.c
+index ffa7f5608bcfe..b20de14483c6f 100644
+--- a/src/gallium/drivers/llvmpipe/lp_screen.c
++++ b/src/gallium/drivers/llvmpipe/lp_screen.c
+@@ -388,6 +388,8 @@ llvmpipe_get_param(struct pipe_screen *screen, enum pipe_cap param)
+       return LLVM_VERSION_MAJOR >= 15;
+    case PIPE_CAP_NIR_IMAGES_AS_DEREF:
+       return 0;
++   case PIPE_CAP_USER_DEFINED_DEPTH_CLAMP_RANGE:
++      return 1;
+    default:
+       return u_pipe_screen_get_param_defaults(screen, param);
+    }
+diff --git a/src/gallium/drivers/llvmpipe/lp_setup.c b/src/gallium/drivers/llvmpipe/lp_setup.c
+index 6682f20a9e874..1cc07ef153eb0 100644
+--- a/src/gallium/drivers/llvmpipe/lp_setup.c
++++ b/src/gallium/drivers/llvmpipe/lp_setup.c
+@@ -865,6 +865,12 @@ lp_setup_set_viewports(struct lp_setup_context *setup,
+           setup->viewports[i].max_depth = max_depth;
+           setup->dirty |= LP_SETUP_NEW_VIEWPORTS;
+       }
++      if (setup->viewports[i].min_depth_clamp != viewports[i].min_depth_clamp ||
++          setup->viewports[i].min_depth_clamp != viewports[i].max_depth_clamp) {
++          setup->viewports[i].min_depth_clamp = viewports[i].min_depth_clamp;
++          setup->viewports[i].min_depth_clamp = viewports[i].max_depth_clamp;
++          setup->dirty |= LP_SETUP_NEW_VIEWPORTS;
++      }
+    }
+ }
+ 
+diff --git a/src/gallium/drivers/llvmpipe/lp_state_fs.c b/src/gallium/drivers/llvmpipe/lp_state_fs.c
+index 9013a7ff115e3..0c556ee55dd90 100644
+--- a/src/gallium/drivers/llvmpipe/lp_state_fs.c
++++ b/src/gallium/drivers/llvmpipe/lp_state_fs.c
+@@ -348,6 +348,7 @@ static LLVMValueRef
+ lp_build_depth_clamp(struct gallivm_state *gallivm,
+                      LLVMBuilderRef builder,
+                      bool depth_clamp,
++                     bool user_defined_clamp,
+                      bool restrict_depth,
+                      struct lp_type type,
+                      LLVMTypeRef context_type,
+@@ -387,13 +388,15 @@ lp_build_depth_clamp(struct gallivm_state *gallivm,
+    viewport = lp_llvm_viewport(context_type, context_ptr, gallivm, viewport_index);
+ 
+    /* viewports[viewport_index].min_depth */
+-   min_depth = LLVMBuildExtractElement(builder, viewport,
+-                  lp_build_const_int32(gallivm, LP_JIT_VIEWPORT_MIN_DEPTH), "");
++   min_depth = lp_build_const_int32(gallivm, user_defined_clamp ? LP_JIT_VIEWPORT_MIN_DEPTH_CLAMP
++                                                                : LP_JIT_VIEWPORT_MIN_DEPTH);
++   min_depth = LLVMBuildExtractElement(builder, viewport, min_depth, "");
+    min_depth = lp_build_broadcast_scalar(&f32_bld, min_depth);
+ 
+    /* viewports[viewport_index].max_depth */
+-   max_depth = LLVMBuildExtractElement(builder, viewport,
+-                  lp_build_const_int32(gallivm, LP_JIT_VIEWPORT_MAX_DEPTH), "");
++   max_depth = lp_build_const_int32(gallivm, user_defined_clamp ? LP_JIT_VIEWPORT_MAX_DEPTH_CLAMP
++                                                                : LP_JIT_VIEWPORT_MAX_DEPTH);
++   max_depth = LLVMBuildExtractElement(builder, viewport, max_depth, "");
+    max_depth = lp_build_broadcast_scalar(&f32_bld, max_depth);
+ 
+    /*
+@@ -894,6 +897,7 @@ generate_fs_loop(struct gallivm_state *gallivm,
+ 
+    if (depth_mode & EARLY_DEPTH_TEST) {
+       z = lp_build_depth_clamp(gallivm, builder, key->depth_clamp,
++                               key->user_defined_depth_clamp,
+                                key->restrict_depth_values, type,
+                                context_type, context_ptr,
+                                thread_data_type, thread_data_ptr, z);
+@@ -1300,6 +1304,7 @@ generate_fs_loop(struct gallivm_state *gallivm,
+        * Clamp according to ARB_depth_clamp semantics.
+        */
+       z = lp_build_depth_clamp(gallivm, builder, key->depth_clamp,
++                               key->user_defined_depth_clamp,
+                                key->restrict_depth_values, type,
+                                context_type, context_ptr,
+                                thread_data_type, thread_data_ptr, z);
+@@ -3545,6 +3550,9 @@ dump_fs_variant_key(struct lp_fragment_shader_variant_key *key)
+    if (key->restrict_depth_values)
+       debug_printf("restrict_depth_values = 1\n");
+ 
++   if (key->user_defined_depth_clamp)
++      debug_printf("user_defined_depth_clamp = 1\n");
++
+    if (key->multisample) {
+       debug_printf("multisample = 1\n");
+       debug_printf("coverage samples = %d\n", key->coverage_samples);
+@@ -4419,6 +4427,7 @@ make_variant_key(struct llvmpipe_context *lp,
+     * Propagate the depth clamp setting from the rasterizer state.
+     */
+    key->depth_clamp = lp->rasterizer->depth_clamp;
++   key->user_defined_depth_clamp = lp->rasterizer->user_defined_depth_clamp_range;
+ 
+    /* alpha test only applies if render buffer 0 is non-integer
+     * (or does not exist)
+diff --git a/src/gallium/drivers/llvmpipe/lp_state_fs.h b/src/gallium/drivers/llvmpipe/lp_state_fs.h
+index 2764d6c750f66..0a9abe0a55759 100644
+--- a/src/gallium/drivers/llvmpipe/lp_state_fs.h
++++ b/src/gallium/drivers/llvmpipe/lp_state_fs.h
+@@ -87,6 +87,7 @@ struct lp_fragment_shader_variant_key
+    unsigned multisample:1;
+    unsigned no_ms_sample_mask_out:1;
+    unsigned restrict_depth_values:1;
++   unsigned user_defined_depth_clamp:1;
+ 
+    enum pipe_format zsbuf_format;
+    enum pipe_format cbuf_format[PIPE_MAX_COLOR_BUFS];
+diff --git a/src/gallium/frontends/lavapipe/lvp_device.c b/src/gallium/frontends/lavapipe/lvp_device.c
+index 37cefdfc04e8d..f4b55da373d62 100644
+--- a/src/gallium/frontends/lavapipe/lvp_device.c
++++ b/src/gallium/frontends/lavapipe/lvp_device.c
+@@ -192,6 +192,7 @@ static const struct vk_device_extension_table lvp_device_extensions_supported =
+    .EXT_color_write_enable                = true,
+    .EXT_conditional_rendering             = true,
+    .EXT_depth_clip_enable                 = true,
++   .EXT_depth_clamp_control               = true,
+    .EXT_depth_clip_control                = true,
+    .EXT_depth_range_unrestricted          = true,
+    .EXT_dynamic_rendering_unused_attachments = true,
+@@ -517,6 +518,9 @@ lvp_get_features(const struct lvp_physical_device *pdevice,
+       /* VK_EXT_image_sliced_view_of_3d */
+       .imageSlicedViewOf3D = true,
+ 
++      /* VK_EXT_depth_clamp_control */
++      .depthClampControl = true,
++
+       /* VK_EXT_depth_clip_control */
+       .depthClipControl = true,
+ 
+diff --git a/src/gallium/frontends/lavapipe/lvp_execute.c b/src/gallium/frontends/lavapipe/lvp_execute.c
+index c7d7bd04bcf98..5e6b05ec18f1c 100644
+--- a/src/gallium/frontends/lavapipe/lvp_execute.c
++++ b/src/gallium/frontends/lavapipe/lvp_execute.c
+@@ -135,7 +135,7 @@ struct rendering_state {
+    int num_viewports;
+    struct pipe_viewport_state viewports[16];
+    struct {
+-      float min, max;
++      float min, max, min_clamp, max_clamp;
+    } depth[16];
+ 
+    uint8_t patch_vertices;
+@@ -657,6 +657,31 @@ set_viewport_depth_xform(struct rendering_state *state, unsigned idx)
+       state->viewports[idx].scale[2] = (f - n);
+       state->viewports[idx].translate[2] = n;
+    }
++   if (state->rs_state.depth_clamp && !state->rs_state.user_defined_depth_clamp_range) {
++      state->viewports[idx].min_depth_clamp = n < f ? n : f;
++      state->viewports[idx].max_depth_clamp = n > f ? n : f;
++   } else {
++      state->viewports[idx].min_depth_clamp = state->depth[idx].min_clamp;
++      state->viewports[idx].max_depth_clamp = state->depth[idx].max_clamp;
++   }
++}
++
++static void
++get_viewport_depth_clamp(struct rendering_state *state,
++                         const VkDepthClampRangeEXT *range,
++                         unsigned idx)
++{
++   if (state->rs_state.user_defined_depth_clamp_range) {
++      assert(range);
++      state->depth[idx].min_clamp = range->minDepthClamp;
++      state->depth[idx].max_clamp = range->maxDepthClamp;
++   } else if (state->rs_state.unclamped_fragment_depth_values) {
++      state->depth[idx].min_clamp = -INFINITY;
++      state->depth[idx].max_clamp = INFINITY;
++   } else {
++      state->depth[idx].min_clamp = 0.0f;
++      state->depth[idx].max_clamp = 1.0f;
++   }
+ }
+ 
+ static void
+@@ -1096,6 +1121,15 @@ static void handle_graphics_pipeline(struct lvp_pipeline *pipeline,
+          }
+          state->vp_dirty = true;
+       }
++      if (!BITSET_TEST(ps->dynamic, MESA_VK_DYNAMIC_VP_DEPTH_CLAMP_RANGE)) {
++         state->rs_state.user_defined_depth_clamp_range = ps->vp->depth_clamp_mode;
++         state->rs_dirty = true;
++         for (uint32_t i = 0; i < PIPE_MAX_VIEWPORTS; i++) {
++            get_viewport_depth_clamp(state, &ps->vp->depth_clamp_range, i);
++            set_viewport_depth_xform(state, i);
++         }
++         state->vp_dirty = true;
++      }
+       if (!BITSET_TEST(ps->dynamic, MESA_VK_DYNAMIC_VP_SCISSORS)) {
+          for (uint32_t i = 0; i < ps->vp->scissor_count; i++) {
+             const VkRect2D *ss = &ps->vp->scissors[i];
+@@ -4918,6 +4952,18 @@ handle_trace_rays_indirect2(struct vk_cmd_queue_entry *cmd, struct rendering_sta
+    state->pctx->launch_grid(state->pctx, &state->trace_rays_info);
+ }
+ 
++static void handle_set_depth_clamp_range(struct vk_cmd_queue_entry *cmd,
++                                         struct rendering_state *state)
++{
++   state->rs_dirty |= state->rs_state.user_defined_depth_clamp_range != cmd->u.set_depth_clamp_range_ext.depth_clamp_mode;
++   state->rs_state.user_defined_depth_clamp_range = cmd->u.set_depth_clamp_range_ext.depth_clamp_mode;
++   for (uint32_t i = 0; i < PIPE_MAX_VIEWPORTS; i++) {
++      get_viewport_depth_clamp(state, cmd->u.set_depth_clamp_range_ext.depth_clamp_range, i);
++      set_viewport_depth_xform(state, i);
++   }
++   state->vp_dirty = true;
++}
++
+ void lvp_add_enqueue_cmd_entrypoints(struct vk_device_dispatch_table *disp)
+ {
+    struct vk_device_dispatch_table cmd_enqueue_dispatch;
+@@ -5075,6 +5121,8 @@ void lvp_add_enqueue_cmd_entrypoints(struct vk_device_dispatch_table *disp)
+    ENQUEUE_CMD(CmdTraceRaysIndirectKHR)
+    ENQUEUE_CMD(CmdTraceRaysKHR)
+ 
++   ENQUEUE_CMD(CmdSetDepthClampRangeEXT)
++
+ #undef ENQUEUE_CMD
+ }
+ 
+@@ -5475,6 +5523,9 @@ static void lvp_execute_cmd_buffer(struct list_head *cmds,
+       case VK_CMD_TRACE_RAYS_KHR:
+          handle_trace_rays(cmd, state);
+          break;
++      case VK_CMD_SET_DEPTH_CLAMP_RANGE_EXT:
++         handle_set_depth_clamp_range(cmd, state);
++         break;
+       default:
+          fprintf(stderr, "Unsupported command %s\n", vk_cmd_queue_type_names[cmd->type]);
+          unreachable("Unsupported command");
+@@ -5522,6 +5573,7 @@ VkResult lvp_execute_cmds(struct lvp_device *device,
+    state->rs_state.half_pixel_center = true;
+    state->rs_state.scissor = true;
+    state->rs_state.no_ms_sample_mask_out = true;
++   state->rs_state.user_defined_depth_clamp_range = false;
+    state->blend_state.independent_blend_enable = true;
+ 
+    state->index_size = 4;
+diff --git a/src/gallium/frontends/nine/nine_state.c b/src/gallium/frontends/nine/nine_state.c
+index 8b8e1a992c04a..308ed404d745d 100644
+--- a/src/gallium/frontends/nine/nine_state.c
++++ b/src/gallium/frontends/nine/nine_state.c
+@@ -807,6 +807,8 @@ update_viewport(struct NineDevice9 *device)
+     pvport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+     pvport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+     pvport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++    pvport.min_depth_clamp = 0.0f;
++    pvport.max_depth_clamp = 1.0f;
+ 
+     /* We found R600 and SI cards have some imprecision
+      * on the barycentric coordinates used for interpolation.
+diff --git a/src/gallium/frontends/xa/xa_renderer.c b/src/gallium/frontends/xa/xa_renderer.c
+index c9a1f46bacfe2..b6e7974ad26ab 100644
+--- a/src/gallium/frontends/xa/xa_renderer.c
++++ b/src/gallium/frontends/xa/xa_renderer.c
+@@ -351,6 +351,8 @@ renderer_bind_destination(struct xa_context *r,
+     viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+     viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+     viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++    viewport.min_depth_clamp = 0.0f;
++    viewport.max_depth_clamp = 1.0f;
+ 
+     /* Constant buffer set up to match viewport dimensions:
+      */
+diff --git a/src/gallium/include/pipe/p_defines.h b/src/gallium/include/pipe/p_defines.h
+index 3036c1c3e6c15..ad5f584ee4069 100644
+--- a/src/gallium/include/pipe/p_defines.h
++++ b/src/gallium/include/pipe/p_defines.h
+@@ -984,6 +984,8 @@ enum pipe_cap
+    PIPE_CAP_SHADER_SUBGROUP_SUPPORTED_FEATURES,
+    PIPE_CAP_SHADER_SUBGROUP_QUAD_ALL_STAGES,
+    PIPE_CAP_MULTIVIEW,
++   /** For VK_EXT_depth_clamp_control */
++   PIPE_CAP_USER_DEFINED_DEPTH_CLAMP_RANGE,
+    PIPE_CAP_LAST,
+    /* XXX do not add caps after PIPE_CAP_LAST! */
+ };
+diff --git a/src/gallium/include/pipe/p_state.h b/src/gallium/include/pipe/p_state.h
+index 3372c915bc70b..aca4b04dbc2ca 100644
+--- a/src/gallium/include/pipe/p_state.h
++++ b/src/gallium/include/pipe/p_state.h
+@@ -193,6 +193,13 @@ struct pipe_rasterizer_state
+     */
+    unsigned unclamped_fragment_depth_values:1;
+ 
++   /**
++    * The range used for depth clamping can be defined to range user defined
++    * range rather than the viewport depth range.
++    * This feature is only available on Vulkan through an extension.
++    */
++   unsigned user_defined_depth_clamp_range:1;
++
+    /**
+     * Enable bits for clipping half-spaces.
+     * This applies to both user clip planes and shader clip distances.
+@@ -236,6 +243,8 @@ struct pipe_viewport_state
+    enum pipe_viewport_swizzle swizzle_y:8;
+    enum pipe_viewport_swizzle swizzle_z:8;
+    enum pipe_viewport_swizzle swizzle_w:8;
++   float min_depth_clamp;
++   float max_depth_clamp;
+ };
+ 
+ 
+diff --git a/src/gallium/tests/trivial/quad-tex.c b/src/gallium/tests/trivial/quad-tex.c
+index 19bac09a10825..40782ca70bf1d 100644
+--- a/src/gallium/tests/trivial/quad-tex.c
++++ b/src/gallium/tests/trivial/quad-tex.c
+@@ -254,6 +254,8 @@ static void init_prog(struct program *p)
+ 		p->viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+ 		p->viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+ 		p->viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++		p->viewport.min_depth_clamp = 0.0f;
++		p->viewport.max_depth_clamp = 1.0f;
+ 	}
+ 
+ 	/* vertex elements state */
+diff --git a/src/gallium/tests/trivial/tri.c b/src/gallium/tests/trivial/tri.c
+index 30015af26cc33..f5ca1119e8f53 100644
+--- a/src/gallium/tests/trivial/tri.c
++++ b/src/gallium/tests/trivial/tri.c
+@@ -198,6 +198,8 @@ static void init_prog(struct program *p)
+ 		p->viewport.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+ 		p->viewport.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+ 		p->viewport.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++		p->viewport.min_depth_clamp = 0.0f;
++		p->viewport.max_depth_clamp = 1.0f;
+ 	}
+ 
+ 	/* vertex elements state */
+diff --git a/src/mesa/state_tracker/st_atom_rasterizer.c b/src/mesa/state_tracker/st_atom_rasterizer.c
+index 160860d446330..cd64f66c7d580 100644
+--- a/src/mesa/state_tracker/st_atom_rasterizer.c
++++ b/src/mesa/state_tracker/st_atom_rasterizer.c
+@@ -303,6 +303,7 @@ st_update_rasterizer(struct st_context *st)
+    raster->depth_clip_near = !ctx->Transform.DepthClampNear;
+    raster->depth_clip_far = !ctx->Transform.DepthClampFar;
+    raster->depth_clamp = !raster->depth_clip_far;
++   raster->user_defined_depth_clamp_range = false;
+    /* this should be different for GL vs GLES but without NV_depth_buffer_float
+       it doesn't matter, and likely virgl would need fixes to deal with it. */
+    raster->unclamped_fragment_depth_values = false;
+diff --git a/src/mesa/state_tracker/st_atom_viewport.c b/src/mesa/state_tracker/st_atom_viewport.c
+index a1ebf52b7f3d1..34c7fe861b511 100644
+--- a/src/mesa/state_tracker/st_atom_viewport.c
++++ b/src/mesa/state_tracker/st_atom_viewport.c
+@@ -71,6 +71,8 @@ st_update_viewport( struct st_context *st )
+       st->state.viewport[i].swizzle_y = viewport_swizzle_from_glenum(ctx->ViewportArray[i].SwizzleY);
+       st->state.viewport[i].swizzle_z = viewport_swizzle_from_glenum(ctx->ViewportArray[i].SwizzleZ);
+       st->state.viewport[i].swizzle_w = viewport_swizzle_from_glenum(ctx->ViewportArray[i].SwizzleW);
++      st->state.viewport[i].min_depth_clamp = 0.0f;
++      st->state.viewport[i].max_depth_clamp = 1.0f;
+    }
+ 
+    cso_set_viewport(st->cso_context, &st->state.viewport[0]);
+diff --git a/src/mesa/state_tracker/st_cb_drawtex.c b/src/mesa/state_tracker/st_cb_drawtex.c
+index bf6dcf8f5f70c..671f36c69e8b9 100644
+--- a/src/mesa/state_tracker/st_cb_drawtex.c
++++ b/src/mesa/state_tracker/st_cb_drawtex.c
+@@ -292,6 +292,8 @@ st_DrawTex(struct gl_context *ctx, GLfloat x, GLfloat y, GLfloat z,
+       vp.swizzle_y = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Y;
+       vp.swizzle_z = PIPE_VIEWPORT_SWIZZLE_POSITIVE_Z;
+       vp.swizzle_w = PIPE_VIEWPORT_SWIZZLE_POSITIVE_W;
++      vp.min_depth_clamp = 0.0f;
++      vp.max_depth_clamp = 1.0f;
+       cso_set_viewport(cso, &vp);
+    }
+ 
+-- 
+GitLab
+
+
+From e82ef52ca66ebfc0c8aa30c56d9c9d68094c6ab5 Mon Sep 17 00:00:00 2001
+From: Jules Blok <jules.blok@gmail.com>
+Date: Fri, 27 Sep 2024 10:24:18 +0200
+Subject: [PATCH 3/3] docs: Update status of VK_EXT_depth_clamp_control support
+
+---
+ docs/features.txt              | 1 +
+ docs/relnotes/new_features.txt | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/docs/features.txt b/docs/features.txt
+index b8eb5202a1523..76da7496bb1e8 100644
+--- a/docs/features.txt
++++ b/docs/features.txt
+@@ -577,6 +577,7 @@ Khronos extensions that are not part of any Vulkan version:
+   VK_EXT_debug_report                                   DONE (anv, dzn, lvp, nvk, pvr, radv, tu, v3dv)
+   VK_EXT_debug_utils                                    DONE (anv, dzn, hasvk, lvp, nvk, panvk, pvr, radv, tu, v3dv)
+   VK_EXT_depth_bias_control                             DONE (anv, nvk, radv)
++  VK_EXT_depth_clamp_control                            DONE (lvp)
+   VK_EXT_depth_clip_control                             DONE (anv, hasvk, lvp, nvk, radv, tu, v3dv, vn)
+   VK_EXT_depth_clip_enable                              DONE (anv, hasvk, lvp, nvk, radv, tu, v3dv/vc7+, vn)
+   VK_EXT_depth_range_unrestricted                       DONE (anv/gen20+, nvk, radv, lvp)
+diff --git a/docs/relnotes/new_features.txt b/docs/relnotes/new_features.txt
+index 26f2d9bc63c8d..328e8d0764cdc 100644
+--- a/docs/relnotes/new_features.txt
++++ b/docs/relnotes/new_features.txt
+@@ -19,3 +19,4 @@ VK_KHR_shader_float_controls2 on radv
+ VK_KHR_shader_float_controls2 on nvk
+ VK_EXT_device_generated_commands on nvk
+ VK_EXT_host_image_copy on nvk/Turing+
++VK_EXT_depth_clamp_control on lvp
+-- 
+GitLab
+

@@ -1,6 +1,8 @@
 {
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
 
+  inputs.chaotic.url = "github:chaotic-cx/nyx/4e242b5d229673461aa8f98adea8460475f68e2a";
+
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   inputs.agenix.url = "github:ryantm/agenix";
@@ -36,7 +38,7 @@
   inputs.discord-bot.inputs.cargo2nix.follows = "cargo2nix";
   inputs.discord-bot.inputs.rust-overlay.follows = "rust-overlay";
 
-  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, fifoci, netplay-index, discord-bot, ... }@attrs: {
+  outputs = { self, nixpkgs, chaotic, flake-utils, analytics-ingest, central, fifoci, netplay-index, discord-bot, ... }@attrs: {
     colmena = {
       meta.nixpkgs = import nixpkgs {
         system = "x86_64-linux";

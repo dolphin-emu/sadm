@@ -1,8 +1,6 @@
-{ config, lib, pkgs, chaotic, ... }:
+{ config, lib, pkgs, ... }:
 
 let
-  chaoticpkgs = chaotic.packages.${pkgs.hostPlatform.system};
-
   cfg = config.my.roles.fifoci-worker;
   user = "fifoci-worker";
   group = "fifoci-worker";
@@ -92,15 +90,7 @@ in {
   config = lib.mkIf cfg.enable {
     age.secrets.container-builder-env.file = ../../secrets/container-builder-env.age;
 
-    hardware.opengl = {
-      enable = true;
-
-      package = (chaoticpkgs.mesa_git.overrideAttrs (oldAttrs: {
-        patches = oldAttrs.patches ++ [
-          ./0001-MR-31434.patch
-        ];
-      })).drivers;
-    };
+    hardware.opengl.enable = true;
 
     systemd.tmpfiles.rules = [
       "d '${homeDir}' 0750 ${user} ${group} - -"

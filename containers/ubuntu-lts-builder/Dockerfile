@@ -16,7 +16,7 @@ RUN apt install -y \
 RUN apt install -y openjdk-11-jdk-headless openjdk-17-jdk-headless
 
 # Buildbot worker dependencies
-RUN apt install -y ninja-build buildbot-worker clang-format-12 clang-format-13
+RUN apt install -y ninja-build buildbot-worker clang-format-12 clang-format-13 clang-format-15
 
 # Android Studio setup (for Java linting)
 RUN cd / && \

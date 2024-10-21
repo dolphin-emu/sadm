@@ -6,6 +6,7 @@ in {
   imports = [
     my.modules
 
+    ./emulation.nix
     ./hypervisor.nix
     ./hardware.nix
     ./postgres.nix
@@ -42,6 +43,7 @@ in {
     discord-bot.enable = true;
     fifoci-frontend.enable = true;
     fifoci-worker.enable = true;
+    flatpak-worker.enable = true;
     foreign-builders.enable = true;
     mastodon.enable = true;
     monitoring.enable = true;

@@ -10,6 +10,7 @@
     ./etherpad
     ./fifoci-frontend
     ./fifoci-worker
+    ./flatpak-worker
     ./foreign-builders
     ./mastodon
     ./monitoring

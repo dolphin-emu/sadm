@@ -43,6 +43,7 @@ let
     "grafana-secret-key.age"
     "infra-smtp-relay.age"
     "mastodon-smtp-password.age"
+    "nas-credentials-flatpak.age"
     "nas-credentials.age"
     "oci-registry-htpasswd.age"
     "oci-registry-password.age"

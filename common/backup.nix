@@ -10,7 +10,7 @@
     doInit = true;
 
     paths = [ "/data" "/var" ];
-    exclude = [ "/data/nas" ];
+    exclude = [ "/data/nas" "/data/flatpak" ];
 
     compression = "auto,zstd";
     encryption = {

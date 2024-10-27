@@ -81,6 +81,8 @@ let
         "pr-win-arm64"
         "pr-win-dbg-x64"
         "pr-freebsd-x64"
+        "pr-flatpak-x64"
+        "pr-flatpak-arm64"
         "lint"
       ];
 

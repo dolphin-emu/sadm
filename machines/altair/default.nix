@@ -7,6 +7,7 @@ in {
     my.modules
 
     ./emulation.nix
+    ./flatpak.nix
     ./hypervisor.nix
     ./hardware.nix
     ./postgres.nix

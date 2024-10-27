@@ -48,15 +48,6 @@ in {
   config = lib.mkIf cfg.enable {
     age.secrets.container-builder-env.file = ../../secrets/container-builder-env.age;
 
-    # Needed for Flatpak.
-    xdg.portal = {
-      enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-      config.common.default = "gtk";
-    };
-
-    services.flatpak.enable = true;
-
     systemd.tmpfiles.rules = [
       "d '${homeDir}' 0750 ${user} ${group} - -"
     ];

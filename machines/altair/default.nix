@@ -44,6 +44,7 @@ in {
     discord-bot.enable = true;
     fifoci-frontend.enable = true;
     fifoci-worker.enable = true;
+    flat-manager.enable = true;
     flatpak-worker.enable = true;
     foreign-builders.enable = true;
     mastodon.enable = true;

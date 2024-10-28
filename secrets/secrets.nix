@@ -36,6 +36,8 @@ let
     "etherpad-passwords.age"
     "fifoci-frontend-api-key.age"
     "fifoci-frontend-secret-key.age"
+    "flat-manager-repo-key.age"
+    "flat-manager-secret.age"
     "geoip-license-key.age"
     "gh-app-priv-key.age"
     "gh-hook-hmac.age"

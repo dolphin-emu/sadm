@@ -10,6 +10,7 @@
     ./etherpad
     ./fifoci-frontend
     ./fifoci-worker
+    ./flat-manager
     ./flatpak-worker
     ./foreign-builders
     ./mastodon

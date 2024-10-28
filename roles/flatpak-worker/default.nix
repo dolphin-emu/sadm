@@ -26,6 +26,40 @@ let
     EOF
   '';
 
+  flatManagerClientPackage = pkgs.stdenv.mkDerivation {
+    name = "flat-manager-client";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "flatpak";
+      repo = "flat-manager";
+      rev = "7eb09a191918c09b767df86f5178760bc83135e6";
+      hash = "sha256-MGsxXY7PXUOTha+8lwr9HYdM4dDMA4wpqhbMleZPtX4=";
+    };
+
+    nativeBuildInputs = with pkgs; [
+      gobject-introspection
+      python3Packages.wrapPython
+      wrapGAppsNoGuiHook
+    ];
+    propagatedBuildInputs = [ pkgs.python3Packages.python ];
+    buildInputs = with pkgs; [
+      ostree
+    ];
+    pythonPath = with pkgs.python3Packages; [
+      aiohttp
+      pygobject3
+      tenacity
+    ];
+
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src/flat-manager-client $out/bin/flat-manager-client
+      patchShebangs $out/bin/flat-manager-client
+      chmod +x $out/bin/flat-manager-client
+    '';
+    postFixup = "wrapPythonPrograms";
+  };
+
   flatpakPython = pkgs.python3.withPackages (p: [
     pkgs.buildbot-worker
   ]);
@@ -33,6 +67,7 @@ let
   flatpakEnvPackages = with pkgs; [
     appstream
     bash
+    flatManagerClientPackage
     flatpak
     flatpak-builder
     gdk-pixbuf

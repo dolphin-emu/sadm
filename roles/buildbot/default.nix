@@ -60,6 +60,7 @@ in {
     age.secrets.buildbot-change-hook-credentials = buildbotSecret ../../secrets/buildbot-change-hook-credentials.age;
     age.secrets.buildbot-downloads-create-key = buildbotSecret ../../secrets/buildbot-downloads-create-key.age;
     age.secrets.buildbot-fifoci-frontend-api-key = buildbotSecret ../../secrets/fifoci-frontend-api-key.age;
+    age.secrets.buildbot-flat-manager-worker-token = buildbotSecret ../../secrets/buildbot-flat-manager-worker-token.age;
     age.secrets.buildbot-gh-client-id = buildbotSecret ../../secrets/buildbot-gh-client-id.age;
     age.secrets.buildbot-gh-client-secret = buildbotSecret ../../secrets/buildbot-gh-client-secret.age;
     age.secrets.buildbot-steam-username = buildbotSecret ../../secrets/buildbot-steam-username.age;
@@ -112,6 +113,7 @@ in {
         ANDROID_KEYSTORE_PASS_PATH = config.age.secrets.android-keystore-pass.path;
         DOWNLOADS_CREATE_KEY_PATH = config.age.secrets.buildbot-downloads-create-key.path;
         FIFOCI_FRONTEND_API_KEY_PATH = config.age.secrets.buildbot-fifoci-frontend-api-key.path;
+        FLAT_MANAGER_WORKER_TOKEN_PATH = config.age.secrets.buildbot-flat-manager-worker-token.path;
         CHANGE_HOOK_CREDENTIALS_PATH = config.age.secrets.buildbot-change-hook-credentials.path;
         GH_CLIENT_ID_PATH = config.age.secrets.buildbot-gh-client-id.path;
         GH_CLIENT_SECRET_PATH = config.age.secrets.buildbot-gh-client-secret.path;

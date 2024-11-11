@@ -16,4 +16,6 @@
   networking.defaultGateway = "144.76.17.97";
   networking.defaultGateway6 = { address = "fe80::1"; interface = "enp41s0"; };
   networking.nameservers = [ "8.8.8.8" ];
+
+  nixpkgs.hostPlatform.system = "x86_64-linux";
 }

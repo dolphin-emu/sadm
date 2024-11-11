@@ -1,9 +1,9 @@
 { config, ... }:
 
 {
-  age.secrets.backup-passphrase.file = ../secrets/backup-passphrase.age;
-  age.secrets.backup-ssh-key.file = ../secrets/backup-ssh-key.age;
-  age.secrets.backup-ssh-known-hosts.file = ../secrets/backup-ssh-known-hosts.age;
+  age.secrets.backup-passphrase.file = ../../secrets/backup-passphrase.age;
+  age.secrets.backup-ssh-key.file = ../../secrets/backup-ssh-key.age;
+  age.secrets.backup-ssh-known-hosts.file = ../../secrets/backup-ssh-known-hosts.age;
 
   services.borgbackup.jobs.default = {
     repo = "ssh://u189211@u189211.your-storagebox.de:23/./dolphin";

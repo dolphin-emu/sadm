@@ -4,7 +4,6 @@
   imports = [
     agenix.nixosModules.default
 
-    ./backup.nix
     ./flatpak.nix
     ./http.nix
     ./mail.nix

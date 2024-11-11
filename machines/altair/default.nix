@@ -6,6 +6,7 @@ in {
   imports = [
     my.modules
 
+    ./backup.nix
     ./emulation.nix
     ./hypervisor.nix
     ./hardware.nix

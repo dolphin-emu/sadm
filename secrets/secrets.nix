@@ -42,6 +42,7 @@ let
     "flat-manager-repo-key.age"
     "flat-manager-secret.age"
     "flatpak-worker-env-altair.age"
+    "flatpak-worker-env-deneb.age"
     "geoip-license-key.age"
     "gh-app-priv-key.age"
     "gh-hook-hmac.age"

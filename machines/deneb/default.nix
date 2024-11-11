@@ -35,6 +35,12 @@ in {
     htop
   ];
 
+  my.flatpak.enable = true;
+
+  my.roles = {
+    flatpak-worker.enable = true;
+  };
+
   my.http.vhosts."deneb.dolphin-emu.org".redirect = "https://github.com/dolphin-emu/sadm";
 
   system.stateVersion = "24.05";

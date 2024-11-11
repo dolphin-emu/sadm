@@ -41,6 +41,7 @@ let
     "fifoci-frontend-secret-key.age"
     "flat-manager-repo-key.age"
     "flat-manager-secret.age"
+    "flatpak-worker-env-altair.age"
     "geoip-license-key.age"
     "gh-app-priv-key.age"
     "gh-hook-hmac.age"

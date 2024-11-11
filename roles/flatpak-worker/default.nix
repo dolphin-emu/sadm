@@ -39,7 +39,7 @@ in {
   options.my.roles.flatpak-worker.enable = lib.mkEnableOption "Flatpak worker";
 
   config = lib.mkIf cfg.enable {
-    age.secrets.container-builder-env.file = ../../secrets/container-builder-env.age;
+    age.secrets."flatpak-worker-env-${config.networking.hostName}".file = ../../secrets/flatpak-worker-env-${config.networking.hostName}.age;
 
     systemd.tmpfiles.rules = [
       "d '${homeDir}' 0750 ${user} ${group} - -"
@@ -74,7 +74,7 @@ in {
         User = user;
         Group = group;
         WorkingDirectory = homeDir;
-        EnvironmentFile = config.age.secrets.container-builder-env.path;
+        EnvironmentFile = config.age.secrets."flatpak-worker-env-${config.networking.hostName}".path;
         ExecStart = "${pkgs.python3Packages.twisted}/bin/twistd --nodaemon --pidfile= --logfile=- --python ${workerDir}/buildbot.tac";
         Restart = "always";
         RestartSec = 10;

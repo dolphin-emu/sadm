@@ -7,7 +7,6 @@ in {
     my.modules
 
     ./emulation.nix
-    ./flatpak.nix
     ./hypervisor.nix
     ./hardware.nix
     ./postgres.nix
@@ -33,6 +32,8 @@ in {
   networking.hostName = "altair";
   networking.domain = "dolphin-emu.org";
   networking.search = [ "dolphin-emu.org" ];
+
+  my.flatpak.enable = true;
 
   my.roles = {
     analytics.enable = true;

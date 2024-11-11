@@ -84,83 +84,87 @@ let
     forceGitDeps = true;
   };
 in {
-  age.secrets.etherpad-apikey = {
-    file = ../../secrets/etherpad-apikey.age;
-    owner = "etherpad";
-  };
-  age.secrets.etherpad-sessionkey = {
-    file = ../../secrets/etherpad-sessionkey.age;
-    owner = "etherpad";
-  };
-  age.secrets.etherpad-passwords = {
-    file = ../../secrets/etherpad-passwords.age;
-    owner = "etherpad";
-  };
+  options.my.roles.etherpad.enable = lib.mkEnableOption "Etherpad";
 
-  systemd.tmpfiles.rules = [
-    "d '${stateDir}' 0750 etherpad etherpad - -"
-    "d '${stateDir}/node_modules' 0750 etherpad etherpad - -"
-    "d '${stateDir}/var' 0750 etherpad etherpad - -"
-  ];
-
-  systemd.services.etherpad-lite = {
-    after = [ "network.target" "postgresql.service" ];
-    requires = [ "postgresql.service" ];
-    wantedBy = [ "multi-user.target" ];
-
-    environment.NODE_ENV = "production";
-
-    serviceConfig = {
-      Type = "simple";
-      User = "etherpad";
-      Group = "etherpad";
-      WorkingDirectory = stateDir;
+  config = lib.mkIf cfg.enable {
+    age.secrets.etherpad-apikey = {
+      file = ../../secrets/etherpad-apikey.age;
+      owner = "etherpad";
+    };
+    age.secrets.etherpad-sessionkey = {
+      file = ../../secrets/etherpad-sessionkey.age;
+      owner = "etherpad";
+    };
+    age.secrets.etherpad-passwords = {
+      file = ../../secrets/etherpad-passwords.age;
+      owner = "etherpad";
     };
 
-    preStart = ''
-      ln -sfT ${pkg}/lib/node_modules/ep_etherpad-lite "${stateDir}/src"
-
-      ln -sfT ${pkg}/lib/node_modules/ep_etherpad-lite "${stateDir}/node_modules/ep_etherpad-lite"
-      ${lib.concatStringsSep "\n" (
-          lib.mapAttrsToList
-            (name: value: ''
-              rm -rf "${stateDir}"/node_modules/${name}
-              cp -R ${value}/lib/node_modules/${name} "${stateDir}"/node_modules/${name}
-              chmod u+w -R "${stateDir}"/node_modules/${name}
-            '')
-            plugins
-        )}
-      ln -sf ${settingsJson} "${stateDir}/settings.json"
-      ln -sf ${config.age.secrets.etherpad-apikey.path} "${stateDir}/APIKEY.txt"
-      ln -sf ${config.age.secrets.etherpad-sessionkey.path} "${stateDir}/SESSIONKEY.txt"
-    '';
-
-    script = ''
-      source ${config.age.secrets.etherpad-passwords.path}
-      export ETHERPAD_ADMIN_PASSWORD
-      export ETHERPAD_HMAC_KEY
-
-      exec ${pkg}/bin/etherpad-lite
-    '';
-  };
-
-  services.postgresql = {
-    ensureDatabases = [ "etherpad" ];
-    ensureUsers = [
-      {
-        name = "etherpad";
-        ensureDBOwnership = true;
-      }
+    systemd.tmpfiles.rules = [
+      "d '${stateDir}' 0750 etherpad etherpad - -"
+      "d '${stateDir}/node_modules' 0750 etherpad etherpad - -"
+      "d '${stateDir}/var' 0750 etherpad etherpad - -"
     ];
+
+    systemd.services.etherpad-lite = {
+      after = [ "network.target" "postgresql.service" ];
+      requires = [ "postgresql.service" ];
+      wantedBy = [ "multi-user.target" ];
+
+      environment.NODE_ENV = "production";
+
+      serviceConfig = {
+        Type = "simple";
+        User = "etherpad";
+        Group = "etherpad";
+        WorkingDirectory = stateDir;
+      };
+
+      preStart = ''
+        ln -sfT ${pkg}/lib/node_modules/ep_etherpad-lite "${stateDir}/src"
+
+        ln -sfT ${pkg}/lib/node_modules/ep_etherpad-lite "${stateDir}/node_modules/ep_etherpad-lite"
+        ${lib.concatStringsSep "\n" (
+            lib.mapAttrsToList
+              (name: value: ''
+                rm -rf "${stateDir}"/node_modules/${name}
+                cp -R ${value}/lib/node_modules/${name} "${stateDir}"/node_modules/${name}
+                chmod u+w -R "${stateDir}"/node_modules/${name}
+              '')
+              plugins
+          )}
+        ln -sf ${settingsJson} "${stateDir}/settings.json"
+        ln -sf ${config.age.secrets.etherpad-apikey.path} "${stateDir}/APIKEY.txt"
+        ln -sf ${config.age.secrets.etherpad-sessionkey.path} "${stateDir}/SESSIONKEY.txt"
+      '';
+
+      script = ''
+        source ${config.age.secrets.etherpad-passwords.path}
+        export ETHERPAD_ADMIN_PASSWORD
+        export ETHERPAD_HMAC_KEY
+
+        exec ${pkg}/bin/etherpad-lite
+      '';
+    };
+
+    services.postgresql = {
+      ensureDatabases = [ "etherpad" ];
+      ensureUsers = [
+        {
+          name = "etherpad";
+          ensureDBOwnership = true;
+        }
+      ];
+    };
+
+    users.users.etherpad = {
+      group = "etherpad";
+      home = stateDir;
+      isSystemUser = true;
+    };
+
+    users.groups.etherpad = {};
+
+    my.http.vhosts."etherpad.dolphin-emu.org".proxyLocalPort = port;
   };
-
-  users.users.etherpad = {
-    group = "etherpad";
-    home = stateDir;
-    isSystemUser = true;
-  };
-
-  users.groups.etherpad = {};
-
-  my.http.vhosts."etherpad.dolphin-emu.org".proxyLocalPort = port;
 }

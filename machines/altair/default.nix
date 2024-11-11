@@ -44,6 +44,7 @@ in {
     buildbot.enable = true;
     central.enable = true;
     discord-bot.enable = true;
+    etherpad.enable = true;
     fifoci-frontend.enable = true;
     fifoci-worker.enable = true;
     flat-manager.enable = true;

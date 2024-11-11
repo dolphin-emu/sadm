@@ -53,6 +53,7 @@
       meta.specialArgs = attrs;
 
       "altair.dolphin-emu.org" = import ./machines/altair;
+      "deneb.dolphin-emu.org" = import ./machines/deneb;
     };
   } // (flake-utils.lib.eachDefaultSystem (system:
     let

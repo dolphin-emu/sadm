@@ -2,6 +2,8 @@ let
   authorizedKeys = [
     # altair.dolphin-emu.org
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGI7y3Nvirnxwi0RCWYpl15nRCq352lnAH4IqgY5Es8w"
+    # deneb.dolphin-emu.org
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL27x43hRYoi8x5EFHvCLFdNHENGlcr2iod3J1liLdBg"
     # degasus
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBfpcFMGpTNUUdmeMgNurPgj+mi2VBjFOcCQ3FcpDaO0"
     # MayImilae

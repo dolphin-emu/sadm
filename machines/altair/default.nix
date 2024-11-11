@@ -7,7 +7,6 @@ in {
     my.modules
 
     ./backup.nix
-    ./emulation.nix
     ./hypervisor.nix
     ./hardware.nix
     ./postgres.nix

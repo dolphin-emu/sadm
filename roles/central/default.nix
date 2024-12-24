@@ -20,6 +20,12 @@ let
       rebuild_repo = "dolphin-emu/dolphin";
     };
 
+    discord = {
+      token = "!FileInclude ${config.age.secrets.central-discord-token.path}";
+      channels = [ 1320992788892094484 ];
+      privileged_role = 521711927294951439;
+    };
+
     git = {
       repos_path = "/tmp/.central-repos";
       git_path = "${pkgs.git}/bin/git";
@@ -121,6 +127,10 @@ in {
     };
     age.secrets.central-change-hook-password = {
       file = ../../secrets/central-change-hook-password.age;
+      owner = "central";
+    };
+    age.secrets.central-discord-token = {
+      file = ../../secrets/central-discord-token.age;
       owner = "central";
     };
     age.secrets.gh-app-priv-key = {

@@ -32,6 +32,7 @@ let
     "buildbot-workers-passwords.age"
     "central-change-hook-username.age"
     "central-change-hook-password.age"
+    "central-discord-token.age"
     "container-builder-env.age"
     "discord-bot-env.age"
     "etherpad-apikey.age"

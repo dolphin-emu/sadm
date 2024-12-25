@@ -10,7 +10,7 @@
     doInit = true;
 
     paths = [ "/data" "/var" ];
-    exclude = [ "/data/nas" "/data/flatpak" ];
+    exclude = [ "/data/nas" "/data/flatpak" "/var/lib/flatpak-worker" ];
 
     compression = "auto,zstd";
     encryption = {

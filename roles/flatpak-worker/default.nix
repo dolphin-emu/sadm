@@ -30,8 +30,23 @@ let
     pkgs.buildbot-worker
   ]);
 
+  flatpakScripts = with pkgs; stdenv.mkDerivation {
+    name = "flatpak-scripts";
+    src = ./utils;
+
+    propagatedBuildInputs = [ bash coreutils ];
+
+    unpackPhase = "true";
+    installPhase = ''
+      mkdir $out $out/bin
+      install -m755 $src/clean_cache.sh $out/bin
+      patchShebangs $out/bin
+    '';
+  };
+
   flatpakEnvPackages = with pkgs; [
     bash
+    flatpakScripts
     flatpak
     git
   ];

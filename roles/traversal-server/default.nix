@@ -8,13 +8,13 @@ let
   pkg = pkgs.dolphin-emu-beta.overrideAttrs (final: prev: {
     pname = "traversal-server";
 
-    version = "5.0-20505";
+    version = "2412";
 
     src = pkgs.fetchFromGitHub {
       owner = "dolphin-emu";
       repo = "dolphin";
-      rev = "d85cb749c04afc1ef3ed6e04a5750c06911181d4";
-      sha256 = "sha256-uZTUIrQarP+CGuHyMKIJJiBIUqeJGG8LYrfa8LG8RRw=";
+      rev = "refs/tags/2412";
+      sha256 = "sha256-5Eir8EQPGVSg2QXzzuHH9lf7CrV76KwmRsHiDqs6tD4=";
       fetchSubmodules = true;
     };
 

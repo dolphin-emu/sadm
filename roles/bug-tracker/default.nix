@@ -65,7 +65,7 @@ in {
     ];
 
     # Limit the maximum memory usage.
-    systemd.services.redmine.serviceConfig.MemoryMax = "2G";
+    systemd.services.redmine.serviceConfig.MemoryMax = "4G";
 
     # Restart in case Redmine was killed due to reaching the memory limit.
     systemd.services.redmine.serviceConfig.Restart = "always";

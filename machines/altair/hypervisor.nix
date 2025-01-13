@@ -25,25 +25,32 @@
   services.dnsmasq = {
     enable = true;
     resolveLocalQueries = false;
-    extraConfig = ''
-      port=0  # Disable DNS
 
-      interface=br-guests
-      bind-interfaces
+    settings = {
+      port = 0; # Disable DNS
 
-      domain=builders.dolphin-emu.org
+      interface = "br-guests";
+      bind-interfaces = true;
 
-      dhcp-option=option:dns-server,8.8.8.8,8.8.4.4
-      dhcp-option=option6:dns-server,2001:4860:4860::8888,2001:4860:4860::8844
+      domain = "builders.dolphin-emu.org";
 
-      dhcp-range=172.16.42.0,static,12h
-      dhcp-range=2a01:4f8:191:44a:766d::,2a01:4f8:191:44a:766d::ffff,static,80,12h
-      dhcp-authoritative
-      enable-ra
+      dhcp-option = [
+        "option:dns-server,8.8.8.8,8.8.4.4"
+        "option6:dns-server,2001:4860:4860::8888,2001:4860:4860::8844"
+      ];
 
-      dhcp-host=52:54:00:a1:e7:1c,172.16.42.10,win2022
-      dhcp-host=52:54:00:a1:e7:1c,id:*,[2a01:4f8:191:44a:766d::10],win2022
-    '';
+      dhcp-range = [
+        "172.16.42.0,static,12h"
+        "2a01:4f8:191:44a:766d::,2a01:4f8:191:44a:766d::ffff,static,80,12h"
+      ];
+      dhcp-authoritative = true;
+      enable-ra = true;
+
+      dhcp-host = [
+        "52:54:00:a1:e7:1c,172.16.42.10,win2022"
+        "52:54:00:a1:e7:1c,id:*,[2a01:4f8:191:44a:766d::10],win2022"
+      ];
+    };
   };
   networking.firewall.allowedUDPPorts = [ 67 547 ];
 

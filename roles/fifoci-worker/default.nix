@@ -13,7 +13,7 @@ let
   # requires running package hooks to get e.g. the proper PKG_CONFIG_PATH and
   # more.
   fifociShell = let
-    dol = pkgs.dolphinEmuMaster;
+    dol = pkgs.dolphin-emu-beta;
     inputAttrs = [
       "buildInputs"
       "nativeBuildInputs"

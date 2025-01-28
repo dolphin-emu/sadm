@@ -13,6 +13,8 @@ from apiclient import http as googhttp
 from googleapiclient.errors import HttpError
 from oauth2client import service_account
 
+_NUM_RETRIES = 5
+
 _PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher"
 _UPDATE_URL_FMT = "https://dolphin-emu.org/update/latest/%s/"
 _ARTIFACT_ANDROID_SYSTEM = "Android"
@@ -28,7 +30,7 @@ def _get_playstore_service(key_file):
     )
     http = httplib2.Http()
     http = credentials.authorize(http)
-    return discovery.build("androidpublisher", "v3", http=http)
+    return discovery.build("androidpublisher", "v3", http=http, num_retries=_NUM_RETRIES)
 
 
 def _get_dolphin_update_info(track):
@@ -55,9 +57,9 @@ def _fetch_aab_artifact(apk_url, dolphin_track):
 
 
 def _get_playstore_version(play, package_name, playstore_track):
-    edit_id = play.edits().insert(body={}, packageName=package_name).execute()["id"]
+    edit_id = play.edits().insert(body={}, packageName=package_name).execute(num_retries=_NUM_RETRIES)["id"]
     tracks = (
-        play.edits().tracks().list(editId=edit_id, packageName=package_name).execute()
+        play.edits().tracks().list(editId=edit_id, packageName=package_name).execute(num_retries=_NUM_RETRIES)
     )
     for track in tracks["tracks"]:
         if track["track"] != playstore_track:
@@ -67,23 +69,23 @@ def _get_playstore_version(play, package_name, playstore_track):
 
 def _commit_edit(play, edit_id, package_name):
     try:
-        play.edits().commit(editId=edit_id, packageName=package_name).execute()
+        play.edits().commit(editId=edit_id, packageName=package_name).execute(num_retries=_NUM_RETRIES)
     except HttpError as err:
         # If we have an unresolved policy violation in Google Play, we're allowed to use the API to
         # upload builds but not to send them off for review
         if err.resp.status == 400 and err._get_reason() == _REVIEW_NOT_ALLOWED:
-            play.edits().commit(editId=edit_id, packageName=package_name, changesNotSentForReview='true').execute()
+            play.edits().commit(editId=edit_id, packageName=package_name, changesNotSentForReview='true').execute(num_retries=_NUM_RETRIES)
         else:
             raise
 
 
 def _find_or_upload_aab(play, package_name, aab):
-    edit_id = play.edits().insert(body={}, packageName=package_name).execute()["id"]
+    edit_id = play.edits().insert(body={}, packageName=package_name).execute(num_retries=_NUM_RETRIES)["id"]
     play_aabs = (
         play.edits()
         .bundles()
         .list(editId=edit_id, packageName=args.package_name)
-        .execute()["bundles"]
+        .execute(num_retries=_NUM_RETRIES)["bundles"]
     )
 
     aab_sha256 = hashlib.sha256(aab).hexdigest()
@@ -100,19 +102,19 @@ def _find_or_upload_aab(play, package_name, aab):
             packageName=package_name,
             media_body=googhttp.MediaIoBaseUpload(aab, mimetype=_AAB_MIME),
         )
-        .execute()
+        .execute(num_retries=_NUM_RETRIES)
     )
     _commit_edit(play, edit_id, package_name)
     return upload_response["versionCode"]
 
 
 def _find_or_upload_apk(play, package_name, apk):
-    edit_id = play.edits().insert(body={}, packageName=package_name).execute()["id"]
+    edit_id = play.edits().insert(body={}, packageName=package_name).execute(num_retries=_NUM_RETRIES)["id"]
     play_apks = (
         play.edits()
         .apks()
         .list(editId=edit_id, packageName=args.package_name)
-        .execute()["apks"]
+        .execute(num_retries=_NUM_RETRIES)["apks"]
     )
 
     apk_sha256 = hashlib.sha256(apk).hexdigest()
@@ -129,14 +131,14 @@ def _find_or_upload_apk(play, package_name, apk):
             packageName=package_name,
             media_body=googhttp.MediaIoBaseUpload(apk, mimetype=_APK_MIME),
         )
-        .execute()
+        .execute(num_retries=_NUM_RETRIES)
     )
     _commit_edit(play, edit_id, package_name)
     return upload_response["versionCode"]
 
 
 def _update_playstore_track(play, package_name, playstore_track, version_code, info):
-    edit_id = play.edits().insert(body={}, packageName=package_name).execute()["id"]
+    edit_id = play.edits().insert(body={}, packageName=package_name).execute(num_retries=_NUM_RETRIES)["id"]
     track_response = (
         play.edits()
         .tracks()
@@ -154,7 +156,7 @@ def _update_playstore_track(play, package_name, playstore_track, version_code, i
                 ]
             },
         )
-        .execute()
+        .execute(num_retries=_NUM_RETRIES)
     )
     _commit_edit(play, edit_id, package_name)
 
@@ -182,7 +184,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     edit_id = (
-        play.edits().insert(body={}, packageName=args.package_name).execute()["id"]
+        play.edits().insert(body={}, packageName=args.package_name).execute(num_retries=_NUM_RETRIES)["id"]
     )
 
     for artifact in latest_dolphin_info["artifacts"]:

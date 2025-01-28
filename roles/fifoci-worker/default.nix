@@ -90,7 +90,7 @@ in {
   config = lib.mkIf cfg.enable {
     age.secrets.container-builder-env.file = ../../secrets/container-builder-env.age;
 
-    hardware.opengl.enable = true;
+    hardware.graphics.enable = true;
 
     systemd.tmpfiles.rules = [
       "d '${homeDir}' 0750 ${user} ${group} - -"

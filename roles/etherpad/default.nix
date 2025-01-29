@@ -118,6 +118,8 @@ in {
         User = "etherpad";
         Group = "etherpad";
         WorkingDirectory = stateDir;
+        Restart = "on-failure";
+        RestartSec = 3;
       };
 
       preStart = ''

@@ -12,6 +12,7 @@ from apiclient import discovery
 from apiclient import http as googhttp
 from googleapiclient.errors import HttpError
 from oauth2client import service_account
+from requests.adapters import HTTPAdapter
 
 _NUM_RETRIES = 5
 
@@ -33,11 +34,11 @@ def _get_playstore_service(key_file):
     return discovery.build("androidpublisher", "v3", http=http, num_retries=_NUM_RETRIES)
 
 
-def _get_dolphin_update_info(track):
-    return requests.get(_UPDATE_URL_FMT % track).json()
+def _get_dolphin_update_info(session, track):
+    return session.get(_UPDATE_URL_FMT % track).json()
 
 
-def _fetch_aab_artifact(apk_url, dolphin_track):
+def _fetch_aab_artifact(session, apk_url, dolphin_track):
     # AABs are not currently registered as artifacts on the website, since it does not support
     # the concept of "hidden" artifacts - all artifacts are user visible. On dev builds, hack
     # around to find the URL for an AAB from the APK url. This needs duplication of the sharded
@@ -50,7 +51,7 @@ def _fetch_aab_artifact(apk_url, dolphin_track):
         sha = hashlib.sha256(filename.encode("utf-8")).hexdigest()
         aab_url = "/".join((url_base, sha[0:2], sha[2:4], filename))
 
-    resp = requests.get(aab_url)
+    resp = session.get(aab_url)
     if resp.status_code != 200:
         return None
     return resp.content
@@ -169,9 +170,12 @@ if __name__ == "__main__":
     parser.add_argument("--service_key_file", type=str, required=True)
     args = parser.parse_args()
 
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=_NUM_RETRIES))
+
     play = _get_playstore_service(args.service_key_file)
 
-    latest_dolphin_info = _get_dolphin_update_info(args.dolphin_track)
+    latest_dolphin_info = _get_dolphin_update_info(session, args.dolphin_track)
     playstore_version = _get_playstore_version(
         play, args.package_name, args.playstore_track
     )
@@ -195,11 +199,11 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Try fetching an AAB first for the artifact, if not found fallback to APK.
-    aab = _fetch_aab_artifact(artifact["url"], args.dolphin_track)
+    aab = _fetch_aab_artifact(session, artifact["url"], args.dolphin_track)
     if aab is not None:
         version_code = _find_or_upload_aab(play, args.package_name, aab)
     else:
-        apk = requests.get(artifact["url"]).content
+        apk = session.get(artifact["url"]).content
         version_code = _find_or_upload_apk(play, args.package_name, apk)
 
     _update_playstore_track(

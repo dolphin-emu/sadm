@@ -34,7 +34,12 @@ in {
 
       database.type = "postgresql";
 
-      settings.production.email_delivery.delivery_method = "sendmail";
+      settings.production.email_delivery = {
+        delivery_method = ":sendmail";
+        sendmail_settings = {
+          location = "/run/wrappers/bin/sendmail";
+        };
+      };
 
       plugins = {
         redmine_webhook = pkgs.fetchFromGitHub {
@@ -52,17 +57,6 @@ in {
         };
       };
     };
-
-    # Redmine strongly insists that sendmail should be at /usr/sbin/sendmail
-    # and nowhere else.
-    systemd.services.redmine.serviceConfig.BindPaths = let
-      fakeSbin = pkgs.runCommand "fake-sbin" {} ''
-        mkdir $out
-        ln -s /run/wrappers/bin/sendmail $out/sendmail
-      '';
-    in [
-      "${fakeSbin}:/usr/sbin"
-    ];
 
     # Limit the maximum memory usage.
     systemd.services.redmine.serviceConfig.MemoryMax = "4G";

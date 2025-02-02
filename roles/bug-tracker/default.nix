@@ -58,6 +58,10 @@ in {
       };
     };
 
+    # Disable NoNewPrivileges, as it prevents setuid/setgid bits from working.
+    # The nullmailer sendmail wrappers needs those to write to /var/spool/nullmailer.
+    systemd.services.redmine.serviceConfig.NoNewPrivileges = lib.mkForce false;
+
     # Limit the maximum memory usage.
     systemd.services.redmine.serviceConfig.MemoryMax = "4G";
 

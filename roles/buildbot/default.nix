@@ -30,6 +30,7 @@ let
       install -m755 $src/send_build.py $out/bin
 
       install -m644 $src/buildbot.tac $out/lib
+      install -m644 $src/flatpak_linter_exceptions.json $out/lib
       install -m644 $src/master.cfg $out/lib
 
       patchShebangs $out/bin
@@ -121,6 +122,7 @@ in {
         STEAM_ACCOUNT_PASSWORD_PATH = config.age.secrets.buildbot-steam-password.path;
         UPDATE_SIGNING_KEY_PATH = config.age.secrets.update-signing-key.path;
         WORKERS_PASSWORDS_PATH = config.age.secrets.buildbot-workers-passwords.path;
+        FLATPAK_LINTER_EXCEPTIONS_PATH = "${buildbotScripts}/lib/flatpak_linter_exceptions.json";
       };
 
       serviceConfig = {

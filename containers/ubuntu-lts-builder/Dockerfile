@@ -15,8 +15,15 @@ RUN apt install -y \
 # Android build dependencies
 RUN apt install -y openjdk-11-jdk-headless openjdk-17-jdk-headless
 
+# Linting dependencies
+RUN echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" > /etc/apt/sources.list.d/llvm.list && \
+    wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key > /etc/apt/trusted.gpg.d/apt.llvm.org.asc && \
+    apt update && \
+    apt install -y clang-format-19
+
 # Buildbot worker dependencies
-RUN apt install -y ninja-build buildbot-worker clang-format-12 clang-format-13
+RUN apt install -y ninja-build buildbot-worker
 
 # Android Studio setup (for Java linting)
 RUN cd / && \

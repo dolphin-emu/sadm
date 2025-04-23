@@ -20,7 +20,7 @@ RUN apt install -y ninja-build buildbot-worker clang-format-12 clang-format-13
 
 # Android Studio setup (for Java linting)
 RUN cd / && \
-  wget https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2022.1.1.1/android-studio-2022.1.1.1-linux.tar.gz -O android-studio.tar.gz && \
+  wget https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.3.1.15/android-studio-2024.3.1.15-linux.tar.gz -O android-studio.tar.gz && \
   tar xf android-studio.tar.gz && \
   rm android-studio.tar.gz
 
@@ -28,13 +28,13 @@ ENV ANDROID_STUDIO_ROOT=/android-studio
 
 # Android CLI setup and NDK.
 RUN mkdir -p /Android/cmdline-tools && cd /Android/cmdline-tools && \
-  wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O android-cli.zip && \
+  wget https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip -O android-cli.zip && \
   unzip android-cli.zip && \
   mv cmdline-tools latest && \
   rm android-cli.zip
 RUN yes | /Android/cmdline-tools/latest/bin/sdkmanager --licenses
 RUN /Android/cmdline-tools/latest/bin/sdkmanager --install 'cmake;3.22.1'
-RUN /Android/cmdline-tools/latest/bin/sdkmanager --install 'ndk;25.2.9519653'
+RUN /Android/cmdline-tools/latest/bin/sdkmanager --install 'ndk;27.0.12077973'
 
 ENV ANDROID_HOME=/Android
 

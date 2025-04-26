@@ -1,3 +1,25 @@
+FROM ubuntu:24.04 as cf-build
+
+RUN apt update
+
+# Build dependencies for LLVM - we need an outdated GCC as newer ones have problems
+# when compiling an LLVM version this out of date
+RUN apt install -y build-essential gcc-9 g++-9 python3 cmake ninja-build wget
+
+RUN mkdir /work && \
+  cd /work && \
+  wget https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/llvm-13.0.1.src.tar.xz -O llvm.tar.xz && \
+  tar xf llvm.tar.xz && \
+  mv llvm-13.0.1.src llvm && \
+  wget https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/clang-13.0.1.src.tar.xz -O clang.tar.xz && \
+  tar xf clang.tar.xz && \
+  mv clang-13.0.1.src clang
+
+RUN mkdir -p /work/llvm/build && \
+  cd /work/llvm/build && \
+  cmake .. -G Ninja -DCMAKE_BUILD_TYPE="Release" -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_C_COMPILER="gcc-9" -DCMAKE_CXX_COMPILER="g++-9" -DLLVM_ENABLE_PROJECTS="clang" && \
+  ninja clang-format
+
 FROM ubuntu:24.04
 
 RUN apt update
@@ -16,7 +38,10 @@ RUN apt install -y \
 RUN apt install -y openjdk-11-jdk-headless openjdk-17-jdk-headless
 
 # Buildbot worker dependencies
-RUN apt install -y ninja-build buildbot-worker clang-format-12 clang-format-13
+RUN apt install -y ninja-build buildbot-worker clang-format-19
+
+# clang-format-13 from the previous stage
+COPY --from=cf-build /work/llvm/build/bin/clang-format /usr/local/bin/clang-format-13
 
 # Android Studio setup (for Java linting)
 RUN cd / && \

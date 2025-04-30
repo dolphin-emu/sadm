@@ -69,6 +69,11 @@ let
       hook_hmac_secret = "!FileInclude ${config.age.secrets.gh-hook-hmac.path}";
 
       rebuild_command = "@dolphin-emu-bot rebuild";
+      
+      required_commits = {
+        # Merge commit for PR 13436: "Update clang-format to version 19"
+        "dolphin-emu/dolphin" = "0b0151770a2a087063775e654e1b6208033a9c21";
+      };
     };
 
     buildbot = {

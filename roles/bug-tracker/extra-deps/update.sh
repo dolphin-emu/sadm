@@ -21,6 +21,8 @@ redmineGemfile=$($redmineRuby -e "print ENV['BUNDLE_GEMFILE']")
 
 cat $redmineGemfile Gemfile > Gemfile.combined
 
+sed -i "s/< 3\.3\.0/< 3.3.99/" Gemfile.combined
+
 BUNDLE_GEMFILE=Gemfile.combined bundle lock --add-platform ruby
 BUNDLE_GEMFILE=Gemfile.combined bundle lock --remove-platform x86_64-linux
 bundix -l --gemfile=Gemfile.combined --lockfile=Gemfile.combined.lock

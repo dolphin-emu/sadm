@@ -4,6 +4,8 @@ let
   cfg = config.my.roles.fifoci-frontend;
   pkg = pkgs.fifoci-frontend;
   port = 8041;
+  anubisPort = 8043;
+  anubisMetricsPort = 8044;
 
   user = "fifoci-frontend";
   group = "fifoci-frontend";
@@ -88,6 +90,59 @@ in {
       ];
     };
 
+    services.anubis.instances.fifoci-frontend = {
+      settings = {
+        TARGET = "http://localhost:${toString port}";
+        BIND = "127.0.0.1:${toString anubisPort}";
+        BIND_NETWORK = "tcp";
+        METRICS_BIND = "127.0.0.1:${toString anubisMetricsPort}";
+        METRICS_BIND_NETWORK = "tcp";
+        POLICY_FNAME = pkgs.writeText "botPolicies.yaml"
+        ''
+          bots:
+          # Pathological bots to deny
+          - import: (data)/bots/_deny-pathological.yaml
+          - import: (data)/bots/aggressive-brazilian-scrapers.yaml
+
+          # Allow common "keeping the internet working" routes (well-known, favicon, robots.txt)
+          - import: (data)/common/keep-internet-working.yaml
+
+          # FifoCI API
+          - name: api-dff
+            path_regex: ^/dff
+            action: ALLOW
+
+          - name: api-media
+            path_regex: ^/media/dff
+            action: ALLOW
+
+          - name: api-existing-images
+            path_regex: ^/existing-images
+            action: ALLOW
+
+          - name: api-result-import
+            path_regex: ^/result/import
+            action: ALLOW
+
+          # Generic catchall rule
+          - name: generic-browser
+            user_agent_regex: >-
+              Mozilla|Opera
+            action: CHALLENGE
+
+          dnsbl: false
+
+          # By default, send HTTP 200 back to clients that either get issued a challenge
+          # or a denial. This seems weird, but this is load-bearing due to the fact that
+          # the most aggressive scraper bots seem to really, really, want an HTTP 200 and
+          # will stop sending requests once they get it.
+          status_codes:
+            CHALLENGE: 200
+            DENY: 200
+        '';
+      };
+    };
+
     users.users."${user}" = {
       inherit group;
       home = stateDir;
@@ -98,7 +153,7 @@ in {
 
     my.http.vhosts."fifoci.dolphin-emu.org".redirect = "https://fifo.ci";
     my.http.vhosts."${domain}".cfg = {
-      locations."/".proxyPass = "http://localhost:${toString port}";
+      locations."/".proxyPass = "http://localhost:${toString anubisPort}";
 
       locations."/media/".alias = mediaDir + "/";
       locations."/media/".extraConfig = "expires 30d;";

@@ -3,6 +3,8 @@
 let
   cfg = config.my.roles.bug-tracker;
   port = 8038;
+  anubisPort = 8045;
+  anubisMetricsPort = 8046;
 
   # redmine_webhook requires an extra Ruby dependency which is not provided in
   # the default environment for the Redmine package.
@@ -69,6 +71,47 @@ in {
     systemd.services.redmine.serviceConfig.Restart = "always";
     systemd.services.redmine.serviceConfig.RestartSec = 10;
 
-    my.http.vhosts."bugs.dolphin-emu.org".proxyLocalPort = port;
+    services.anubis.instances.redmine = {
+      settings = {
+        TARGET = "http://localhost:${toString port}";
+        BIND = "127.0.0.1:${toString anubisPort}";
+        BIND_NETWORK = "tcp";
+        METRICS_BIND = "127.0.0.1:${toString anubisMetricsPort}";
+        METRICS_BIND_NETWORK = "tcp";
+        POLICY_FNAME = pkgs.writeText "botPolicies.yaml"
+        ''
+          bots:
+          # Pathological bots to deny
+          - import: (data)/bots/_deny-pathological.yaml
+          - import: (data)/bots/aggressive-brazilian-scrapers.yaml
+
+          # Search engine crawlers to allow
+          - import: (data)/crawlers/_allow-good.yaml
+
+          # Allow common "keeping the internet working" routes (well-known, favicon, robots.txt)
+          - import: (data)/common/keep-internet-working.yaml
+
+          # Bots triggered by user-initiated actions
+          - name: user-triggered-bots
+            user_agent_regex: >-
+              (?:ChatGPT-User|Claude-Web|OAI-SearchBot|Perplexity-User|Applebot)
+            action: ALLOW
+
+          # Generic catchall rule
+          - name: generic-browser
+            user_agent_regex: >-
+              Mozilla|Opera
+            action: CHALLENGE
+
+          dnsbl: false
+
+          status_codes:
+            CHALLENGE: 200
+            DENY: 200
+        '';
+      };
+    };
+
+    my.http.vhosts."bugs.dolphin-emu.org".proxyLocalPort = anubisPort;
   };
 }

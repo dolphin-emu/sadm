@@ -82,7 +82,7 @@ let
   ]);
 
   fifociEnvPackages = with pkgs; [
-    bash ccache ffmpeg git imagemagick ninja poetry
+    bash ccache ffmpeg git imagemagick ninja uv
   ];
 in {
   options.my.roles.fifoci-worker.enable = lib.mkEnableOption "FifoCI worker";

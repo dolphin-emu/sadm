@@ -6,24 +6,32 @@
   inputs.agenix.url = "github:ryantm/agenix";
   inputs.agenix.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.poetry2nix.url = "github:nix-community/poetry2nix";
-  inputs.poetry2nix.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.uv2nix.url = "github:pyproject-nix/uv2nix";
+  inputs.uv2nix.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.uv2nix.inputs.pyproject-nix.follows = "pyproject-nix";
+
+  inputs.pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
+  inputs.pyproject-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+  inputs.pyproject-build-systems.url = "github:pyproject-nix/build-system-pkgs";
+  inputs.pyproject-build-systems.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.pyproject-build-systems.inputs.pyproject-nix.follows = "pyproject-nix";
 
   inputs.analytics-ingest.url = "github:dolphin-emu/analytics-ingest";
   inputs.analytics-ingest.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.analytics-ingest.inputs.poetry2nix.follows = "poetry2nix";
+  inputs.analytics-ingest.inputs.uv2nix.follows = "uv2nix";
 
   inputs.central.url = "github:dolphin-emu/central";
   inputs.central.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.central.inputs.poetry2nix.follows = "poetry2nix";
+  inputs.central.inputs.uv2nix.follows = "uv2nix";
 
   inputs.fifoci.url = "github:dolphin-emu/fifoci";
   inputs.fifoci.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.fifoci.inputs.poetry2nix.follows = "poetry2nix";
+  inputs.fifoci.inputs.uv2nix.follows = "uv2nix";
 
   inputs.netplay-index.url = "github:dolphin-emu/netplay-index";
   inputs.netplay-index.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.netplay-index.inputs.poetry2nix.follows = "poetry2nix";
+  inputs.netplay-index.inputs.uv2nix.follows = "uv2nix";
 
   inputs.cargo2nix.url = "github:cargo2nix/cargo2nix/main";
   inputs.cargo2nix.inputs.nixpkgs.follows = "nixpkgs";

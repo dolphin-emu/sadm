@@ -161,11 +161,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1755833611,
-        "narHash": "sha256-Fxs5uJWdKItpO3LklaNxTX4SkPn9dflIHGZKARbBTkY=",
+        "lastModified": 1755836075,
+        "narHash": "sha256-XG70unR1uJt7UGGLXu6N8Jq9IX5/3TS659Sek5BebLE=",
         "owner": "dolphin-emu",
         "repo": "fifoci",
-        "rev": "de3a413feaaa282fbc7813599cb7ae50afc0670c",
+        "rev": "726901a804056aacac90a9aa8ac6502fc320aa3a",
         "type": "github"
       },
       "original": {

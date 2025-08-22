@@ -34,7 +34,7 @@ in {
       serviceConfig = {
         Type = "notify";
         DynamicUser = true;
-        ExecStart = "${pkg.dependencyEnv}/bin/gunicorn analytics_ingest.__main__:app";
+        ExecStart = "${pkg}/bin/gunicorn analytics_ingest.__main__:app";
 
         # clickhouse does not properly use sd-notify to report successful
         # startup. In case we fail due to not being able to connect at startup,

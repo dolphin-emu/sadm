@@ -67,7 +67,7 @@ in {
         Group = group;
         WorkingDirectory = stateDir;
 
-        ExecStart = "${pkg.dependencyEnv}/bin/gunicorn --workers 8 fifoci.frontend.wsgi";
+        ExecStart = "${pkg}/bin/gunicorn --workers 8 fifoci.frontend.wsgi";
       };
 
       preStart = ''

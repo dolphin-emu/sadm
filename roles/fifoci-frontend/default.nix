@@ -125,9 +125,8 @@ in {
             action: ALLOW
 
           # Generic catchall rule
-          - name: generic-browser
-            user_agent_regex: >-
-              Mozilla|Opera
+          - name: catch-all-challenge
+            path_regex: .*
             action: CHALLENGE
 
           dnsbl: false

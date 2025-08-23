@@ -64,17 +64,17 @@ let
   pkg = pkgs.rustPlatform.buildRustPackage rec {
     pname = "flat-manager";
     
-    # Latest commit as of 10/27/2024.
-    version = "7eb09a191918c09b767df86f5178760bc83135e6";
+    # Latest release as of 08/21/2025.
+    version = "0.4.6";
 
     src = pkgs.fetchFromGitHub {
       owner = "flatpak";
       repo = pname;
       rev = version;
-      hash = "sha256-MGsxXY7PXUOTha+8lwr9HYdM4dDMA4wpqhbMleZPtX4=";
+      hash = "sha256-xPEVYR4y95NtTJB42LZE5R5lDE6HcBhmxYvC0nHWIDo=";
     };
 
-    cargoHash = "sha256-n23A6e9cSGWbdukX4MiOvBkiaiZwZcO2wsrTeYrKqJo=";
+    cargoHash = "sha256-zvMlYbxpbM/8OEC7s/XSuzOG+BpgyHd6D+gvUFPxMGk=";
 
     nativeBuildInputs = [ pkgs.pkg-config ];
 

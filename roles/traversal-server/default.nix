@@ -8,26 +8,19 @@ let
   pkg = pkgs.dolphin-emu.overrideAttrs (final: prev: {
     pname = "traversal-server";
 
-    version = "2412";
+    version = "2503a";
 
     src = pkgs.fetchFromGitHub {
       owner = "dolphin-emu";
       repo = "dolphin";
-      rev = "refs/tags/2412";
-      sha256 = "sha256-5Eir8EQPGVSg2QXzzuHH9lf7CrV76KwmRsHiDqs6tD4=";
+      rev = "refs/tags/2503a";
+      sha256 = "sha256-vhXiEgJO8sEv937Ed87LaS7289PLZlxQGFTZGFjs1So=";
       fetchSubmodules = true;
     };
 
     cmakeFlags = (prev.cmakeFlags or []) ++ [ "-DENABLE_QT=OFF" ];
 
     makeFlags = (prev.makeFlags or []) ++ [ "traversal_server" ];
-
-    # We need to use Dolphin-provided enet, as we use some features that haven't made it into a release yet.
-    # Based on PR 12343 (https://github.com/dolphin-emu/dolphin/pull/12343/).
-    postPatch = ''
-      substituteInPlace CMakeLists.txt \
-        --replace "libenet>=1.3.8" "libenet>=1.3.18"
-    '';
 
     installPhase = ''
       mkdir -p $out/bin

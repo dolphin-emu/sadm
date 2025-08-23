@@ -97,6 +97,18 @@ in {
               (?:ChatGPT-User|Claude-Web|OAI-SearchBot|Perplexity-User|Applebot)
             action: ALLOW
 
+          - name: account-creation
+            path_regex: ^/account/register
+            action: CHALLENGE
+
+          - name: login
+            path_regex: ^/login
+            action: CHALLENGE
+
+          - name: new-issue
+            path_regex: issues/new$
+            action: CHALLENGE
+
           # Generic catchall rule
           - name: generic-browser
             user_agent_regex: >-

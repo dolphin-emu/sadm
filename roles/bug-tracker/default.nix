@@ -45,10 +45,10 @@ in {
 
       plugins = {
         redmine_webhook = pkgs.fetchFromGitHub {
-          owner = "suer";
+          owner = "dolphin-emu";
           repo = "redmine_webhook";
-          rev = "5bc9a84a3bf3a5c51a1ddff498aa79c8ac64a1aa";
-          hash = "sha256-fLd18gSmBtrcV9Mg8OU1auifSHYQwu4V8zH3sANBM5w=";
+          rev = "5dd77474d8243b49ff7a7d0c42779f51cb839a79";
+          hash = "sha256-yHUT+f+lGj8GplGZCZ+66HY47epSk88u1jIZ+6/zARA=";
         };
 
         redmine_issue_templates = pkgs.fetchFromGitHub {

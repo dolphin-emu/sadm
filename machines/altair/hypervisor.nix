@@ -54,6 +54,13 @@
   };
   networking.firewall.allowedUDPPorts = [ 67 547 3389 ];
   networking.firewall.allowedTCPPorts = [ 3389 ];
+  networking.firewall = {
+    checkReversePath = "loose";
+    extraCommands = ''
+      ip6tables -I FORWARD 1 -i enp41s0 -o br-guests -d 2a01:4f8:191:44a:766d::/80 -j ACCEPT
+      ip6tables -I FORWARD 2 -i br-guests -o enp41s0 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    '';
+  };
 
   systemd.services.guest-win2022 = {
     after = [ "libvirtd.service" ];

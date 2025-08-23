@@ -52,7 +52,8 @@
       ];
     };
   };
-  networking.firewall.allowedUDPPorts = [ 67 547 ];
+  networking.firewall.allowedUDPPorts = [ 67 547 3389 ];
+  networking.firewall.allowedTCPPorts = [ 3389 ];
 
   systemd.services.guest-win2022 = {
     after = [ "libvirtd.service" ];

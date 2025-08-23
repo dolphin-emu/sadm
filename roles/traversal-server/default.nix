@@ -5,7 +5,7 @@ let
   port = 6262;  # UDP
   portAlt = 6226;  # UDP
 
-  pkg = pkgs.dolphin-emu-beta.overrideAttrs (final: prev: {
+  pkg = pkgs.dolphin-emu.overrideAttrs (final: prev: {
     pname = "traversal-server";
 
     version = "2412";

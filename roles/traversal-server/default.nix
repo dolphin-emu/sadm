@@ -28,6 +28,8 @@ let
     '';
 
     patches = (lib.drop 1 prev.patches or []);
+
+    preConfigure = "";
   });
 in {
   options.my.roles.traversal-server.enable = lib.mkEnableOption "Netplay Traversal server";

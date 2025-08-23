@@ -54,8 +54,8 @@ in {
         redmine_issue_templates = pkgs.fetchFromGitHub {
           owner = "agileware-jp";
           repo = "redmine_issue_templates";
-          rev = "80c9ebfb4ab882a3c2c1072a364a8cfa29ec80d4";
-          hash = "sha256-VHXed2P+Etq81UiQBzXA1FAXucYi1sm+xm2LIV+rshY=";
+          rev = "18b8b3195cbf43ae3f08ae60c3c3dc762eefe883";
+          hash = "sha256-WyIL+2UYKg7KjVua7uvNnG9dM7neTJoDR5SqbH48KKo=";
         };
       };
     };

@@ -20,9 +20,6 @@ let
       patchedRubyEnv
       patchedRubyEnv.wrappedRuby
     ];
-
-    # As of redmine 5.1.5, these are CVE-2024-54133 and GHSA-r95h-9x8f-r3f7.
-    meta.knownVulnerabilities = [];
   });
 in {
   options.my.roles.bug-tracker.enable = lib.mkEnableOption "bugs.dolphin-emu.org tracker";

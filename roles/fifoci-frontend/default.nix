@@ -107,6 +107,9 @@ in {
           # Allow common "keeping the internet working" routes (well-known, favicon, robots.txt)
           - import: (data)/common/keep-internet-working.yaml
 
+          # Aggressively block AI/LLM related bots/agents by default
+          - import: (data)/meta/ai-block-aggressive.yaml
+
           # FifoCI API
           - name: api-dff
             path_regex: ^/dff

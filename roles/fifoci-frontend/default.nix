@@ -126,6 +126,10 @@ in {
           - name: api-result-import
             path_regex: ^/result/import
             action: ALLOW
+          
+          - name: api-version-json
+            path_regex: ^/version/.*/json
+            action: ALLOW
 
           # Generic catchall rule
           - name: catch-all-challenge

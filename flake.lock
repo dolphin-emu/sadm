@@ -86,11 +86,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1755832777,
-        "narHash": "sha256-xE9G6XT16k2C22j6AmVqENjVXxG6skTqTRqeyDo/DlY=",
+        "lastModified": 1756183578,
+        "narHash": "sha256-txT1KAZkBOQxOfeX9Eo3KzRxvHPfjZhaKOTq5iwgbnE=",
         "owner": "dolphin-emu",
         "repo": "central",
-        "rev": "bac1cc85c17251bcd0b8ad2d868feb7fb462d6df",
+        "rev": "50c29d4df0f25e5f41903b7255267a02c5a66e53",
         "type": "github"
       },
       "original": {

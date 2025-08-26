@@ -97,6 +97,7 @@ in {
         BIND_NETWORK = "tcp";
         METRICS_BIND = "127.0.0.1:${toString anubisMetricsPort}";
         METRICS_BIND_NETWORK = "tcp";
+        SERVE_ROBOTS_TXT = true;
         POLICY_FNAME = pkgs.writeText "botPolicies.yaml"
         ''
           bots:

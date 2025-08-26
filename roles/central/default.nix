@@ -71,8 +71,8 @@ let
       rebuild_command = "@dolphin-emu-bot rebuild";
       
       required_commits = {
-        # Merge commit for PR 13436: "Update clang-format to version 19"
-        "dolphin-emu/dolphin" = "0b0151770a2a087063775e654e1b6208033a9c21";
+        # Merge commit for PR 13881: "FloatUtils: Replace quieting SNaNs via `0.0 + x` with MakeQuiet"
+        "dolphin-emu/dolphin" = "52806b3dc82954bf222166d5870e0d8825c977d9";
       };
     };
 

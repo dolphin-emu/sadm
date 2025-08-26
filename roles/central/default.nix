@@ -100,6 +100,7 @@ let
       fifoci_builders = [
         "pr-fifoci-ogl-lin-mesa"
         "pr-fifoci-sw-lin-mesa"
+        "pr-fifoci-vk-lin-mesa"
         "pr-fifoci-mvk-osx-m1"
         "pr-fifoci-mtl-osx-m1"
       ];

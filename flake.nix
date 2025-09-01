@@ -36,7 +36,7 @@
   inputs.cargo2nix.url = "github:cargo2nix/cargo2nix/main";
   inputs.cargo2nix.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.rust-overlay.url = "github:oxalica/rust-overlay/1efb03f2f794ad5eed17e807e858c4da001dbc3e";
+  inputs.rust-overlay.url = "github:oxalica/rust-overlay";
   inputs.rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
   inputs.discord-bot.url = "github:dolphin-emu/discord-bot";

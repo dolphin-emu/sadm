@@ -102,10 +102,6 @@ in {
             path_regex: ^/login
             action: CHALLENGE
 
-          - name: new-issue
-            path_regex: issues/new$
-            action: CHALLENGE
-
           # Generic catchall rule
           - name: generic-browser
             user_agent_regex: >-

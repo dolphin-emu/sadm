@@ -1,5 +1,7 @@
 {
     "org.DolphinEmu.dolphin-emu": [
-        "external-gitmodule-url-found"
+        "external-gitmodule-url-found",
+        "appstream-remote-icon-not-mirrored",
+        "appstream-external-screenshot-url"
     ]
 }

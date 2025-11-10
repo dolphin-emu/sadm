@@ -15,6 +15,7 @@ let
   ];
 
   allFiles = [
+    "alerts-dashboard-htpassword.age"
     "alerts-smtp-password.age"
     "android-keystore.age"
     "android-keystore-pass.age"

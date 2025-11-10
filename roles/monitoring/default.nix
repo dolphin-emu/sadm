@@ -56,6 +56,11 @@ in {
   config = lib.mkIf cfg.enable {
     age.secrets.alerts-smtp-password.file = ../../secrets/alerts-smtp-password.age;
 
+    age.secrets.alerts-dashboard-htpassword = {
+      file = ../../secrets/alerts-dashboard-htpassword.age;
+      owner = "nginx";
+    };
+
     age.secrets.grafana-admin-password = {
       file = ../../secrets/grafana-admin-password.age;
       owner = "grafana";
@@ -158,7 +163,16 @@ in {
         proxyWebsockets = true;
       };
     };
-    my.http.vhosts."alerts.dolphin-emu.org".proxyLocalPort = alertmanagerPort;
+    my.http.vhosts."alerts.dolphin-emu.org".cfg = {
+      locations."/" = {
+         proxyPass = "http://127.0.0.1:${toString alertmanagerPort}";
+         extraConfig = ''
+          client_max_body_size 0;
+          auth_basic "alerts.dolphin-emu.org";
+          auth_basic_user_file "${config.age.secrets.alerts-dashboard-htpassword.path}";
+         '';
+      };
+    };
 
     my.monitoring.targets.http-2xx = {
       metricsPath = "/probe";

@@ -56,6 +56,7 @@ let
     "nas-credentials.age"
     "oci-registry-htpasswd.age"
     "oci-registry-password.age"
+    "prometheus-dashboard-htpassword.age"
     "update-signing-key.age"
     "wiki-bot-password.age"
   ];

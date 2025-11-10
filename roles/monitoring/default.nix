@@ -71,6 +71,11 @@ in {
       owner = "grafana";
     };
 
+    age.secrets.prometheus-dashboard-htpassword = {
+      file = ../../secrets/prometheus-dashboard-htpassword.age;
+      owner = "nginx";
+    };
+
     services.prometheus = rec {
       enable = true;
 
@@ -151,7 +156,16 @@ in {
       declarativePlugins = [ grafana-clickhouse-datasource ];
     };
 
-    my.http.vhosts."prom.dolphin-emu.org".proxyLocalPort = promPort;
+    my.http.vhosts."prom.dolphin-emu.org".cfg = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${toString promPort}";
+        extraConfig = ''
+          client_max_body_size 0;
+          auth_basic "prom.dolphin-emu.org";
+          auth_basic_user_file "${config.age.secrets.prometheus-dashboard-htpassword.path}";
+         '';
+      };
+    };
     my.http.vhosts."mon.dolphin-emu.org".cfg = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString grafanaPort}";

@@ -37,6 +37,7 @@ in {
       extraOptions = [
         "--device=/dev/kvm"
         "--cpus=4"
+        "--shm-size=256m"
       ];
     };
   };

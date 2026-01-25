@@ -9,6 +9,10 @@ let
     version = "0.0.1";
     src = ./.;
     vendorHash = null;
+
+    postInstall = ''
+      cp README.md $out/README.md
+    '';
   };
 in {
   options.my.roles.redirector.enable = lib.mkEnableOption "dolp.in redirector";

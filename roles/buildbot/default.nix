@@ -89,6 +89,9 @@ in {
             hash = "sha256-bz2Nv2RZ44i1VoPvQ/XjGMfTT6TmW6jhEVwItPk23SM=";
           };
 
+          pyproject = true;
+          build-system = [ p.setuptools ];
+
           propagatedBuildInputs = [ pkgs.buildbot p.prometheus-client p.twisted ];
 
           doCheck = false;

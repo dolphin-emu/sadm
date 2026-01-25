@@ -4,11 +4,12 @@ let
   cfg = config.my.roles.redirector;
   port = 8033;
 
-  pkg = pkgs.runCommand "dolp.in-redirector" {} ''
-    mkdir $out
-    GOCACHE=$TMPDIR ${pkgs.go}/bin/go build -o $out/redirector ${./main.go}
-    cp ${./README.md} $out/README.md
-  '';
+  pkg = pkgs.buildGoModule {
+    pname = "dolp.in-redirector";
+    version = "0.0.1";
+    src = ./.;
+    vendorHash = null;
+  };
 in {
   options.my.roles.redirector.enable = lib.mkEnableOption "dolp.in redirector";
 
@@ -22,7 +23,7 @@ in {
         Type = "simple";
         DynamicUser = true;
         WorkingDirectory = "${pkg}";
-        ExecStart = "${pkg}/redirector";
+        ExecStart = "${pkg}/bin/redirector";
       };
     };
 

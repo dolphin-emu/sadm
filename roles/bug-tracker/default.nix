@@ -57,32 +57,6 @@ in {
       };
     };
 
-    # TODO: Remove when nixpkgs PR 483401 reaches nixos-25.11
-    systemd.tmpfiles.rules = lib.mkForce [
-      "d '${config.services.redmine.stateDir}/config' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-      "d '${config.services.redmine.stateDir}/files' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-      "d '${config.services.redmine.stateDir}/log' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-      "d '${config.services.redmine.stateDir}/plugins' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-      "d '${config.services.redmine.stateDir}/public/assets' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-      "d '${config.services.redmine.stateDir}/public/plugin_assets' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-      "d '${config.services.redmine.stateDir}/themes' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-      "d '${config.services.redmine.stateDir}/tmp' 0750 ${config.services.redmine.user} ${config.services.redmine.group} - -"
-    ];
-
-    systemd.services.redmine.preStart = let
-      cfg = config.services.redmine;
-    in lib.mkBefore ''
-      mkdir -p /run/redmine/public
-      ln -sf "${cfg.stateDir}/config" /run/redmine/config
-      ln -sf "${cfg.stateDir}/files" /run/redmine/files
-      ln -sf "${cfg.stateDir}/log" /run/redmine/log
-      ln -sf "${cfg.stateDir}/plugins" /run/redmine/plugins
-      ln -sf "${cfg.stateDir}/public/assets" /run/redmine/public/assets
-      ln -sf "${cfg.stateDir}/public/plugin_assets" /run/redmine/public/plugin_assets
-      ln -sf "${cfg.stateDir}/themes" /run/redmine/themes
-      ln -sf "${cfg.stateDir}/tmp" /run/redmine/tmp
-    '';
-
     # Disable NoNewPrivileges, as it prevents setuid/setgid bits from working.
     # The nullmailer sendmail wrappers needs those to write to /var/spool/nullmailer.
     systemd.services.redmine.serviceConfig.NoNewPrivileges = lib.mkForce false;

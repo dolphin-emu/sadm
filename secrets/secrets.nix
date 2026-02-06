@@ -57,6 +57,7 @@ let
     "oci-registry-htpasswd.age"
     "oci-registry-password.age"
     "prometheus-dashboard-htpassword.age"
+    "redmine-smtp-password.age"
     "update-signing-key.age"
     "wiki-bot-password.age"
   ];

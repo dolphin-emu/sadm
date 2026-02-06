@@ -25,6 +25,11 @@ in {
   options.my.roles.bug-tracker.enable = lib.mkEnableOption "bugs.dolphin-emu.org tracker";
 
   config = lib.mkIf cfg.enable {
+    age.secrets.redmine-smtp-password = {
+      file = ../../secrets/redmine-smtp-password.age;
+      owner = "redmine";
+    };
+
     services.redmine = {
       enable = true;
       inherit port;
@@ -34,9 +39,15 @@ in {
       database.type = "postgresql";
 
       settings.production.email_delivery = {
-        delivery_method = ":sendmail";
-        sendmail_settings = {
-          location = "/run/wrappers/bin/sendmail";
+        delivery_method = ":smtp";
+        smtp_settings = {
+          address = "smtp-dolphin-emu.alwaysdata.net";
+          port = 587;
+          domain = "dolphin-emu.org";
+          user_name = "redmine@dolphin-emu.org";
+          password = "<%= File.read('${config.age.secrets.redmine-smtp-password.path}').strip %>";
+          authentication = ":plain";
+          enable_starttls = true;
         };
       };
 
@@ -56,10 +67,6 @@ in {
         };
       };
     };
-
-    # Disable NoNewPrivileges, as it prevents setuid/setgid bits from working.
-    # The nullmailer sendmail wrappers needs those to write to /var/spool/nullmailer.
-    systemd.services.redmine.serviceConfig.NoNewPrivileges = lib.mkForce false;
 
     # Limit the maximum memory usage.
     systemd.services.redmine.serviceConfig.MemoryMax = "4G";

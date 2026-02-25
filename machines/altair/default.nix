@@ -42,6 +42,7 @@ in {
     bug-tracker.enable = true;
     buildbot.enable = true;
     central.enable = true;
+    chat-bridge.enable = true;
     discord-bot.enable = true;
     etherpad.enable = true;
     fifoci-frontend.enable = true;

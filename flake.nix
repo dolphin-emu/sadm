@@ -25,6 +25,10 @@
   inputs.central.inputs.nixpkgs.follows = "nixpkgs";
   inputs.central.inputs.uv2nix.follows = "uv2nix";
 
+  inputs.chat-bridge.url = "github:dolphin-emu/chat-bridge";
+  inputs.chat-bridge.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.chat-bridge.inputs.uv2nix.follows = "uv2nix";
+
   inputs.fifoci.url = "github:dolphin-emu/fifoci";
   inputs.fifoci.inputs.nixpkgs.follows = "nixpkgs";
   inputs.fifoci.inputs.uv2nix.follows = "uv2nix";
@@ -44,13 +48,14 @@
   inputs.discord-bot.inputs.cargo2nix.follows = "cargo2nix";
   inputs.discord-bot.inputs.rust-overlay.follows = "rust-overlay";
 
-  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, fifoci, netplay-index, discord-bot, ... }@attrs: {
+  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, chat-bridge, fifoci, netplay-index, discord-bot, ... }@attrs: {
     colmena = {
       meta.nixpkgs = import nixpkgs {
         system = "x86_64-linux";
         overlays = [
           analytics-ingest.overlay
           central.overlay
+          chat-bridge.overlay
           fifoci.overlay
           netplay-index.overlay
           discord-bot.overlay

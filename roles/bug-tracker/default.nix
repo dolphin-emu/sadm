@@ -14,6 +14,40 @@ let
     gemdir = ./extra-deps;
     gemfile = ./extra-deps/Gemfile.combined;
     lockfile = ./extra-deps/Gemfile.combined.lock;
+
+    # Taken from: https://github.com/NixOS/nixpkgs/blob/nixos-25.11/pkgs/by-name/re/redmine/package.nix#L32
+    gemConfig = pkgs.defaultGemConfig // {
+      trilogy = attrs: {
+        buildInputs = [ pkgs.openssl ];
+      };
+      commonmarker = attrs: {
+        cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+          inherit (pkgs.buildRubyGem { inherit (attrs) gemName version source; })
+            name
+            src
+            unpackPhase
+            nativeBuildInputs
+            ;
+          hash = "sha256-rUNsf7DUVueD9revOR6Mab36XnVEmjL4bVv6TIMMqjM=";
+        };
+        dontBuild = false;
+        nativeBuildInputs = [
+          pkgs.cargo
+          pkgs.rustc
+          pkgs.rustPlatform.cargoSetupHook
+          pkgs.rustPlatform.bindgenHook
+        ];
+        disallowedReferences = [
+          pkgs.rustc.unwrapped
+        ];
+        preInstall = ''
+          export CARGO_HOME="$PWD/../.cargo/"
+        '';
+        postInstall = ''
+          find $out -type f -name .rustc_info.json -delete
+        '';
+      };
+    };
   };
   redmine-with-extra-deps = pkgs.redmine.overrideAttrs (final: prev: {
     buildInputs = [

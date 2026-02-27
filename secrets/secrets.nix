@@ -34,6 +34,7 @@ let
     "central-change-hook-username.age"
     "central-change-hook-password.age"
     "central-discord-token.age"
+    "central-irc-sasl-password.age"
     "chat-bridge-discord-token.age"
     "chat-bridge-irc-sasl-password.age"
     "container-builder-env.age"

@@ -13,9 +13,11 @@ let
 
     irc = {
       server = "irc.libera.chat";
-      port = 6667;
-      ssl = false;
+      port = 6697;
+      ssl = true;
       nick = "irrawaddy";
+      sasl_username = "irrawaddy";
+      sasl_password = "!FileInclude ${config.age.secrets.central-irc-sasl-password.path}";
       channels = [ "#dolphin-dev" ];
       rebuild_repo = "dolphin-emu/dolphin";
     };
@@ -134,6 +136,10 @@ in {
     };
     age.secrets.central-change-hook-password = {
       file = ../../secrets/central-change-hook-password.age;
+      owner = "central";
+    };
+    age.secrets.central-irc-sasl-password = {
+      file = ../../secrets/central-irc-sasl-password.age;
       owner = "central";
     };
     age.secrets.central-discord-token = {

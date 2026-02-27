@@ -19,12 +19,14 @@ let
       sasl_username = "irrawaddy";
       sasl_password = "!FileInclude ${config.age.secrets.central-irc-sasl-password.path}";
       channels = [ "#dolphin-dev" ];
+      dev_channel = "#dolphin-dev";
       rebuild_repo = "dolphin-emu/dolphin";
     };
 
     discord = {
       token = "!FileInclude ${config.age.secrets.central-discord-token.path}";
       channels = [ 1320992788892094484 ];
+      dev_channel = 822820107788746812;
       privileged_role = 521711927294951439;
     };
 

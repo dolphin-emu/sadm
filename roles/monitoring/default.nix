@@ -7,6 +7,7 @@ let
 
   promPort = 8036;
   grafanaPort = 8037;
+  grafanaAnubisPort = 8047;
   alertmanagerPort = 8040;
 
   scrapeConfigs = lib.mapAttrsToList (job: opts: {
@@ -156,6 +157,41 @@ in {
       declarativePlugins = [ grafana-clickhouse-datasource ];
     };
 
+    services.anubis.instances.grafana = {
+      settings = {
+        TARGET = "http://127.0.0.1:${toString grafanaPort}";
+        BIND = "127.0.0.1:${toString grafanaAnubisPort}";
+        BIND_NETWORK = "tcp";
+        METRICS_BIND = "";
+        METRICS_BIND_NETWORK = "tcp";
+        POLICY_FNAME = pkgs.writeText "botPolicies.yaml"
+        ''
+          bots:
+          # Pathological bots to deny
+          - import: (data)/bots/_deny-pathological.yaml
+          - import: (data)/bots/aggressive-brazilian-scrapers.yaml
+
+          # Aggressively block AI/LLM related bots/agents by default
+          - import: (data)/meta/ai-block-aggressive.yaml
+
+          # Allow common "keeping the internet working" routes (well-known, favicon, robots.txt)
+          - import: (data)/common/keep-internet-working.yaml
+
+          # Generic catchall rule
+          - name: generic-browser
+            user_agent_regex: >-
+              Mozilla|Opera
+            action: CHALLENGE
+
+          dnsbl: false
+
+          status_codes:
+            CHALLENGE: 200
+            DENY: 200
+        '';
+      };
+    };
+
     my.http.vhosts."prom.dolphin-emu.org".cfg = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString promPort}";
@@ -168,7 +204,7 @@ in {
     };
     my.http.vhosts."mon.dolphin-emu.org".cfg = {
       locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString grafanaPort}";
+        proxyPass = "http://127.0.0.1:${toString grafanaAnubisPort}";
         extraConfig = "client_max_body_size 0;";
       };
 

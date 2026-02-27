@@ -148,6 +148,7 @@ in {
           http_port = grafanaPort;
           domain = "mon.dolphin-emu.org";
           root_url = "https://mon.dolphin-emu.org/";
+          enable_gzip = true;
         };
         database = {
           wal = true;

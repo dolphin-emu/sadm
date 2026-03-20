@@ -237,7 +237,6 @@ in {
         "https://forums.dolphin-emu.org"
         "https://fakenus.dolphin-emu.org"
         "https://ip.dolphin-emu.org"
-        "https://ovhproxy.dolphin-emu.org"
         "https://discord.dolphin-emu.org" # 302 found
 
         # altair services

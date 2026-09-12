@@ -59,16 +59,16 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1750364353,
-        "narHash": "sha256-l06DIwnB4JHwP1isUUXk85F+AHQkUSUyAWnAmRxXICg=",
-        "owner": "cargo2nix",
+        "lastModified": 1789190537,
+        "narHash": "sha256-MQHxVZoGWIVV3PJGPWUcL71AeyZ2YpZVkL+ovojwkkU=",
+        "owner": "dolphin-emu",
         "repo": "cargo2nix",
-        "rev": "a709c74619e1a2b68ed12bb398e12fbe29d69657",
+        "rev": "60406c3efae0af1e6f8e66899760b98df65447a9",
         "type": "github"
       },
       "original": {
-        "owner": "cargo2nix",
-        "ref": "main",
+        "owner": "dolphin-emu",
+        "ref": "release-0.12",
         "repo": "cargo2nix",
         "type": "github"
       }

@@ -37,7 +37,7 @@
   inputs.netplay-index.inputs.nixpkgs.follows = "nixpkgs";
   inputs.netplay-index.inputs.uv2nix.follows = "uv2nix";
 
-  inputs.cargo2nix.url = "github:cargo2nix/cargo2nix/main";
+  inputs.cargo2nix.url = "github:dolphin-emu/cargo2nix/release-0.12";
   inputs.cargo2nix.inputs.nixpkgs.follows = "nixpkgs";
 
   inputs.rust-overlay.url = "github:oxalica/rust-overlay";

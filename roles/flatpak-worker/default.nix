@@ -46,6 +46,7 @@ let
 
   flatpakEnvPackages = with pkgs; [
     bash
+    dbus
     flatpakScripts
     flatpak
     git
@@ -54,19 +55,25 @@ in {
   options.my.roles.flatpak-worker.enable = lib.mkEnableOption "Flatpak worker";
 
   config = lib.mkIf cfg.enable {
-    age.secrets."flatpak-worker-env-${config.networking.hostName}".file = ../../secrets/flatpak-worker-env-${config.networking.hostName}.age;
+    age.secrets."flatpak-worker-env-${config.networking.hostName}" = {
+      file = ../../secrets/flatpak-worker-env-${config.networking.hostName}.age;
+      owner = user;
+      inherit group;
+      mode = "0400";
+    };
 
     systemd.tmpfiles.rules = [
       "d '${homeDir}' 0750 ${user} ${group} - -"
     ];
 
-    systemd.services.flatpak-worker = {
+    systemd.user.services.flatpak-worker = {
       description = "Flatpak Buildbot Worker";
-      after = [ "network.target" "systemd-logind.service" ];
-      wantedBy = [ "multi-user.target" ];
+      unitConfig.ConditionUser = user;
+      wantedBy = [ "default.target" ];
       path = flatpakEnvPackages;
 
       environment = {
+        HOME = homeDir;
         BUILDBOT_HOST = "buildbot.dolphin-emu.org";
         WORKER_NAME = "${config.networking.hostName}-flatpak";
 
@@ -80,22 +87,18 @@ in {
 
         flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-        flatpak install --user -y --noninteractive --or-update flathub org.flatpak.Builder  
-        flatpak override --user --filesystem=home org.flatpak.Builder      
+        flatpak install --user -y --noninteractive --or-update flathub org.flatpak.Builder
+        flatpak override --user --filesystem=home org.flatpak.Builder
       '';
 
       serviceConfig = {
         Type = "simple";
-        User = user;
-        Group = group;
         WorkingDirectory = homeDir;
         EnvironmentFile = config.age.secrets."flatpak-worker-env-${config.networking.hostName}".path;
         ExecStart = "${pkgs.python3Packages.twisted}/bin/twistd --nodaemon --pidfile= --logfile=- --python ${workerDir}/buildbot.tac";
         Restart = "always";
         RestartSec = 10;
         Nice = 10;
-        # We need to create a user session for this service.
-        PAMName = "login";
       };
     };
 
@@ -105,6 +108,7 @@ in {
       home = homeDir;
       useDefaultShell = true;
       packages = flatpakEnvPackages;
+      linger = true;
     };
     users.groups."${group}" = {};
   };

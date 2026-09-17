@@ -24,7 +24,7 @@ jobs:
         with:
           name: ${{ vars.CACHIX_CACHE_NAME }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          skipPush: ${{ github.ref != 'refs/heads/master' }}
+          skipPush: ${{ github.ref != 'refs/heads/actions-test' }}
 
       - name: Build altair.dolphin-emu.org
         run: nix run nixpkgs#colmena -- build --on altair.dolphin-emu.org
@@ -43,7 +43,7 @@ jobs:
         with:
           name: ${{ vars.CACHIX_CACHE_NAME }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          skipPush: ${{ github.ref != 'refs/heads/master' }}
+          skipPush: ${{ github.ref != 'refs/heads/actions-test' }}
 
       - name: Build deneb.dolphin-emu.org
         run: nix run nixpkgs#colmena -- build --on deneb.dolphin-emu.org

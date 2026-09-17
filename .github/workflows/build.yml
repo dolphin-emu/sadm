@@ -3,7 +3,7 @@ name: Build
 on:
   pull_request:
   push:
-    branches-ignore:
+    branches:
       - master
 
 permissions:
@@ -19,6 +19,19 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
 
+      - name: Configure Cachix (PRs)
+        if: github.ref != 'refs/heads/master'
+        uses: cachix/cachix-action@v17
+        with:
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+
+      - name: Configure Cachix (master)
+        if: github.ref == 'refs/heads/master'
+        uses: cachix/cachix-action@v17
+        with:
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
       - name: Build altair.dolphin-emu.org
         run: nix run nixpkgs#colmena -- build --on altair.dolphin-emu.org
 
@@ -30,6 +43,19 @@ jobs:
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
+
+      - name: Configure Cachix (PRs)
+        if: github.ref != 'refs/heads/master'
+        uses: cachix/cachix-action@v17
+        with:
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+
+      - name: Configure Cachix (master)
+        if: github.ref == 'refs/heads/master'
+        uses: cachix/cachix-action@v17
+        with:
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build deneb.dolphin-emu.org
         run: nix run nixpkgs#colmena -- build --on deneb.dolphin-emu.org

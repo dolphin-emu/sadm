@@ -1,6 +1,8 @@
 {
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
+  inputs.colmena.url = "github:nix-community/colmena";
+
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   inputs.agenix.url = "github:ryantm/agenix";
@@ -48,7 +50,9 @@
   inputs.discord-bot.inputs.cargo2nix.follows = "cargo2nix";
   inputs.discord-bot.inputs.rust-overlay.follows = "rust-overlay";
 
-  outputs = { self, nixpkgs, flake-utils, analytics-ingest, central, chat-bridge, fifoci, netplay-index, discord-bot, ... }@attrs: {
+  outputs = { self, nixpkgs, colmena, flake-utils, analytics-ingest, central, chat-bridge, fifoci, netplay-index, discord-bot, ... }@attrs: {
+    colmenaHive = colmena.lib.makeHive self.outputs.colmena;
+
     colmena = {
       meta.nixpkgs = import nixpkgs {
         system = "x86_64-linux";

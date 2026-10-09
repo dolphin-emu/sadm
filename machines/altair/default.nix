@@ -32,8 +32,9 @@ in {
   networking.firewall.logRefusedConnections = false;
 
   networking.hostName = "altair";
-  networking.domain = "dolphin-emu.org";
-  networking.search = [ "dolphin-emu.org" ];
+  networking.domain = null;
+  networking.fqdn = "altair.dolphin-emu.org";
+  networking.search = [];
 
   my.flatpak.enable = true;
 

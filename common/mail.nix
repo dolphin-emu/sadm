@@ -10,7 +10,7 @@
     enable = true;
     remotesFile = config.age.secrets.infra-smtp-relay.path;
     config = {
-      me = "${config.networking.hostName}.${config.networking.domain}";
+      me = "${config.networking.fqdn}";
       adminaddr = "root@dolphin-emu.org";
     };
   };

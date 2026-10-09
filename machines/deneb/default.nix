@@ -27,8 +27,9 @@ in {
   networking.firewall.logRefusedConnections = false;
 
   networking.hostName = "deneb";
-  networking.domain = "dolphin-emu.org";
-  networking.search = [ "dolphin-emu.org" ];
+  networking.domain = null;
+  networking.fqdn = "deneb.dolphin-emu.org";
+  networking.search = [];
 
   # Helpful administration tools.
   environment.systemPackages = with pkgs; [

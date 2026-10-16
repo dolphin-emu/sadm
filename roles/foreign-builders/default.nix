@@ -2,35 +2,59 @@
 
 let
   cfg = config.my.roles.foreign-builders;
-
-  containerBuilders = [
-    {
-      builderName = "debian";
-      containerImage = "debian";
-    }
-    {
-      builderName = "steamrt";
-      containerImage = "steamrt";
-    }
-    {
-      builderName = "ubuntu-lts";
-      containerImage = "ubuntu-lts";
-    }
-    {
-      builderName = "android";
-      containerImage = "ubuntu-lts";
-    }
-  ];
+  enabledContainers = lib.filterAttrs (_: container: container.enable) cfg.containers;
 in {
-  options.my.roles.foreign-builders.enable =
-    lib.mkEnableOption "Guest builders for foreign operating systems";
+  options.my.roles.foreign-builders = {
+    enable = lib.mkEnableOption "Guest builders for foreign operating systems";
 
-  imports = let
-    containers = map
-      (builder: import ./container.nix builder)
-      containerBuilders;
-  in (
-    containers
-  );
+    containers = lib.mkOption {
+      description = "Foreign builder containers to run on this host";
+      default = {};
+      type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
+        options = {
+          enable = lib.mkEnableOption "the ${name} builder container" // {
+            default = true;
+          };
 
+          image = lib.mkOption {
+            description = "Builder image name in the Dolphin OCI registry";
+            type = lib.types.str;
+            default = name;
+          };
+        };
+      }));
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
+    age.secrets.container-builder-env.file = ../../secrets/container-builder-env.age;
+    age.secrets.oci-registry-password.file = ../../secrets/oci-registry-password.age;
+
+    virtualisation.oci-containers.backend = "docker";
+
+    virtualisation.oci-containers.containers = lib.mapAttrs' (name: container:
+      lib.nameValuePair "${name}-builder" {
+        login = {
+          registry = "oci-registry.dolphin-emu.org";
+          username = "infra";
+          passwordFile = config.age.secrets.oci-registry-password.path;
+        };
+
+        image = "oci-registry.dolphin-emu.org/${container.image}-builder:latest";
+
+        environment = {
+          BUILDBOT_HOST = "buildbot.dolphin-emu.org";
+          WORKER_NAME = name;
+        };
+        environmentFiles = [
+          config.age.secrets.container-builder-env.path
+        ];
+
+        extraOptions = [
+          "--device=/dev/kvm"
+          "--cpus=4"
+          "--shm-size=256m"
+        ];
+      }) enabledContainers;
+  };
 }

@@ -52,7 +52,15 @@ in {
     fifoci-worker.enable = true;
     flat-manager.enable = true;
     flatpak-worker.enable = true;
-    foreign-builders.enable = true;
+    foreign-builders = {
+      enable = true;
+      containers = {
+        debian = {};
+        steamrt = {};
+        ubuntu-lts = {};
+        android.image = "ubuntu-lts";
+      };
+    };
     mastodon.enable = true;
     monitoring.enable = true;
     nas-client.enable = true;

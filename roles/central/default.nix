@@ -99,6 +99,7 @@ let
         "pr-freebsd-x64"
         "pr-flatpak-x64"
         "pr-flatpak-arm64"
+        "pr-appimage-x64"
         "lint"
       ];
 

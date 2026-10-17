@@ -59,6 +59,9 @@ in {
         steamrt = {};
         ubuntu-lts = {};
         android.image = "ubuntu-lts";
+        appimage = {
+          workerName = "altair-appimage";
+        };
       };
     };
     mastodon.enable = true;

@@ -3,6 +3,14 @@
 let
   cfg = config.my.roles.foreign-builders;
   enabledContainers = lib.filterAttrs (_: container: container.enable) cfg.containers;
+  workerPasswordSecretName = container: "container-${container.workerName}-env";
+  workerPasswordSecrets = lib.mapAttrs' (_: container:
+    let
+      secretName = workerPasswordSecretName container;
+    in
+      lib.nameValuePair secretName {
+        file = ../../secrets + "/${secretName}.age";
+      }) enabledContainers;
 in {
   options.my.roles.foreign-builders = {
     enable = lib.mkEnableOption "Guest builders for foreign operating systems";
@@ -33,8 +41,9 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    age.secrets.container-builder-env.file = ../../secrets/container-builder-env.age;
-    age.secrets.oci-registry-password.file = ../../secrets/oci-registry-password.age;
+    age.secrets = workerPasswordSecrets // {
+      oci-registry-password.file = ../../secrets/oci-registry-password.age;
+    };
 
     virtualisation.oci-containers.backend = "docker";
 
@@ -53,7 +62,7 @@ in {
           WORKER_NAME = container.workerName;
         };
         environmentFiles = [
-          config.age.secrets.container-builder-env.path
+          config.age.secrets.${workerPasswordSecretName container}.path
         ];
 
         extraOptions = [

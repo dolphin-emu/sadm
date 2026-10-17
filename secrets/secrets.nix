@@ -42,6 +42,7 @@ let
     "container-android-env.age"
     "container-builder-env.age"
     "container-debian-env.age"
+    "container-deneb-appimage-env.age"
     "container-steamrt-env.age"
     "container-ubuntu-lts-env.age"
     "discord-bot-env.age"

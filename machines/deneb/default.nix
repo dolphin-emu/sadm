@@ -40,6 +40,13 @@ in {
 
   my.roles = {
     flatpak-worker.enable = true;
+    foreign-builders = {
+      enable = true;
+      containers.appimage = {
+        image = "appimage-builder-arm64";
+        workerName = "deneb-appimage";
+      };
+    };
   };
 
   my.http.vhosts."deneb.dolphin-emu.org".redirect = "https://github.com/dolphin-emu/sadm";

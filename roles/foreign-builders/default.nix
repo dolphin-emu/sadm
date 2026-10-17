@@ -17,9 +17,9 @@ in {
           };
 
           image = lib.mkOption {
-            description = "Builder image name in the Dolphin OCI registry";
+            description = "Image name in the Dolphin OCI registry";
             type = lib.types.str;
-            default = name;
+            default = "${name}-builder";
           };
 
           workerName = lib.mkOption {
@@ -46,7 +46,7 @@ in {
           passwordFile = config.age.secrets.oci-registry-password.path;
         };
 
-        image = "oci-registry.dolphin-emu.org/${container.image}-builder:latest";
+        image = "oci-registry.dolphin-emu.org/${container.image}:latest";
 
         environment = {
           BUILDBOT_HOST = "buildbot.dolphin-emu.org";

@@ -58,7 +58,7 @@ in {
         debian = {};
         steamrt = {};
         ubuntu-lts = {};
-        android.image = "ubuntu-lts";
+        android.image = "ubuntu-lts-builder";
         appimage = {
           workerName = "altair-appimage";
         };

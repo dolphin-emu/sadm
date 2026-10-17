@@ -21,6 +21,12 @@ in {
             type = lib.types.str;
             default = name;
           };
+
+          workerName = lib.mkOption {
+            description = "Buildbot worker name used by the builder container";
+            type = lib.types.str;
+            default = name;
+          };
         };
       }));
     };
@@ -44,7 +50,7 @@ in {
 
         environment = {
           BUILDBOT_HOST = "buildbot.dolphin-emu.org";
-          WORKER_NAME = name;
+          WORKER_NAME = container.workerName;
         };
         environmentFiles = [
           config.age.secrets.container-builder-env.path

@@ -35,6 +35,12 @@ in {
             type = lib.types.str;
             default = name;
           };
+
+          extraOptions = lib.mkOption {
+            description = "Additional options passed to the container runtime";
+            type = lib.types.listOf lib.types.str;
+            default = [];
+          };
         };
       }));
     };
@@ -69,7 +75,7 @@ in {
           "--device=/dev/kvm"
           "--cpus=4"
           "--shm-size=256m"
-        ];
+        ] ++ container.extraOptions;
       }) enabledContainers;
   };
 }

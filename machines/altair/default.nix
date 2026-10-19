@@ -60,6 +60,7 @@ in {
         ubuntu-lts = {};
         android = {
           image = "ubuntu-lts-builder";
+          extraOptions = [ "--device=/dev/kvm" ];
         };
         appimage = {
           workerName = "altair-appimage";

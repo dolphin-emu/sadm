@@ -3,6 +3,7 @@
         "external-gitmodule-url-found",
         "appstream-remote-icon-not-mirrored",
         "appstream-external-screenshot-url",
-        "appstream-flathub-manifest-url-not-reachable"
+        "appstream-flathub-manifest-url-not-reachable",
+        "appstream-flathub-manifest-key-not-allowed"
     ]
 }

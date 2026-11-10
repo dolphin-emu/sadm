@@ -10,6 +10,7 @@ in {
   ];
 
   services.openssh.enable = true;
+  services.openssh.settings.PasswordAuthentication = false;
   services.openssh.settings.PermitRootLogin = "prohibit-password";
   users.users.root.openssh.authorizedKeys.keys = [
     # degasus

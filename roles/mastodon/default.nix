@@ -14,17 +14,6 @@ in {
     services.mastodon = {
       enable = true;
 
-      package = pkgs.mastodon.overrideAttrs (oldAttrs: {
-        version = "4.6.10";
-
-        src = pkgs.fetchFromGitHub {
-          owner = "mastodon";
-          repo = "mastodon";
-          rev = "v4.6.10";
-          hash = "sha256-cwPiF9OKJg0rcoGO89YYXEqqjZl7kS81hFbhs0WxzTs=";
-        };
-      });
-
       localDomain = "dolphin-emu.org";
 
       smtp.fromAddress = "social@dolphin-emu.org";

@@ -23,7 +23,7 @@ jobs:
         if: github.ref != 'refs/heads/master'
         uses: cachix/cachix-action@v17
         with:
-          name: ${{ vars.CACHIX_CACHE_NAME }}
+          name: dolphin-emu-sadm
 
       - name: Configure Cachix (master)
         if: github.ref == 'refs/heads/master'
@@ -48,7 +48,7 @@ jobs:
         if: github.ref != 'refs/heads/master'
         uses: cachix/cachix-action@v17
         with:
-          name: ${{ vars.CACHIX_CACHE_NAME }}
+          name: dolphin-emu-sadm
 
       - name: Configure Cachix (master)
         if: github.ref == 'refs/heads/master'

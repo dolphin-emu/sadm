@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIRECTORY_SIZE=$(du -sb .flatpak-builder | cut -f1)
-MAX_SIZE=10737418240 # 10GiB
+MAX_SIZE=5368709120 # 5GiB
 
 if [[ $DIRECTORY_SIZE -eq "" ]]; then
     echo "Failed to calculate cache size, bailing out"

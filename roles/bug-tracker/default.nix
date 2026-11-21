@@ -6,11 +6,17 @@ let
   anubisPort = 8045;
   anubisMetricsPort = 8046;
 
+  ruby = pkgs.mkRuby {
+    version = pkgs.mkRubyVersion "3" "4" "13" "";
+    hash = "sha256-0NO/PdjCJKPDt+zYFqDxssvPT4e1r8vb6R0/7xd/NRo=";
+    cargoHash = "sha256-5Tp8Kth0yO89/LIcU8K01z6DdZRr8MAA0DPKqDEjIt0=";
+  };
+
   # redmine_webhook requires an extra Ruby dependency which is not provided in
   # the default environment for the Redmine package.
   patchedRubyEnv = pkgs.bundlerEnv {
     name = "redmine-with-extra-deps-env-${pkgs.redmine.version}";
-    ruby = pkgs.ruby;
+    inherit ruby;
     gemdir = ./extra-deps;
     gemfile = ./extra-deps/Gemfile.combined;
     lockfile = ./extra-deps/Gemfile.combined.lock;
@@ -49,7 +55,7 @@ let
       };
     };
   };
-  redmine-with-extra-deps = pkgs.redmine.overrideAttrs (final: prev: {
+  redmine-with-extra-deps = (pkgs.redmine.override { ruby_3_4 = ruby; }).overrideAttrs (final: prev: {
     buildInputs = [
       patchedRubyEnv
       patchedRubyEnv.wrappedRuby
